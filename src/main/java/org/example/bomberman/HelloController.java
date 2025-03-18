@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
+import javafx.animation.PauseTransition;
 import java.io.IOException;
 
 public class HelloController {
@@ -23,6 +24,7 @@ public class HelloController {
 
     @FXML
     private Button startButton;
+
     @FXML
     private void switchToLoadingView(ActionEvent event) throws IOException {
         /**
@@ -48,6 +50,18 @@ public class HelloController {
             FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.8), root);
             fadeIn.setFromValue(0);
             fadeIn.setToValue(1);
+
+            /**
+             * Tong Duc Hong Anh.
+             * 17/3/2025.
+             */
+            fadeIn.setOnFinished(fadeEvent -> {
+                // Thêm thời gian chờ 2 giây trước khi chuyển sang màn map1
+                PauseTransition pause = new PauseTransition(Duration.seconds(2));
+                pause.setOnFinished(pauseEvent -> switchToMap1(stage)); // Chuyển sang map1
+                pause.play(); // Kích hoạt chờ
+            });
+
             fadeIn.play();
         });
 
@@ -56,10 +70,11 @@ public class HelloController {
         System.out.println("Switching to loading view...");
 
     }
+
     /**
      * by NGUYEN BA AN
      * 17/3/2025
-     * */
+     */
 
     /*@FXML
     private Label welcomeText;
@@ -74,4 +89,31 @@ public class HelloController {
     public void onWelcomeButtonClick() {
         welcomeLabel.setText("Happy International Women's Day!");
     }*/
+
+    // Hiệu ứng fade-in cho giao diện hiện tại
+
+
+    /**
+     * Tong Duc Hong Anh.
+     * 17/3/2025.
+     */
+    public void switchToMap1(Stage stage) {
+        try {
+            // Tải giao diện map1
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("map1.fxml"));
+            Parent map1Root = loader.load();
+
+            // Hiệu ứng chuyển cảnh cho giao diện map1
+            FadeTransition fadeInMap1 = new FadeTransition(Duration.seconds(0.8), map1Root);
+            fadeInMap1.setFromValue(0);
+            fadeInMap1.setToValue(1);
+
+            // Hiển thị giao diện map1
+            stage.setScene(new Scene(map1Root));
+            fadeInMap1.play(); // Bắt đầu hiệu ứng fade-in
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
 }
