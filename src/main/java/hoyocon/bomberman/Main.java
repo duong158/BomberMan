@@ -35,14 +35,14 @@ public class Main extends Application {
             double x = bomber.getX();
             double y = bomber.getY();
 
-            if (event.getCode() == KeyCode.UP) {
-                bomber.setY(y - 20); // Di chuyển lên
-            } else if (event.getCode() == KeyCode.DOWN) {
-                bomber.setY(y + 20); // Di chuyển xuống
-            } else if (event.getCode() == KeyCode.LEFT) {
-                bomber.setX(x - 20); // Di chuyển sang trái
-            } else if (event.getCode() == KeyCode.RIGHT) {
-                bomber.setX(x + 20); // Di chuyển sang phải
+            if (event.getCode() == KeyCode.W) {
+                bomber.setY(y - 100); // Di chuyển lên
+            } else if (event.getCode() == KeyCode.S) {
+                bomber.setY(y + 100); // Di chuyển xuống
+            } else if (event.getCode() == KeyCode.A) {
+                bomber.setX(x - 100); // Di chuyển sang trái
+            } else if (event.getCode() == KeyCode.D) {
+                bomber.setX(x + 100); // Di chuyển sang phải
             }
         });
 
