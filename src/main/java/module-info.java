@@ -8,5 +8,6 @@ module hoyocon.bomberman {
     requires java.desktop;
 
     opens hoyocon.bomberman to javafx.fxml;
+    opens hoyocon.bomberman.Object to javafx.fxml;
     exports hoyocon.bomberman;
 }

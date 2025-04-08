@@ -1,5 +1,6 @@
 package hoyocon.bomberman.Object;
 
+import hoyocon.bomberman.Main;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,4 +21,16 @@ public class StartController {
         stage.setScene(scene);
         stage.show();
     }
+
+    @FXML
+    private void onStartClicked(ActionEvent event) {
+        Scene gameScene = GameSceneBuilder.buildGameScene();
+        Main.mainStage.setScene(gameScene);
+        Main.mainStage.setTitle("Bomberman Game");
+
+        // GỌI focus sau khi gán scene cho Stage
+        gameScene.getRoot().requestFocus();
+    }
+
+
 }
