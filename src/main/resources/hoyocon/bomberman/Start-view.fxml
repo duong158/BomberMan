@@ -3,6 +3,7 @@
 <?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -53,6 +54,63 @@
          </stylesheets>
          <styleClass>
             <String fx:value="button-cartoon" />
+            <String fx:value="zoom-effect" />
+         </styleClass>
+      </Button>
+      <Label alignment="CENTER" layoutX="1094.0" layoutY="292.0" prefHeight="70.0" prefWidth="262.0" text="-HoyoCon-">
+         <font>
+            <Font name="System Bold Italic" size="48.0" />
+         </font>
+      </Label>
+      <Button alignment="CENTER" contentDisplay="CENTER" layoutX="1563.0" layoutY="837.0" mnemonicParsing="false" text="🔊" textFill="#fff9f9">
+         <font>
+            <Font size="24.0" />
+         </font>
+         <stylesheets>
+            <URL value="@style1.css" />
+            <URL value="@MusicButton.css" />
+         </stylesheets>
+         <styleClass>
+            <String fx:value="zoom-effect" />
+            <String fx:value="blue-icon-button" />
+         </styleClass>
+      </Button>
+      <Button fx:id="musicOnButton" alignment="CENTER" layoutX="1470.0" layoutY="837.0" mnemonicParsing="false" onAction="#handleMusicOff" prefHeight="38.0" prefWidth="66.0" text="🎵" textFill="#fff7f7">
+         <font>
+            <Font size="24.0" />
+         </font>
+         <stylesheets>
+            <URL value="@style1.css" />
+            <URL value="@MusicButton.css" />
+         </stylesheets>
+         <styleClass>
+            <String fx:value="zoom-effect" />
+            <String fx:value="blue-icon-button" />
+         </styleClass>
+      </Button>
+      <Button fx:id="musicOffButton" alignment="CENTER" contentDisplay="CENTER" layoutX="1470.0" layoutY="758.0" mnemonicParsing="false" onAction="#handleMusicOn" prefHeight="51.0" prefWidth="60.0" text="🎵⃠" textFill="#fffefe">
+         <font>
+            <Font size="24.0" />
+         </font>
+         <stylesheets>
+            <URL value="@MusicButton.css" />
+            <URL value="@style1.css" />
+         </stylesheets>
+         <styleClass>
+            <String fx:value="blue-icon-button" />
+            <String fx:value="zoom-effect" />
+         </styleClass>
+      </Button>
+      <Button layoutX="1563.0" layoutY="758.0" mnemonicParsing="false" text="🔇" textFill="#fffbfb">
+         <font>
+            <Font size="24.0" />
+         </font>
+         <stylesheets>
+            <URL value="@style1.css" />
+            <URL value="@MusicButton.css" />
+         </stylesheets>
+         <styleClass>
+            <String fx:value="blue-icon-button" />
             <String fx:value="zoom-effect" />
          </styleClass>
       </Button>

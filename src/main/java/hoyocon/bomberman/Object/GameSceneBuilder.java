@@ -1,10 +1,13 @@
 package hoyocon.bomberman.Object;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 
 public class GameSceneBuilder {
     public static Scene buildGameScene() {
@@ -47,8 +50,18 @@ public class GameSceneBuilder {
                 bomber.setX(x - speed);
             } else if (event.getCode() == KeyCode.D && x + speed + bomber.getWidth() <= screenWidth) {
                 bomber.setX(x + speed);
+            } else if (event.getCode() == KeyCode.ESCAPE) {
+                try {
+                    Parent menuRoot = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/Menu-view.fxml"));
+                    Scene menuScene = new Scene(menuRoot, screenWidth, screenHeight);
+                    Stage stage = (Stage) scene.getWindow();
+                    stage.setScene(menuScene);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
+
 
         return scene;
     }
