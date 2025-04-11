@@ -1,5 +1,5 @@
 package hoyocon.bomberman.EntitiesState;
 
 public enum State {
-    IDLE, MOVING, DEAD
+    IDLE, UP, DOWN, LEFT, RIGHT, DEAD
 }
