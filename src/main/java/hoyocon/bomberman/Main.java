@@ -3,10 +3,6 @@ package hoyocon.bomberman;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.application.Application;
-import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import java.io.IOException;
