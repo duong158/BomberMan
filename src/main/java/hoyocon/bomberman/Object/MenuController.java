@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.nio.file.*;
@@ -19,6 +20,19 @@ public class MenuController {
     private void onExitClicked(ActionEvent event) {
         Platform.exit();
     }
+
+    @FXML
+    private void onNewGameClicked(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.setScene(GameSceneBuilder.buildNewGameScene());
+    }
+
+    @FXML
+    private void onContinueClicked(ActionEvent event) {
+        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        stage.setScene(GameSceneBuilder.buildContinueScene());
+    }
+
 
     /**
      * Save Score game.

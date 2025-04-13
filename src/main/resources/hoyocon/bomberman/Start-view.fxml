@@ -34,19 +34,6 @@
             <String fx:value="button-cartoon" />
          </styleClass>
       </Button>
-      <Button layoutX="895.0" layoutY="615.0" mnemonicParsing="false" onAction="#onMenuClicked" text="MENU">
-         <font>
-            <Font size="36.0" />
-         </font>
-         <styleClass>
-            <String fx:value="zoom-effect" />
-            <String fx:value="button-cartoon" />
-         </styleClass>
-         <stylesheets>
-            <URL value="@style1.css" />
-            <URL value="@Cartoon_UI.css" />
-         </stylesheets>
-      </Button>
       <Button layoutX="866.0" layoutY="518.0" mnemonicParsing="false" text="How To Play">
          <stylesheets>
             <URL value="@style1.css" />

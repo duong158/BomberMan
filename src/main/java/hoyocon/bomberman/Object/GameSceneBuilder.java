@@ -4,40 +4,52 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
+import javafx.scene.Cursor;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 public class GameSceneBuilder {
-    public static Scene buildGameScene() {
-        double screenWidth = 1920;
-        double screenHeight = 1080;
-        double speed = 20;
+    private static double savedX = 195;
+    private static double savedY = 70;
 
+    private static final double screenWidth = 1920;
+    private static final double screenHeight = 1080;
+    private static final double speed = 20;
+
+    public static Scene buildNewGameScene() {
+        // Reset về vị trí ban đầu
+        savedX = 195;
+        savedY = 70;
+        return buildGameScene(savedX, savedY);
+    }
+
+    public static Scene buildContinueScene() {
+        return buildGameScene(savedX, savedY);
+    }
+
+    private static Scene buildGameScene(double startX, double startY) {
         Pane gamePane = new Pane();
         gamePane.setStyle("-fx-background-color: lightgray;");
 
-        // Tạo nhân vật (kích thước 40x40)
         Rectangle bomber = new Rectangle(40, 40);
         bomber.setFill(Color.BLUE);
 
-        // Đặt vị trí nhân vật ban đầu (nằm hẳn trong màn hình)
-        bomber.setX(195);
-        bomber.setY(70);
+        bomber.setX(startX);
+        bomber.setY(startY);
 
         gamePane.getChildren().add(bomber);
 
         Scene scene = new Scene(gamePane, screenWidth, screenHeight);
 
-        // Đặt focus cho scene để bắt đầu nhận phím
-        scene.setOnMouseClicked(e -> gamePane.requestFocus());
-        gamePane.setOnMouseClicked(e -> gamePane.requestFocus());
+        // ✅ Ẩn con trỏ chuột khi vào game
+        scene.setCursor(Cursor.NONE);
 
-        // Focus lần đầu
+        // Focus
+        gamePane.setOnMouseClicked(e -> gamePane.requestFocus());
         gamePane.requestFocus();
 
-        // Xử lý di chuyển bằng WASD và chặn ra ngoài màn hình
         gamePane.setOnKeyPressed(event -> {
             double x = bomber.getX();
             double y = bomber.getY();
@@ -51,9 +63,15 @@ public class GameSceneBuilder {
             } else if (event.getCode() == KeyCode.D && x + speed + bomber.getWidth() <= screenWidth) {
                 bomber.setX(x + speed);
             } else if (event.getCode() == KeyCode.ESCAPE) {
+                savedX = bomber.getX();
+                savedY = bomber.getY();
                 try {
                     Parent menuRoot = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/Menu-view.fxml"));
                     Scene menuScene = new Scene(menuRoot, screenWidth, screenHeight);
+
+                    // ✅ Hiện lại chuột khi quay về menu
+                    menuScene.setCursor(Cursor.DEFAULT);
+
                     Stage stage = (Stage) scene.getWindow();
                     stage.setScene(menuScene);
                 } catch (Exception e) {
@@ -61,7 +79,6 @@ public class GameSceneBuilder {
                 }
             }
         });
-
 
         return scene;
     }
