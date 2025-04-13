@@ -59,7 +59,8 @@ public class StartController {
 
     @FXML
     private void onStartClicked(ActionEvent event) {
-        Scene gameScene = GameSceneBuilder.buildGameScene();
+        cleanup();
+        Scene gameScene = GameSceneBuilder.buildNewGameScene();
         Main.mainStage.setScene(gameScene);
         Main.mainStage.setTitle("Bomberman Game");
         gameScene.getRoot().requestFocus();
