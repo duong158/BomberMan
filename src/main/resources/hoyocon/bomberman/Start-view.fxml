@@ -7,24 +7,28 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" stylesheets="@style1.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoyocon.bomberman.Object.StartController">
    <children>
+      <!-- Background Image -->
       <ImageView fitHeight="1080.0" fitWidth="1920.0" layoutY="2.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@b0cf517597fd9ae3948d3181b1db2736.jpg" />
          </image>
       </ImageView>
+
+      <!-- Logo -->
       <ImageView fitHeight="292.0" fitWidth="599.0" layoutX="682.0" layoutY="87.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@logo.png" />
          </image>
       </ImageView>
+
+      <!-- Start Button -->
       <Button layoutX="899.0" layoutY="420.0" mnemonicParsing="false" onAction="#onStartClicked" text="Start">
-         <font>
-            <Font size="36.0" />
-         </font>
+         <font><Font size="36.0" /></font>
          <stylesheets>
             <URL value="@style1.css" />
             <URL value="@Cartoon_UI.css" />
@@ -34,6 +38,8 @@
             <String fx:value="button-cartoon" />
          </styleClass>
       </Button>
+
+      <!-- How To Play Button -->
       <Button layoutX="866.0" layoutY="518.0" mnemonicParsing="false" text="How To Play">
          <stylesheets>
             <URL value="@style1.css" />
@@ -44,62 +50,62 @@
             <String fx:value="zoom-effect" />
          </styleClass>
       </Button>
+
+      <!-- Title Label -->
       <Label alignment="CENTER" layoutX="1094.0" layoutY="292.0" prefHeight="70.0" prefWidth="262.0" text="-HoyoCon-">
          <font>
             <Font name="System Bold Italic" size="48.0" />
          </font>
       </Label>
-      <Button alignment="CENTER" contentDisplay="CENTER" layoutX="1563.0" layoutY="837.0" mnemonicParsing="false" text="🔊" textFill="#fff9f9">
-         <font>
-            <Font size="24.0" />
-         </font>
-         <stylesheets>
-            <URL value="@style1.css" />
-            <URL value="@MusicButton.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="zoom-effect" />
-            <String fx:value="blue-icon-button" />
-         </styleClass>
-      </Button>
-      <Button fx:id="musicOnButton" alignment="CENTER" layoutX="1470.0" layoutY="837.0" mnemonicParsing="false" onAction="#handleMusicOff" prefHeight="38.0" prefWidth="66.0" text="🎵" textFill="#fff7f7">
-         <font>
-            <Font size="24.0" />
-         </font>
-         <stylesheets>
-            <URL value="@style1.css" />
-            <URL value="@MusicButton.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="zoom-effect" />
-            <String fx:value="blue-icon-button" />
-         </styleClass>
-      </Button>
-      <Button fx:id="musicOffButton" alignment="CENTER" contentDisplay="CENTER" layoutX="1470.0" layoutY="758.0" mnemonicParsing="false" onAction="#handleMusicOn" prefHeight="51.0" prefWidth="60.0" text="🎵⃠" textFill="#fffefe">
-         <font>
-            <Font size="24.0" />
-         </font>
-         <stylesheets>
-            <URL value="@MusicButton.css" />
-            <URL value="@style1.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="blue-icon-button" />
-            <String fx:value="zoom-effect" />
-         </styleClass>
-      </Button>
-      <Button layoutX="1563.0" layoutY="758.0" mnemonicParsing="false" text="🔇" textFill="#fffbfb">
-         <font>
-            <Font size="24.0" />
-         </font>
-         <stylesheets>
-            <URL value="@style1.css" />
-            <URL value="@MusicButton.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="blue-icon-button" />
-            <String fx:value="zoom-effect" />
-         </styleClass>
-      </Button>
+
+      <!-- Music Button Group -->
+      <StackPane layoutX="1470" layoutY="758">
+         <Button fx:id="musicOnButton" mnemonicParsing="false" onAction="#handleMusicOff" text="🎵">
+            <font><Font size="24" /></font>
+            <stylesheets>
+               <URL value="@style1.css" />
+               <URL value="@MusicButton.css" />
+               <URL value="@Cartoon_UI.css" />
+            </stylesheets>
+            <styleClass>
+               <String fx:value="blue-icon-button zoom-effect" />
+               <String fx:value="blue-icon-button" />
+               <String fx:value="zoom-effect" />
+            </styleClass>
+         </Button>
+         <Button fx:id="musicOffButton" mnemonicParsing="false" onAction="#handleMusicOn" styleClass="blue-icon-button zoom-effect" text="🎵⃠" visible="false">
+            <font><Font size="24" /></font>
+            <stylesheets>
+               <URL value="@style1.css" />
+               <URL value="@MusicButton.css" />
+               <URL value="@Cartoon_UI.css" />
+            </stylesheets>
+         </Button>
+      </StackPane>
+
+      <!-- SFX Button Group -->
+      <StackPane layoutX="1563" layoutY="758">
+         <Button fx:id="sfxOnButton" mnemonicParsing="false" onAction="#handleSfxOff" prefHeight="60.0" prefWidth="74.0" text="🔊">
+            <font><Font size="24" /></font>
+            <stylesheets>
+               <URL value="@style1.css" />
+               <URL value="@MusicButton.css" />
+               <URL value="@Cartoon_UI.css" />
+            </stylesheets>
+            <styleClass>
+               <String fx:value="blue-icon-button zoom-effect" />
+               <String fx:value="blue-icon-button" />
+               <String fx:value="zoom-effect" />
+            </styleClass>
+         </Button>
+         <Button fx:id="sfxOffButton" mnemonicParsing="false" onAction="#handleSfxOn" styleClass="blue-icon-button zoom-effect" text="🔇" visible="false">
+            <font><Font size="24" /></font>
+            <stylesheets>
+               <URL value="@style1.css" />
+               <URL value="@MusicButton.css" />
+               <URL value="@Cartoon_UI.css" />
+            </stylesheets>
+         </Button>
+      </StackPane>
    </children>
 </AnchorPane>
