@@ -4,7 +4,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.scene.Node;
 
 import java.io.*;
 import java.nio.file.*;
@@ -20,19 +22,6 @@ public class MenuController {
     private void onExitClicked(ActionEvent event) {
         Platform.exit();
     }
-
-    @FXML
-    private void onNewGameClicked(ActionEvent event) {
-        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        stage.setScene(GameSceneBuilder.buildNewGameScene());
-    }
-
-    @FXML
-    private void onContinueClicked(ActionEvent event) {
-        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-        stage.setScene(GameSceneBuilder.buildContinueScene());
-    }
-
 
     /**
      * Save Score game.
@@ -53,6 +42,16 @@ public class MenuController {
                         "🏆 Highest Score: " + highScore
         );
         alert.showAndWait();
+    }
+
+    @FXML
+    private void onStartClicked(ActionEvent event) {
+        // Tạo và hiển thị màn hình game
+        Scene gameScene = GameSceneBuilder.buildNewGameScene();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(gameScene);
+        stage.setTitle("Bomberman Game");
+        gameScene.getRoot().requestFocus(); // Đảm bảo focus cho game
     }
 
     private void saveScoreToFile(int score) {

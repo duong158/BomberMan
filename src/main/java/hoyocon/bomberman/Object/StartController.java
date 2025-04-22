@@ -16,56 +16,33 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class StartController {
-    @FXML
-    private Button sfxOnButton;
-
-    @FXML
-    private Button sfxOffButton;
 
     @FXML
     private Button musicOnButton;
-
     @FXML
     private Button musicOffButton;
 
     private MediaPlayer mediaPlayer;
     private boolean isMusicOn = true;
-    private boolean isSfxOn = true;
 
     @FXML
     private void initialize() {
+        // Khởi tạo MediaPlayer với nhạc nền từ đường dẫn mới
         try {
-            // Initialize background music
-            var musicResource = getClass().getResource("/assets/music/stage_theme.mp3");
-            if (musicResource != null) {
-                Media sound = new Media(musicResource.toURI().toString());
-                mediaPlayer = new MediaPlayer(sound);
-                mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-                mediaPlayer.setVolume(0.7);
-                mediaPlayer.play();
-            } else {
-                System.err.println("Music file not found!");
-                disableMusicButtons();
-            }
+            // Sử dụng đường dẫn tương đối trong thư mục resources
+            Media sound = new Media(getClass().getResource("/assets/music/background_music.mp3").toURI().toString());
+            mediaPlayer = new MediaPlayer(sound);
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Lặp lại vô hạn
+            mediaPlayer.setVolume(0.7); // Đặt volume mặc định 70%
+            mediaPlayer.play();
+
+            // Thiết lập trạng thái ban đầu của các nút
+            musicOffButton.setVisible(false);
         } catch (URISyntaxException e) {
-            System.err.println("Music loading error: " + e.getMessage());
-            disableMusicButtons();
+            System.err.println("Error loading background music: " + e.getMessage());
+        } catch (NullPointerException e) {
+            System.err.println("Music file not found at: /assets/music/background_music.mp3");
         }
-
-        updateButtonStates();
-    }
-
-    private void disableMusicButtons() {
-        musicOnButton.setDisable(true);
-        musicOffButton.setDisable(true);
-        isMusicOn = false;
-    }
-
-    private void updateButtonStates() {
-        musicOnButton.setVisible(isMusicOn);
-        musicOffButton.setVisible(!isMusicOn);
-        sfxOnButton.setVisible(isSfxOn);
-        sfxOffButton.setVisible(!isSfxOn);
     }
 
     @FXML
@@ -82,11 +59,7 @@ public class StartController {
 
     @FXML
     private void onStartClicked(ActionEvent event) {
-        if (mediaPlayer != null && !mediaPlayer.getStatus().equals(MediaPlayer.Status.PLAYING)) {
-            mediaPlayer.seek(mediaPlayer.getStartTime());
-            mediaPlayer.play();
-        }
-
+        cleanup();
         Scene gameScene = GameSceneBuilder.buildNewGameScene();
         Main.mainStage.setScene(gameScene);
         Main.mainStage.setTitle("Bomberman Game");
@@ -96,35 +69,24 @@ public class StartController {
     @FXML
     private void handleMusicOn() {
         if (mediaPlayer != null) {
-            mediaPlayer.play();
-            isMusicOn = true;
-            updateButtonStates();
+            mediaPlayer.pause();
         }
+        musicOnButton.setVisible(false);
+        musicOffButton.setVisible(true);
+        isMusicOn = false;
+        System.out.println("Music OFF");
     }
 
     @FXML
     private void handleMusicOff() {
         if (mediaPlayer != null) {
-            mediaPlayer.pause();
-            isMusicOn = false;
-            updateButtonStates();
+            mediaPlayer.play();
         }
+        musicOnButton.setVisible(true);
+        musicOffButton.setVisible(false);
+        isMusicOn = true;
+        System.out.println("Music ON");
     }
-
-    @FXML
-    private void handleSfxOn() {
-        isSfxOn = true;
-        updateButtonStates();
-        // Add SFX logic here
-    }
-
-    @FXML
-    private void handleSfxOff() {
-        isSfxOn = false;
-        updateButtonStates();
-        // Add SFX logic here
-    }
-
     public void cleanup() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
@@ -132,3 +94,4 @@ public class StartController {
         }
     }
 }
+// Thêm phương thức để clean up MediaPlayer khi không cần thiết

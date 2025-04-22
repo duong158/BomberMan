@@ -14,7 +14,7 @@
             <Image url="@b0cf517597fd9ae3948d3181b1db2736.jpg" />
          </image>
       </ImageView>
-      <Button layoutX="885.0" layoutY="290.0" mnemonicParsing="false" onAction="#onContinueClicked" text="Continue">
+      <Button layoutX="885.0" layoutY="290.0" mnemonicParsing="false" text="Continue">
          <stylesheets>
             <URL value="@style1.css" />
             <URL value="@Cartoon_UI.css" />
@@ -41,7 +41,7 @@
             <String fx:value="button-cartoon" />
             <String fx:value="zoom-effect" />
          </styleClass></Button>
-      <Button layoutX="875.0" layoutY="392.0" mnemonicParsing="false" onAction="#onNewGameClicked" text="New Game">
+      <Button layoutX="875.0" layoutY="392.0" mnemonicParsing="false" onAction="#onStartClicked" text="New Game">
          <stylesheets>
             <URL value="@Cartoon_UI.css" />
             <URL value="@style1.css" />
