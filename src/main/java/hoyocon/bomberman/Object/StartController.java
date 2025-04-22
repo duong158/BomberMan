@@ -10,12 +10,13 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class StartController {
 
     @FXML
     private void onMenuClicked(ActionEvent event) throws IOException {
-        Parent menuView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Menu-view.fxml"));
+        Parent menuView = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/hoyocon/bomberman/Menu-view.fxml")));
         Scene scene = new Scene(menuView, 1920, 1080);
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(scene);
