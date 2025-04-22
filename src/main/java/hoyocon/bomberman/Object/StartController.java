@@ -35,7 +35,7 @@ public class StartController {
         // Khởi tạo MediaPlayer với nhạc nền từ đường dẫn mới
         try {
             // Sử dụng đường dẫn tương đối trong thư mục resources
-            Media sound = new Media(getClass().getResource("/assets/music/background_music.mp3").toURI().toString());
+            Media sound = new Media(getClass().getResource("/assets/music/main_theme.mp3").toURI().toString());
             mediaPlayer = new MediaPlayer(sound);
             mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Lặp lại vô hạn
             mediaPlayer.setVolume(0.7); // Đặt volume mặc định 70%
