@@ -80,6 +80,10 @@
                 <configuration>
                     <source>23</source>
                     <target>23</target>
+                    <compilerArgs>
+                        <arg>--add-modules</arg>
+                        <arg>javafx.controls,javafx.fxml,javafx.media</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -98,6 +102,10 @@
                             <noManPages>true</noManPages>
                             <stripDebug>true</stripDebug>
                             <noHeaderFiles>true</noHeaderFiles>
+                            <options>
+                                <option>--add-modules</option>
+                                <option>javafx.controls,javafx.fxml,javafx.media</option>
+                            </options>
                         </configuration>
                     </execution>
                 </executions>

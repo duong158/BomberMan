@@ -41,7 +41,7 @@
             <String fx:value="button-cartoon" />
             <String fx:value="zoom-effect" />
          </styleClass></Button>
-      <Button layoutX="875.0" layoutY="392.0" mnemonicParsing="false" text="New Game">
+      <Button layoutX="875.0" layoutY="392.0" mnemonicParsing="false" onAction="#onStartClicked" text="New Game">
          <stylesheets>
             <URL value="@Cartoon_UI.css" />
             <URL value="@style1.css" />

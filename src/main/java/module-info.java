@@ -6,6 +6,7 @@ module hoyocon.bomberman {
     requires com.dlsc.formsfx;
     requires com.almasb.fxgl.all;
     requires java.desktop;
+    requires javafx.media;
 
     opens hoyocon.bomberman to javafx.fxml;
     opens hoyocon.bomberman.Object to javafx.fxml;
