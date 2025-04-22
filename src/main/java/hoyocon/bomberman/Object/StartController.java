@@ -18,12 +18,17 @@ import java.net.URISyntaxException;
 public class StartController {
 
     @FXML
+    private Button sfxOnButton;
+    @FXML
+    private Button sfxOffButton;
+    @FXML
     private Button musicOnButton;
     @FXML
     private Button musicOffButton;
 
     private MediaPlayer mediaPlayer;
     private boolean isMusicOn = true;
+    private boolean isSfxOn = true;
 
     @FXML
     private void initialize() {
@@ -87,6 +92,27 @@ public class StartController {
         isMusicOn = true;
         System.out.println("Music ON");
     }
+
+    private void updateButtonStates() {
+        musicOnButton.setVisible(isMusicOn);
+        musicOffButton.setVisible(!isMusicOn);
+        sfxOnButton.setVisible(isSfxOn);
+        sfxOffButton.setVisible(!isSfxOn);
+    }
+    @FXML
+    private void handleSfxOn() {
+        isSfxOn = true;
+        updateButtonStates();
+        // Add SFX logic here
+    }
+
+    @FXML
+    private void handleSfxOff() {
+        isSfxOn = false;
+        updateButtonStates();
+        // Add SFX logic here
+    }
+
     public void cleanup() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
