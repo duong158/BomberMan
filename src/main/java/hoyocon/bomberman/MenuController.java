@@ -1,4 +1,4 @@
-package hoyocon.bomberman.Object;
+package hoyocon.bomberman;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
