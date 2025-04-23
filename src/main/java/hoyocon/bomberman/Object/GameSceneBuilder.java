@@ -18,7 +18,13 @@ public class GameSceneBuilder {
 
     private static final double screenWidth = 1920;
     private static final double screenHeight = 1080;
-    private static final double speed = 20;
+    private static final double speed = 10;
+
+    // Thêm các biến theo dõi trạng thái phím
+    private static boolean isUpPressed = false;
+    private static boolean isDownPressed = false;
+    private static boolean isLeftPressed = false;
+    private static boolean isRightPressed = false;
 
     public static Scene buildNewGameScene() {
         // Reset về vị trí ban đầu
@@ -55,10 +61,31 @@ public class GameSceneBuilder {
         gamePane.setOnMouseClicked(e -> gamePane.requestFocus());
         gamePane.requestFocus();
 
-        // Game loop để cập nhật animation
+        // Chỉnh sửa AnimationTimer để xử lý di chuyển trong game loop
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
+                // Di chuyển dựa trên trạng thái phím
+                double x = playerEntity.getX();
+                double y = playerEntity.getY();
+                boolean moved = false;
+                
+                if (isUpPressed && y - speed >= 0) {
+                    playerComponent.moveUp(0.008);
+                    moved = true;
+                } if (isDownPressed && y + speed + 40 <= screenHeight) {
+                    playerComponent.moveDown(0.008);
+                    moved = true;
+                } if (isLeftPressed && x - speed >= 0) {
+                    playerComponent.moveLeft(0.008);
+                    moved = true;
+                } if (isRightPressed && x + speed + 40 <= screenWidth) {
+                    playerComponent.moveRight(0.008);
+                    moved = true;
+                } if(!moved){
+                    playerComponent.stop();
+                }
+                
                 // Gọi onUpdate để cập nhật animation
                 playerComponent.onUpdate(0.016);
             }
@@ -67,19 +94,15 @@ public class GameSceneBuilder {
 
         // Xử lý phím nhấn
         gamePane.setOnKeyPressed(event -> {
-            double x = playerEntity.getX();
-            double y = playerEntity.getY();
-
-            if (event.getCode() == KeyCode.W && y - speed >= 0) {
-                playerComponent.moveUp(0.016);
-            } else if (event.getCode() == KeyCode.S && y + speed + 40 <= screenHeight) {
-                playerComponent.moveDown(0.016);
-            } else if (event.getCode() == KeyCode.A && x - speed >= 0) {
-                playerComponent.moveLeft(0.016);
-            } else if (event.getCode() == KeyCode.D && x + speed + 40 <= screenWidth) {
-                playerComponent.moveRight(0.016);
+            if (event.getCode() == KeyCode.W) {
+                isUpPressed = true;
+            } else if (event.getCode() == KeyCode.S) {
+                isDownPressed = true;
+            } else if (event.getCode() == KeyCode.A) {
+                isLeftPressed = true;
+            } else if (event.getCode() == KeyCode.D) {
+                isRightPressed = true;
             } else if (event.getCode() == KeyCode.SPACE) {
-                // Đặt bom
                 playerComponent.placeBomb();
             } else if (event.getCode() == KeyCode.ESCAPE) {
                 // Lưu vị trí hiện tại
@@ -106,11 +129,18 @@ public class GameSceneBuilder {
         
         // Xử lý khi thả phím
         gamePane.setOnKeyReleased(event -> {
-            if (event.getCode() == KeyCode.W || 
-                event.getCode() == KeyCode.S || 
-                event.getCode() == KeyCode.A || 
-                event.getCode() == KeyCode.D) {
-                playerComponent.stop();  // Chuyển về trạng thái đứng yên
+            if (event.getCode() == KeyCode.W) {
+                isUpPressed = false;
+            } else if (event.getCode() == KeyCode.S) {
+                isDownPressed = false; 
+            } else if (event.getCode() == KeyCode.A) {
+                isLeftPressed = false;
+            } else if (event.getCode() == KeyCode.D) {
+                isRightPressed = false;
+            }
+            
+            if (!isUpPressed && !isDownPressed && !isLeftPressed && !isRightPressed) {
+                playerComponent.stop();
             }
         });
 
