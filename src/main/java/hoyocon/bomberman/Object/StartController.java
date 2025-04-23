@@ -74,23 +74,19 @@ public class StartController {
     @FXML
     private void handleMusicOn() {
         if (mediaPlayer != null) {
-            mediaPlayer.pause();
+            mediaPlayer.play();
+            isMusicOn = true;
+            updateButtonStates();
         }
-        musicOnButton.setVisible(false);
-        musicOffButton.setVisible(true);
-        isMusicOn = false;
-        System.out.println("Music OFF");
     }
 
     @FXML
     private void handleMusicOff() {
         if (mediaPlayer != null) {
-            mediaPlayer.play();
+            mediaPlayer.pause();
+            isMusicOn = false;
+            updateButtonStates();
         }
-        musicOnButton.setVisible(true);
-        musicOffButton.setVisible(false);
-        isMusicOn = true;
-        System.out.println("Music ON");
     }
 
     private void updateButtonStates() {

@@ -53,7 +53,7 @@ public class Player extends Component {
         walkdown = new AnimationChannel(downImage, 3, 45, 45, Duration.seconds(0.5), 0, 2);
         walkleft = new AnimationChannel(leftImage, 3, 45, 45, Duration.seconds(0.5), 0, 2);
         walkright = new AnimationChannel(rightImage, 3, 45, 45, Duration.seconds(0.5), 0, 2);
-        idledown = new AnimationChannel(idleImage, 1, 45, 45, Duration.seconds(1), 0, 0);
+        idledown = new AnimationChannel(idleImage, 3, 45, 45, Duration.seconds(1), 0, 0);
         
         texture = new AnimatedTexture(idledown);
     }
@@ -71,26 +71,26 @@ public class Player extends Component {
     private void updateAnimation() {
         if (state == State.IDLE) {
             if (texture.getAnimationChannel() != idledown) {
-                texture.loopAnimationChannel(idledown);
+                texture.loopNoOverride(idledown);
             }
         } else if (state == State.UP) {
             if (texture.getAnimationChannel() != walkup) {
-                texture.loopAnimationChannel(walkup);
+                texture.loopNoOverride(walkup);
             }
             lastAni = State.UP;
         } else if (state == State.DOWN) {
             if (texture.getAnimationChannel() != walkdown) {
-                texture.loopAnimationChannel(walkdown);
+                texture.loopNoOverride(walkdown);
             }
             lastAni = State.DOWN;
         } else if (state == State.LEFT) {
             if (texture.getAnimationChannel() != walkleft) {
-                texture.loopAnimationChannel(walkleft);
+                texture.loopNoOverride(walkleft);
             }
             lastAni = State.LEFT;
         } else if (state == State.RIGHT) {
             if (texture.getAnimationChannel() != walkright) {
-                texture.loopAnimationChannel(walkright);
+                texture.loopNoOverride(walkright);
             }
             lastAni = State.RIGHT;
         }
