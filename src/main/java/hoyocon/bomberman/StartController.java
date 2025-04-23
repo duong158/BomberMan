@@ -1,6 +1,5 @@
-package hoyocon.bomberman.Object;
+package hoyocon.bomberman;
 
-import hoyocon.bomberman.Main;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

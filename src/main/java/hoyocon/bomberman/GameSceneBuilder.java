@@ -1,6 +1,6 @@
-package hoyocon.bomberman.Object;
+package hoyocon.bomberman;
 
-import hoyocon.bomberman.EntitiesState.State;
+import hoyocon.bomberman.Object.Player;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

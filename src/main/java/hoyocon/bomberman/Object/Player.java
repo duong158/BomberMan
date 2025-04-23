@@ -39,7 +39,7 @@ public class Player extends Component {
         this.maxBombs = 1;
         this.canPlaceBomb = true;
         this.state = State.IDLE;
-        this.lastAni = State.DOWN;
+        this.lastAni = State.IDLE;
         
         // Khởi tạo các animation
         Image upImage = new Image(getClass().getResourceAsStream("/assets/textures/player_up.png"));
