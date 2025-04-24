@@ -80,6 +80,11 @@
                <URL value="@MusicButton.css" />
                <URL value="@Cartoon_UI.css" />
             </stylesheets>
+            <styleClass>
+               <String fx:value="blue-icon-button zoom-effect" />
+               <String fx:value="blue-icon-button" />
+               <String fx:value="zoom-effect" />
+            </styleClass>
          </Button>
       </StackPane>
 
@@ -105,6 +110,11 @@
                <URL value="@MusicButton.css" />
                <URL value="@Cartoon_UI.css" />
             </stylesheets>
+            <styleClass>
+               <String fx:value="blue-icon-button zoom-effect" />
+               <String fx:value="blue-icon-button" />
+               <String fx:value="zoom-effect" />
+            </styleClass>
          </Button>
       </StackPane>
    </children>

@@ -1,10 +1,7 @@
 package hoyocon.bomberman.Object;
 
-import com.almasb.fxgl.scene3d.ImageSkybox;
-
-import java.awt.*;
-
-public class Slime extends Component {
-    private int x,y;
-    Image image;
+public class Slime extends Enemy {
+    public Slime() {
+        super(0, 0, 80, "enemy2.png");
+    }
 }

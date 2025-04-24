@@ -14,7 +14,7 @@
             <Image url="@b0cf517597fd9ae3948d3181b1db2736.jpg" />
          </image>
       </ImageView>
-      <Button layoutX="885.0" layoutY="290.0" mnemonicParsing="false" text="Continue">
+      <Button layoutX="885.0" layoutY="290.0" mnemonicParsing="false" onAction="#onContinueClicked" text="Continue">
          <stylesheets>
             <URL value="@style1.css" />
             <URL value="@Cartoon_UI.css" />
