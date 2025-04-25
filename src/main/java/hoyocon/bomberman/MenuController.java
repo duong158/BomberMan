@@ -1,4 +1,4 @@
-package hoyocon.bomberman.Object;
+package hoyocon.bomberman;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,6 +14,17 @@ import java.util.*;
 
 public class MenuController {
     private static final String SCORE_FILE = "scores.txt";
+
+
+    @FXML
+    private void onContinueClicked(ActionEvent event) {
+        // Chuyển sang màn chơi và tiếp tục từ vị trí đã lưu
+        Scene gameScene = GameSceneBuilder.buildContinueScene();
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(gameScene);
+        stage.setTitle("Bomberman Game - Continue");
+        gameScene.getRoot().requestFocus();
+    }
 
     /**
      * Exit game.
