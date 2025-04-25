@@ -1,6 +1,9 @@
 package hoyocon.bomberman;
 
+import com.almasb.fxgl.entity.Entity;
 import hoyocon.bomberman.EntitiesState.State;
+import hoyocon.bomberman.Map.Map1;
+import hoyocon.bomberman.Object.Player;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
@@ -17,6 +20,7 @@ import hoyocon.bomberman.Buff.Flame;
 import hoyocon.bomberman.Buff.Speed;
 import hoyocon.bomberman.Object.BuffEntity;
 import hoyocon.bomberman.Buff.BuffGeneric;
+import hoyocon.bomberman.Map.Map;
 
 public class GameSceneBuilder {
     private static double savedX = 195;
