@@ -3,6 +3,7 @@ package hoyocon.bomberman.Object;
 import hoyocon.bomberman.EntitiesState.State;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.geometry.Bounds;
 
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.AnimatedTexture;
@@ -41,6 +42,10 @@ public class Player extends Component {
     private boolean unlimitedBomb = false;
     private int flameRange = 1;
     private double baseSpeed = 750;
+
+    public Bounds getBounds() {
+        return entity.getViewComponent().getParent().getBoundsInParent();
+    }
 
     // Buff timers
     private Map<String, Long> activeBuffs = new HashMap<>();

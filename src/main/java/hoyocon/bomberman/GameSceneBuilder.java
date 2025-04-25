@@ -9,6 +9,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.Cursor;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import java.util.ArrayList;
+import java.util.List;
+
+import hoyocon.bomberman.Buff.Bomb;
+import hoyocon.bomberman.Buff.Flame;
+import hoyocon.bomberman.Buff.Speed;
+import hoyocon.bomberman.Object.BuffEntity;
+import hoyocon.bomberman.Buff.BuffGeneric;
 
 import com.almasb.fxgl.entity.Entity;
 
@@ -26,6 +34,35 @@ public class GameSceneBuilder {
     private static boolean isLeftPressed = false;
     private static boolean isRightPressed = false;
 
+    // Quản lí buff.
+    private static List<BuffEntity> buffEntities = new ArrayList<>();
+
+    private static void addBuffToMap(Pane gamePane, BuffGeneric buff, double x, double y) {
+        BuffEntity buffEntity = new BuffEntity(buff, x, y);
+        buffEntities.add(buffEntity); // Lưu buff vào danh sách
+        gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
+    }
+
+    private static void checkPlayerBuffCollision(Player player, Pane gamePane) {
+        List<BuffEntity> collectedBuffs = new ArrayList<>();
+
+        for (BuffEntity buffEntity : buffEntities) {
+            if (player.getBounds().intersects(buffEntity.getImageView().getBoundsInParent())) {
+                // Áp dụng buff cho người chơi
+                buffEntity.getBuff().apply(player);
+
+                // Thêm vào danh sách các buff đã thu thập
+                collectedBuffs.add(buffEntity);
+
+                // Xóa hình ảnh buff khỏi gamePane
+                gamePane.getChildren().remove(buffEntity.getImageView());
+            }
+        }
+
+        // Xóa các buff đã thu thập khỏi danh sách buffEntities
+        buffEntities.removeAll(collectedBuffs);
+    }
+
     public static Scene buildNewGameScene() {
         // Reset về vị trí ban đầu
         savedX = 195;
@@ -41,6 +78,9 @@ public class GameSceneBuilder {
         Pane gamePane = new Pane();
         gamePane.setStyle("-fx-background-color: lightgray;");
 
+        // Làm sạch danh sách buff
+        buffEntities.clear();
+
         // Tạo entity và thêm Player component
         Entity playerEntity = new Entity();
         Player playerComponent = new Player();
@@ -51,6 +91,11 @@ public class GameSceneBuilder {
         
         // Thêm playerEntity vào gamePane
         gamePane.getChildren().add(playerEntity.getViewComponent().getParent());
+
+        // Thêm các buff vào bản đồ
+        addBuffToMap(gamePane, new Bomb(), 300, 300); // Buff Bomb tại vị trí (300, 300)
+        addBuffToMap(gamePane, new Speed(), 500, 500); // Buff Speed tại vị trí (500, 500)
+        addBuffToMap(gamePane, new Flame(), 700, 700); // Buff Flame tại vị trí (700, 700)
 
         Scene scene = new Scene(gamePane, screenWidth, screenHeight);
 
@@ -88,6 +133,9 @@ public class GameSceneBuilder {
                 
                 // Gọi onUpdate để cập nhật animation
                 playerComponent.onUpdate(0.016);
+
+                // Kiểm tra va chạm giữa người chơi và buff
+                checkPlayerBuffCollision(playerComponent, gamePane);
             }
         };
         gameLoop.start();
