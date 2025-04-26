@@ -13,6 +13,7 @@ import javafx.util.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class Player extends Component {
     // Vị trí người chơi
     private int x, y;
@@ -41,7 +42,7 @@ public class Player extends Component {
     // Buff logic
     private boolean unlimitedBomb = false;
     private int flameRange = 1;
-    private double baseSpeed = 750;
+    private double baseSpeed = 200;
 
     public Bounds getBounds() {
         return entity.getViewComponent().getParent().getBoundsInParent();
@@ -60,14 +61,12 @@ public class Player extends Component {
         this.state = State.IDLE;
         this.lastAni = State.IDLE;
         
-        // Khởi tạo các animation
         Image upImage = new Image(getClass().getResourceAsStream("/assets/textures/player_up.png"));
         Image downImage = new Image(getClass().getResourceAsStream("/assets/textures/player_down.png"));
         Image leftImage = new Image(getClass().getResourceAsStream("/assets/textures/player_left.png"));
         Image rightImage = new Image(getClass().getResourceAsStream("/assets/textures/player_right.png"));
         Image idleImage = new Image(getClass().getResourceAsStream("/assets/textures/player_down.png"));
         
-        // Tạo các kênh animation (tham số: hình ảnh, số frame, chiều rộng, chiều cao, thời gian, frame bắt đầu, frame kết thúc)
         walkup = new AnimationChannel(upImage, 3, 45, 45, Duration.seconds(0.5), 0, 2);
         walkdown = new AnimationChannel(downImage, 3, 45, 45, Duration.seconds(0.5), 0, 2);
         walkleft = new AnimationChannel(leftImage, 3, 45, 45, Duration.seconds(0.5), 0, 2);
@@ -89,30 +88,19 @@ public class Player extends Component {
     }
     
     private void updateAnimation() {
-        if (state == State.IDLE) {
-            if (texture.getAnimationChannel() != idledown) {
-                texture.loopNoOverride(idledown);
-            }
-        } else if (state == State.UP) {
-            if (texture.getAnimationChannel() != walkup) {
+        switch (state) {
+            case UP:
                 texture.loopNoOverride(walkup);
-            }
-            lastAni = State.UP;
-        } else if (state == State.DOWN) {
-            if (texture.getAnimationChannel() != walkdown) {
-                texture.loopNoOverride(walkdown);
-            }
-            lastAni = State.DOWN;
-        } else if (state == State.LEFT) {
-            if (texture.getAnimationChannel() != walkleft) {
-                texture.loopNoOverride(walkleft);
-            }
-            lastAni = State.LEFT;
-        } else if (state == State.RIGHT) {
-            if (texture.getAnimationChannel() != walkright) {
+                break;
+            case RIGHT:
                 texture.loopNoOverride(walkright);
-            }
-            lastAni = State.RIGHT;
+                break;
+            case DOWN, IDLE:
+                texture.loopNoOverride(walkdown);
+                break;
+            case LEFT:
+                texture.loopNoOverride(walkleft);
+                break;
         }
     }
     private void updateBuffs() {

@@ -6,7 +6,7 @@ import com.almasb.fxgl.texture.AnimationChannel;
 import hoyocon.bomberman.EntitiesState.State;
 import javafx.util.Duration;
 
-import java.awt.*;
+import javafx.scene.image.Image;
 
 import static com.almasb.fxgl.dsl.FXGL.image;
 
@@ -25,14 +25,14 @@ public class Enemy extends Component {
         this.y = y;
         this.speed = speed;
         this.state = State.LEFT;
+        Image enemyimg = new Image(getClass().getResourceAsStream(assetName));
 
-        walkdown = new AnimationChannel(image(assetName), 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 3, 5);
-        walkright = new AnimationChannel(image(assetName), 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 6, 8);
-        walkup = new AnimationChannel(image(assetName), 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 6, 8);
-        walkleft = new AnimationChannel(image(assetName), 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 3, 5);
-        walkup    = walkdown;
+        walkdown = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 3, 5);
+        walkright = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 6, 8);
+        walkup = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 6, 8);
+        walkleft = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 3, 5);
 
-        dead = new AnimationChannel(image("enemy_die.png"), 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(1), 0, 2);
+        dead = new AnimationChannel(enemyimg, 6, FRAME_SIZE, FRAME_SIZE, Duration.seconds(2.4), 0, 5);
 
         texture = new AnimatedTexture(walkleft);
         texture.loop();
