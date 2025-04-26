@@ -19,7 +19,7 @@ import hoyocon.bomberman.Buff.Flame;
 import hoyocon.bomberman.Buff.Speed;
 import hoyocon.bomberman.Object.BuffEntity;
 import hoyocon.bomberman.Buff.BuffGeneric;
-import hoyocon.bomberman.Map.Map;
+import hoyocon.bomberman.Map.GMap;
 
 public class GameSceneBuilder {
     private static double savedX = 195;
@@ -44,26 +44,6 @@ public class GameSceneBuilder {
         gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
     }
 
-    private static void checkPlayerBuffCollision(Player player, Pane gamePane) {
-        List<BuffEntity> collectedBuffs = new ArrayList<>();
-
-        for (BuffEntity buffEntity : buffEntities) {
-            if (player.getBounds().intersects(buffEntity.getImageView().getBoundsInParent())) {
-                // Áp dụng buff cho người chơi
-                buffEntity.getBuff().apply(player);
-
-                // Thêm vào danh sách các buff đã thu thập
-                collectedBuffs.add(buffEntity);
-
-                // Xóa hình ảnh buff khỏi gamePane
-                gamePane.getChildren().remove(buffEntity.getImageView());
-            }
-        }
-
-        // Xóa các buff đã thu thập khỏi danh sách buffEntities
-        buffEntities.removeAll(collectedBuffs);
-    }
-
     public static Scene buildNewGameScene() {
         // Reset về vị trí ban đầu
         savedX = 195;
@@ -80,9 +60,9 @@ public class GameSceneBuilder {
         gamePane.setStyle("-fx-background-color: black;"); // Đổi màu nền
 
         // Tạo và hiển thị map trước khi tạo player
-        Map gameMap = new Map(Map1.getMapData());
-        gameMap.render();
-        gamePane.getChildren().add(gameMap.getCanvas());
+        GMap gameGMap = new GMap(Map1.getMapData());
+        gameGMap.render();
+        gamePane.getChildren().add(gameGMap.getCanvas());
 
         // Làm sạch danh sách buff
         buffEntities.clear();
@@ -92,10 +72,13 @@ public class GameSceneBuilder {
         Player playerComponent = new Player();
         playerEntity.addComponent(playerComponent);
         
+        // Set the game map for collision detection
+        playerComponent.setGameMap(gameGMap);
+        
         // Đặt vị trí ban đầu - điều chỉnh thành vị trí phù hợp trong map
         // Vị trí tile 1,1 (ô trống đầu tiên sau viền tường)
-        startX = Map.TILE_SIZE + 8;  // Điều chỉnh vị trí trong ô (48 + 8)
-        startY = Map.TILE_SIZE + 8;  // Điều chỉnh vị trí trong ô
+        startX = GMap.TILE_SIZE;  // Điều chỉnh vị trí trong ô (48 + 8)
+        startY = GMap.TILE_SIZE;  // Điều chỉnh vị trí trong ô
         playerEntity.setPosition(startX, startY);
         
         // Thêm playerEntity vào gamePane
@@ -115,56 +98,33 @@ public class GameSceneBuilder {
         gamePane.setOnMouseClicked(e -> gamePane.requestFocus());
         gamePane.requestFocus();
 
-        // Sửa đổi AnimationTimer để xử lý va chạm với map
+        // Sửa đổi AnimationTimer để sử dụng phương thức từ Player
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                double x = playerEntity.getX();
-                double y = playerEntity.getY();
-                double playerWidth = 48;
-                double playerHeight = 48;
                 boolean moved = false;
 
-                // Kiểm tra va chạm với map
                 if (isUpPressed) {
-                    int nextRow = Map.pixelToTile(y - speed);
-                    int currentCol = Map.pixelToTile(x + playerWidth/2);
-                    if (nextRow >= 0 && gameMap.isWalkable(nextRow, currentCol)) {
-                        playerComponent.moveUp(0.016);
-                        moved = true;
-                    }
+                    moved = playerComponent.moveUp(0.016);
                 }
                 else if (isDownPressed) {
-                    int nextRow = Map.pixelToTile(y + playerHeight + speed);
-                    int currentCol = Map.pixelToTile(x + playerWidth/2);
-                    if (nextRow < gameMap.height && gameMap.isWalkable(nextRow, currentCol)) {
-                        playerComponent.moveDown(0.016);
-                        moved = true;
-                    }
+                    moved = playerComponent.moveDown(0.016);
                 }
                 else if (isLeftPressed) {
-                    int currentRow = Map.pixelToTile(y + playerHeight/2);
-                    int nextCol = Map.pixelToTile(x - speed);
-                    if (nextCol >= 0 && gameMap.isWalkable(currentRow, nextCol)) {
-                        playerComponent.moveLeft(0.016);
-                        moved = true;
-                    }
+                    moved = playerComponent.moveLeft(0.016);
                 }
                 else if (isRightPressed) {
-                    int currentRow = Map.pixelToTile(y + playerHeight/2);
-                    int nextCol = Map.pixelToTile(x + playerWidth + speed);
-                    if (nextCol < gameMap.width && gameMap.isWalkable(currentRow, nextCol)) {
-                        playerComponent.moveRight(0.016);
-                        moved = true;
-                    }
+                    moved = playerComponent.moveRight(0.016);
                 }
+                
                 if(!moved){
                     playerComponent.stop();
                 }
 
-                playerComponent.onUpdate(0.016);
+                playerComponent.onUpdate(0.5);
 
-                checkPlayerBuffCollision(playerComponent, gamePane);
+                // Use player's method to check buff collisions
+                playerComponent.checkBuffCollision(buffEntities, gamePane);
             }
         };
         gameLoop.start();
