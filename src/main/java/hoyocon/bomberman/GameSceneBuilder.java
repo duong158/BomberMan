@@ -1,7 +1,6 @@
 package hoyocon.bomberman;
 
 import com.almasb.fxgl.entity.Entity;
-import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.Map.Map1;
 import hoyocon.bomberman.Object.Player;
 import javafx.animation.AnimationTimer;
@@ -102,10 +101,10 @@ public class GameSceneBuilder {
         // Thêm playerEntity vào gamePane
         gamePane.getChildren().add(playerEntity.getViewComponent().getParent());
 
-        // Thêm các buff vào bản đồ
-        addBuffToMap(gamePane, new Bomb(), 300, 300); // Buff Bomb tại vị trí (300, 300)
-        addBuffToMap(gamePane, new Speed(), 500, 500); // Buff Speed tại vị trí (500, 500)
-        addBuffToMap(gamePane, new Flame(), 700, 700); // Buff Flame tại vị trí (700, 700)
+        // Thêm các buff vào bản đồ (giữ nguyên code này)
+        addBuffToMap(gamePane, new Bomb(), 300, 300);
+        addBuffToMap(gamePane, new Speed(), 500, 500);
+        addBuffToMap(gamePane, new Flame(), 700, 700);
 
         Scene scene = new Scene(gamePane, screenWidth, screenHeight);
 
@@ -120,54 +119,51 @@ public class GameSceneBuilder {
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                // Di chuyển dựa trên trạng thái phím
                 double x = playerEntity.getX();
                 double y = playerEntity.getY();
-                double playerWidth = 40;  // Chiều rộng của player
-                double playerHeight = 40; // Chiều cao của player
+                double playerWidth = 48;
+                double playerHeight = 48;
                 boolean moved = false;
-                
+
                 // Kiểm tra va chạm với map
                 if (isUpPressed) {
                     int nextRow = Map.pixelToTile(y - speed);
                     int currentCol = Map.pixelToTile(x + playerWidth/2);
                     if (nextRow >= 0 && gameMap.isWalkable(nextRow, currentCol)) {
-                        playerComponent.moveUp(0.008);
+                        playerComponent.moveUp(0.016);
                         moved = true;
                     }
                 }
-                if (isDownPressed) {
+                else if (isDownPressed) {
                     int nextRow = Map.pixelToTile(y + playerHeight + speed);
                     int currentCol = Map.pixelToTile(x + playerWidth/2);
                     if (nextRow < gameMap.height && gameMap.isWalkable(nextRow, currentCol)) {
-                        playerComponent.moveDown(0.008);
+                        playerComponent.moveDown(0.016);
                         moved = true;
                     }
                 }
-                if (isLeftPressed) {
+                else if (isLeftPressed) {
                     int currentRow = Map.pixelToTile(y + playerHeight/2);
                     int nextCol = Map.pixelToTile(x - speed);
                     if (nextCol >= 0 && gameMap.isWalkable(currentRow, nextCol)) {
-                        playerComponent.moveLeft(0.008);
+                        playerComponent.moveLeft(0.016);
                         moved = true;
                     }
                 }
-                if (isRightPressed) {
+                else if (isRightPressed) {
                     int currentRow = Map.pixelToTile(y + playerHeight/2);
                     int nextCol = Map.pixelToTile(x + playerWidth + speed);
                     if (nextCol < gameMap.width && gameMap.isWalkable(currentRow, nextCol)) {
-                        playerComponent.moveRight(0.008);
+                        playerComponent.moveRight(0.016);
                         moved = true;
                     }
                 }
                 if(!moved){
                     playerComponent.stop();
                 }
-                
-                // Gọi onUpdate để cập nhật animation
+
                 playerComponent.onUpdate(0.016);
 
-                // Kiểm tra va chạm giữa người chơi và buff
                 checkPlayerBuffCollision(playerComponent, gamePane);
             }
         };
