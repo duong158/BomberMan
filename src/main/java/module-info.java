@@ -11,4 +11,5 @@ module hoyocon.bomberman {
     opens hoyocon.bomberman to javafx.fxml;
     opens hoyocon.bomberman.Object to javafx.fxml;
     exports hoyocon.bomberman;
+    opens hoyocon.bomberman.Object.EnemyGroup to javafx.fxml;
 }

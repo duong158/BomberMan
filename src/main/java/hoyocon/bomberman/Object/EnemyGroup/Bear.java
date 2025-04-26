@@ -1,4 +1,4 @@
-package hoyocon.bomberman.Object;
+package hoyocon.bomberman.Object.EnemyGroup;
 
 public class Bear extends Enemy {
 

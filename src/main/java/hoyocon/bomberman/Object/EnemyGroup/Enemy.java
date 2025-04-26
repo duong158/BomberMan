@@ -1,4 +1,4 @@
-package hoyocon.bomberman.Object;
+package hoyocon.bomberman.Object.EnemyGroup;
 
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.AnimatedTexture;

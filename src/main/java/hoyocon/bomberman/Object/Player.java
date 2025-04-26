@@ -1,18 +1,20 @@
 package hoyocon.bomberman.Object;
 
 import hoyocon.bomberman.EntitiesState.State;
+import hoyocon.bomberman.Map.GMap;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.geometry.Bounds;
+import javafx.scene.layout.Pane;
 
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.AnimatedTexture;
 import com.almasb.fxgl.texture.AnimationChannel;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
 
 public class Player extends Component {
     // Vị trí người chơi
@@ -24,6 +26,8 @@ public class Player extends Component {
     private int bombCount;
     private int maxBombs;
     private boolean canPlaceBomb;
+    private final int FRAMESIZE = 45;
+    private final int NUMFRAME = 3;
     
     // Trạng thái người chơi
     private State state;
@@ -42,7 +46,11 @@ public class Player extends Component {
     // Buff logic
     private boolean unlimitedBomb = false;
     private int flameRange = 1;
-    private double baseSpeed = 200;
+    private double baseSpeed = 100;
+
+    // Map collision reference
+    private GMap gameGMap;
+    private static final double DEFAULT_COLLISION_SPEED = 10;
 
     public Bounds getBounds() {
         return entity.getViewComponent().getParent().getBoundsInParent();
@@ -50,8 +58,57 @@ public class Player extends Component {
 
     // Buff timers
     private Map<String, Long> activeBuffs = new HashMap<>();
-    private static final long BUFF_DURATION = 10; // 10 seconds
+    private static final long BUFF_DURATION = 10 * 1000; // 10 seconds in milliseconds
     
+    // Hitbox constants
+    private static final int PLAYER_WIDTH = 48;
+    private static final int PLAYER_HEIGHT = 48;
+    private static final int HITBOX_MARGIN = 2; // Margin to make hitbox slightly smaller than sprite
+    
+    // Get hitbox with margins for better collision detection
+    private double[][] getHitboxPoints(double x, double y) {
+        // Create points for each corner of hitbox with margin
+        return new double[][] {
+            // Top-left
+            {x + HITBOX_MARGIN, y + HITBOX_MARGIN},
+            // Top-right
+            {x + PLAYER_WIDTH - HITBOX_MARGIN, y + HITBOX_MARGIN},
+            // Bottom-left
+            {x + HITBOX_MARGIN, y + PLAYER_HEIGHT - HITBOX_MARGIN},
+            // Bottom-right
+            {x + PLAYER_WIDTH - HITBOX_MARGIN, y + PLAYER_HEIGHT - HITBOX_MARGIN},
+            // Middle top
+            {x + PLAYER_WIDTH / 2, y + HITBOX_MARGIN},
+            // Middle bottom
+            {x + PLAYER_WIDTH / 2, y + PLAYER_HEIGHT - HITBOX_MARGIN},
+            // Middle left
+            {x + HITBOX_MARGIN, y + PLAYER_HEIGHT / 2},
+            // Middle right
+            {x + PLAYER_WIDTH - HITBOX_MARGIN, y + PLAYER_HEIGHT / 2}
+        };
+    }
+    
+    // Enhanced collision detection
+    private boolean canMoveTo(double newX, double newY) {
+        if (gameGMap == null) return true;
+        
+        // Check all points of player hitbox
+        double[][] hitboxPoints = getHitboxPoints(newX, newY);
+        
+        for (double[] point : hitboxPoints) {
+            int col = GMap.pixelToTile(point[0]);
+            int row = GMap.pixelToTile(point[1]);
+            
+            // If any point collides with a non-walkable tile, movement is blocked
+            if (row < 0 || row >= gameGMap.height || col < 0 || col >= gameGMap.width || !gameGMap.isWalkable(row, col)) {
+                return false;
+            }
+        }
+        
+        // If all points pass the check, movement is allowed
+        return true;
+    }
+
     public Player() {
         this.lives = 3;
         this.speed = baseSpeed;
@@ -67,13 +124,17 @@ public class Player extends Component {
         Image rightImage = new Image(getClass().getResourceAsStream("/assets/textures/player_right.png"));
         Image idleImage = new Image(getClass().getResourceAsStream("/assets/textures/player_down.png"));
         
-        walkup = new AnimationChannel(upImage, 3, 45, 45, Duration.seconds(0.5), 0, 2);
-        walkdown = new AnimationChannel(downImage, 3, 45, 45, Duration.seconds(0.5), 0, 2);
-        walkleft = new AnimationChannel(leftImage, 3, 45, 45, Duration.seconds(0.5), 0, 2);
-        walkright = new AnimationChannel(rightImage, 3, 45, 45, Duration.seconds(0.5), 0, 2);
-        idledown = new AnimationChannel(idleImage, 3, 45, 45, Duration.seconds(1), 0, 0);
+        walkup = new AnimationChannel(upImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
+        walkdown = new AnimationChannel(downImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
+        walkleft = new AnimationChannel(leftImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
+        walkright = new AnimationChannel(rightImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
+        idledown = new AnimationChannel(idleImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(1), 0, 0);
         
         texture = new AnimatedTexture(idledown);
+    }
+    
+    public void setGameMap(GMap GMap) {
+        this.gameGMap = GMap;
     }
     
     @Override
@@ -103,34 +164,146 @@ public class Player extends Component {
                 break;
         }
     }
+    
     private void updateBuffs() {
         long currentTime = System.currentTimeMillis();
         activeBuffs.entrySet().removeIf(entry -> currentTime - entry.getValue() > BUFF_DURATION);
     }
     
-    // Di chuyển
-    public void moveUp(double tpf) {
-        setState(State.UP);
-        entity.translateY(-speed * tpf);
+
+
+    // Movement với collision detection
+    public boolean moveUp(double tpf) {
+        // Tính toán vị trí mới
+        double newX = entity.getX();
+        double newY = entity.getY() - speed * tpf;
+
+        // Kiểm tra va chạm tại vị trí mới
+        if (canMoveTo(newX, newY)) {
+            setState(State.UP);
+            entity.translateY(-speed * tpf);
+            return true;
+        } else {
+            setState(State.UP);
+            // Tìm khoảng cách gần nhất có thể di chuyển được
+            double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 0, -1, speed * tpf);
+            if (safeDistance > 0) {
+                entity.translateY(-safeDistance);
+                return true;
+            }
+        }
+        return false;
     }
-    
-    public void moveDown(double tpf) {
-        setState(State.DOWN);
-        entity.translateY(speed * tpf);
+
+    public boolean moveDown(double tpf) {
+        // Tính toán vị trí mới
+        double newX = entity.getX();
+        double newY = entity.getY() + speed * tpf;
+
+        // Kiểm tra va chạm tại vị trí mới
+        if (canMoveTo(newX, newY)) {
+            setState(State.DOWN);
+            entity.translateY(speed * tpf);
+            return true;
+        } else {
+            setState(State.DOWN);
+            // Tìm khoảng cách gần nhất có thể di chuyển được
+            double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 0, 1, speed * tpf);
+            if (safeDistance > 0) {
+                entity.translateY(safeDistance);
+                return true;
+            }
+        }
+        return false;
     }
-    
-    public void moveLeft(double tpf) {
-        setState(State.LEFT);
-        entity.translateX(-speed * tpf);
+
+    public boolean moveLeft(double tpf) {
+        // Tính toán vị trí mới
+        double newX = entity.getX() - speed * tpf;
+        double newY = entity.getY();
+
+        // Kiểm tra va chạm tại vị trí mới
+        if (canMoveTo(newX, newY)) {
+            setState(State.LEFT);
+            entity.translateX(-speed * tpf);
+            return true;
+        } else {
+            setState(State.LEFT);
+            // Tìm khoảng cách gần nhất có thể di chuyển được
+            double safeDistance = findSafeDistance(entity.getX(), entity.getY(), -1, 0, speed * tpf);
+            if (safeDistance > 0) {
+                entity.translateX(-safeDistance);
+                return true;
+            }
+        }
+        return false;
     }
-    
-    public void moveRight(double tpf) {
-        setState(State.RIGHT);
-        entity.translateX(speed * tpf);
+
+    public boolean moveRight(double tpf) {
+        // Tính toán vị trí mới
+        double newX = entity.getX() + speed * tpf;
+        double newY = entity.getY();
+
+        // Kiểm tra va chạm tại vị trí mới
+        if (canMoveTo(newX, newY)) {
+            setState(State.RIGHT);
+            entity.translateX(speed * tpf);
+            return true;
+        } else {
+            setState(State.RIGHT);
+            // Tìm khoảng cách gần nhất có thể di chuyển được
+            double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 1, 0, speed * tpf);
+            if (safeDistance > 0) {
+                entity.translateX(safeDistance);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Phương thức tìm khoảng cách an toàn có thể di chuyển
+    private double findSafeDistance(double startX, double startY, int dirX, int dirY, double maxDistance) {
+        // Tìm khoảng cách an toàn lớn nhất có thể di chuyển
+        double safeDistance = 0;
+        double step = 1.0; // Bước nhỏ để tìm kiếm
+
+        for (double distance = step; distance <= maxDistance; distance += step) {
+            double newX = startX + dirX * distance;
+            double newY = startY + dirY * distance;
+
+            if (canMoveTo(newX, newY)) {
+                safeDistance = distance;
+            } else {
+                break;
+            }
+        }
+
+        return safeDistance;
     }
     
     public void stop() {
         setState(State.IDLE);
+    }
+    
+    // Buff collision handling
+    public void checkBuffCollision(List<BuffEntity> buffEntities, Pane gamePane) {
+        List<BuffEntity> collectedBuffs = new ArrayList<>();
+
+        for (BuffEntity buffEntity : buffEntities) {
+            if (this.getBounds().intersects(buffEntity.getImageView().getBoundsInParent())) {
+                // Apply buff to player
+                buffEntity.getBuff().apply(this);
+
+                // Add to list of collected buffs
+                collectedBuffs.add(buffEntity);
+
+                // Remove buff image from gamePane
+                gamePane.getChildren().remove(buffEntity.getImageView());
+            }
+        }
+
+        // Remove collected buffs from buffEntities list
+        buffEntities.removeAll(collectedBuffs);
     }
     
     // Đặt bom

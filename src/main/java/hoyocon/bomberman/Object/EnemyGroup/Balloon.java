@@ -1,14 +1,10 @@
-package hoyocon.bomberman.Object;
+package hoyocon.bomberman.Object.EnemyGroup;
 
 import com.almasb.fxgl.dsl.components.HealthIntComponent;
-import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.time.LocalTimer;
-import hoyocon.bomberman.EntitiesState.EntityType; // Assuming you might add this later
-import hoyocon.bomberman.EntitiesState.State;
 import javafx.util.Duration;
 import java.util.Random;
 import static com.almasb.fxgl.dsl.FXGL.newLocalTimer;
-import static com.almasb.fxgl.dsl.FXGL.getGameWorld;
 
 /**
  * Quái vật Balloon - di chuyển ngẫu nhiên với tốc độ chậm.
