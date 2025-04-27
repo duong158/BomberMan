@@ -30,7 +30,7 @@ public class Bomb extends Component {
     public void onAdded() {
         System.out.println("Bomb added to world");
         entity.getViewComponent().addChild(texture);
-        texture.play();
+        texture.loop();
 
         // Schedule explosion
         FXGL.runOnce(this::explode, Duration.seconds(3));

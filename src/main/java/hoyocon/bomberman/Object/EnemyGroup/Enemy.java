@@ -44,20 +44,41 @@ public class Enemy extends Component {
         entity.getViewComponent().addChild(texture);
     }
 
+    @Override
+    public void onUpdate(double tpf) {
+        // Make sure animations are looping properly
+        if (texture != null) {
+            texture.onUpdate(tpf);
+        }
+        // Add other update logic here
+    }
+
     public void moveLeft() {
-        texture.playAnimationChannel(walkleft);
+        state = State.LEFT;
+        if (texture != null) {
+            texture.playAnimationChannel(walkleft);
+        }
     }
 
     public void moveRight() {
-        texture.playAnimationChannel(walkright);
+        state = State.RIGHT;
+        if (texture != null) {
+            texture.playAnimationChannel(walkright);
+        }
     }
 
     public void moveUp() {
-        texture.playAnimationChannel(walkup);
+        state = State.UP;
+        if (texture != null) {
+            texture.playAnimationChannel(walkup);
+        }
     }
 
     public void moveDown() {
-        texture.playAnimationChannel(walkdown);
+        state = State.DOWN;
+        if (texture != null) {
+            texture.playAnimationChannel(walkdown);
+        }
     }
 
     public void die() {

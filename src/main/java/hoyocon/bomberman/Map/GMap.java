@@ -22,6 +22,7 @@ public class GMap {
     public static final int EMPTY = 0;
     public static final int WALL = 1;
     public static final int BRICK = 2;
+    public static final int BALLOON = 4; // Add Balloon enemy constant
 
     // Ảnh cho các tile
     private Image wallImage;
@@ -31,6 +32,9 @@ public class GMap {
     // Hitbox data for walls and bricks
     private boolean[][] wallHitbox;
     private boolean[][] brickHitbox;
+
+    // Additional array to track balloon positions
+    private boolean[][] balloonPositions;
 
     public GMap(int[][] mapData) {
         this.mapData = mapData;
@@ -42,6 +46,7 @@ public class GMap {
 
         wallHitbox = new boolean[height][width];
         brickHitbox = new boolean[height][width];
+        balloonPositions = new boolean[height][width];
 
         initializeHitboxes();
         loadImages();
@@ -54,14 +59,32 @@ public class GMap {
                     wallHitbox[row][col] = true;
                 } else if (mapData[row][col] == BRICK) {
                     brickHitbox[row][col] = true;
+                } else if (mapData[row][col] == BALLOON) {
+                    balloonPositions[row][col] = true;
+                    // The balloon position is walkable (will be drawn as empty)
+                    mapData[row][col] = EMPTY;
                 } else {
                     wallHitbox[row][col] = false;
                     brickHitbox[row][col] = false;
+                    balloonPositions[row][col] = false;
                 }
             }
         }
     }
 
+    // Method to get balloon spawn positions
+    public java.util.List<int[]> getBalloonPositions() {
+        java.util.List<int[]> positions = new java.util.ArrayList<>();
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (balloonPositions[row][col]) {
+                    positions.add(new int[]{row, col});
+                }
+            }
+        }
+        return positions;
+    }
+    
     private void loadImages() {
         // Tải các hình ảnh cho map
         wallImage = new Image(getClass().getResourceAsStream("/assets/textures/wall.png"));
