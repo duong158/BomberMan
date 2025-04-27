@@ -341,7 +341,7 @@ public class Player extends Component {
                         {0, 0}, {0, -tileSize}, {0, tileSize},
                         {-tileSize, 0}, {tileSize, 0}
                 };
-                String[] texPaths = {
+                String[] flameTexPaths = {
                         "/assets/textures/central_flame.png",
                         "/assets/textures/top_up_flame.png",
                         "/assets/textures/top_down_flame.png",
@@ -349,10 +349,10 @@ public class Player extends Component {
                         "/assets/textures/top_right_flame.png"
                 };
 
-                // Tạo hiệu ứng flame và đồng thời phá brick
                 for (int i = 0; i < dirs.length; i++) {
+                    // --- Flame effect (giữ nguyên của bạn) ---
                     Image img = new Image(
-                            getClass().getResourceAsStream(texPaths[i])
+                            getClass().getResourceAsStream(flameTexPaths[i])
                     );
                     AnimationChannel chan = new AnimationChannel(
                             img, 3, 48, 48, Duration.seconds(1), 0, 2
@@ -391,20 +391,50 @@ public class Player extends Component {
                     int row = GMap.pixelToTile(fy);
 
                     if (gameGMap.isBrickHitbox(row, col)) {
-                        // Xóa brick khỏi map và canvas
-                        gameGMap.removeBrick(row, col);
+                        // Load sprite sheet 3 frame
+                        Image breakSheet = new Image(
+                                getClass().getResourceAsStream("/assets/textures/brick_break.png")
+                        );
+                        AnimationChannel breakChan = new AnimationChannel(
+                                breakSheet, 3, (int)tileSize, (int)tileSize,
+                                Duration.seconds(0.8), 0, 2
+                        );
+                        AnimatedTexture breakTex = new AnimatedTexture(breakChan);
+                        breakTex.play();
 
-                        // Lấy buff ẩn (nếu có) và thêm vào scene
-                        BuffGeneric hidden = gameGMap.getHiddenBuff(row, col);
-                        if (hidden != null) {
-                            GameSceneBuilder.addBuffToMap(
-                                    gamePane,
-                                    hidden,
-                                    col * tileSize,
-                                    row * tileSize
-                            );
-                            gameGMap.clearHiddenBuff(row, col);
-                        }
+                        Pane breakPane = new Pane(breakTex);
+                        breakPane.setPrefSize(tileSize, tileSize);
+                        breakPane.setLayoutX(col * tileSize);
+                        breakPane.setLayoutY(row * tileSize);
+                        gamePane.getChildren().add(breakPane);
+
+                        // Tạo loop để chạy texture
+                        AnimationTimer breakLoop = new AnimationTimer() {
+                            @Override
+                            public void handle(long now) {
+                                breakTex.onUpdate(1.0 / 60.0);
+                            }
+                        };
+                        breakLoop.start();
+
+                        // Sau 0.3s dừng loop, xóa pane, xóa brick và reveal buff
+                        PauseTransition pb = new PauseTransition(Duration.seconds(0.8));
+                        pb.setOnFinished(ev3 -> {
+                            breakLoop.stop();
+                            gamePane.getChildren().remove(breakPane);
+
+                            gameGMap.removeBrick(row, col);
+
+                            BuffGeneric hidden = gameGMap.getHiddenBuff(row, col);
+                            if (hidden != null) {
+                                GameSceneBuilder.addBuffToMap(
+                                        gamePane, hidden,
+                                        col * tileSize, row * tileSize
+                                );
+                                gameGMap.clearHiddenBuff(row, col);
+                            }
+                        });
+                        pb.play();
                     }
                 }
             });
@@ -414,6 +444,7 @@ public class Player extends Component {
         }
         return false;
     }
+
 
 
 
