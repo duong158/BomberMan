@@ -74,8 +74,6 @@ public class Balloon extends Enemy {
             lastDirectionChangeTime = currentTime;
         }
 
-        // Kiểm tra va chạm với biên màn hình
-        checkBoundaryCollisions();
     }
 
     /**
@@ -163,35 +161,8 @@ public class Balloon extends Enemy {
         lastDirectionChangeTime = System.currentTimeMillis();
     }
 
-    /**
-     * Kiểm tra và xử lý va chạm với biên màn hình.
-     */
-    private void checkBoundaryCollisions() {
-        // Lấy vị trí hiện tại của balloon
-        double x = entity.getX();
-        double y = entity.getY();
 
-        // Kiểm tra va chạm với biên trái
-        if (x < 0) {
-            x = 0;
-        }
-        // Kiểm tra va chạm với biên phải
-        else if (x > SCREEN_WIDTH - 48) { // 48 là kích thước của balloon
-            x = SCREEN_WIDTH - 48;
-        }
 
-        // Kiểm tra va chạm với biên trên
-        if (y < 0) {
-            y = 0;
-        }
-        // Kiểm tra va chạm với biên dưới
-        else if (y > SCREEN_HEIGHT - 48) { // 48 là kích thước của balloon
-            y = SCREEN_HEIGHT - 48;
-        }
-
-        // Cập nhật vị trí của balloon
-        entity.setPosition(x, y);
-    }
 
     /**
      * Xử lý khi Balloon bị tiêu diệt.
