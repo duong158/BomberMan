@@ -11,6 +11,8 @@ import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.geometry.Bounds;
 import javafx.scene.layout.Pane;
+import hoyocon.bomberman.GameSceneBuilder;
+import hoyocon.bomberman.Buff.BuffGeneric;
 
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.AnimatedTexture;
@@ -292,18 +294,19 @@ public class Player extends Component {
             canPlaceBomb = false;
 
             double tileSize = GMap.TILE_SIZE;
-            double snappedX = Math.floor(getEntity().getX() / tileSize) * tileSize;
-            double snappedY = Math.floor(getEntity().getY() / tileSize) * tileSize;
+            double snappedX = Math.floor(entity.getX() / tileSize) * tileSize;
+            double snappedY = Math.floor(entity.getY() / tileSize) * tileSize;
 
-            // Tạo và hiển thị quả bom
+            // Tạo bom và thêm vào scene
             Bomb bombComponent = new Bomb(this);
             AnimatedTexture bombTexture = bombComponent.getTexture();
-            Pane bombPane = new Pane();
+            Pane bombPane = new Pane(bombTexture);
             bombPane.setPrefSize(tileSize, tileSize);
-            bombPane.getChildren().add(bombTexture);
             bombPane.setLayoutX(snappedX);
             bombPane.setLayoutY(snappedY);
             gamePane.getChildren().add(bombPane);
+
+            // Âm thanh đặt bom
             AudioClip placeSound = new AudioClip(
                     getClass().getResource("/assets/sounds/place_bomb.wav").toString()
             );
@@ -311,7 +314,7 @@ public class Player extends Component {
 
             bombTexture.loop();
 
-            // Animation loop cho quả bom
+            // Đợi 2s để nổ
             PauseTransition delay = new PauseTransition(Duration.seconds(2));
             AnimationTimer bombAnimLoop = new AnimationTimer() {
                 @Override
@@ -327,19 +330,16 @@ public class Player extends Component {
                 gamePane.getChildren().remove(bombPane);
                 this.bombExploded();
 
-                // Phát âm thanh nổ
+                // Âm thanh nổ
                 AudioClip boom = new AudioClip(
                         getClass().getResource("/assets/sounds/explosion.wav").toString()
                 );
                 boom.play();
 
-                // Tạo hiệu ứng nổ (flame)
+                // Dữ liệu hướng nổ và texture
                 double[][] dirs = {
-                        {0, 0},
-                        {0, -tileSize},
-                        {0, tileSize},
-                        {-tileSize, 0},
-                        {tileSize, 0}
+                        {0, 0}, {0, -tileSize}, {0, tileSize},
+                        {-tileSize, 0}, {tileSize, 0}
                 };
                 String[] texPaths = {
                         "/assets/textures/central_flame.png",
@@ -349,6 +349,7 @@ public class Player extends Component {
                         "/assets/textures/top_right_flame.png"
                 };
 
+                // Tạo hiệu ứng flame và đồng thời phá brick
                 for (int i = 0; i < dirs.length; i++) {
                     Image img = new Image(
                             getClass().getResourceAsStream(texPaths[i])
@@ -361,8 +362,12 @@ public class Player extends Component {
 
                     Pane flamePane = new Pane(flameTex);
                     flamePane.setPrefSize(tileSize, tileSize);
-                    flamePane.setLayoutX(snappedX + dirs[i][0]);
-                    flamePane.setLayoutY(snappedY + dirs[i][1]);
+
+                    double fx = snappedX + dirs[i][0];
+                    double fy = snappedY + dirs[i][1];
+                    flamePane.setLayoutX(fx);
+                    flamePane.setLayoutY(fy);
+
                     gamePane.getChildren().add(flamePane);
 
                     AnimationTimer flameLoop = new AnimationTimer() {
@@ -373,20 +378,43 @@ public class Player extends Component {
                     };
                     flameLoop.start();
 
+                    // Xóa flame sau 1s
                     PauseTransition t = new PauseTransition(Duration.seconds(1));
                     t.setOnFinished(e2 -> {
                         flameLoop.stop();
                         gamePane.getChildren().remove(flamePane);
                     });
                     t.play();
+
+                    // —— PHÁ BRICK VÀ HIỆN BUFF ẨN ——
+                    int col = GMap.pixelToTile(fx);
+                    int row = GMap.pixelToTile(fy);
+
+                    if (gameGMap.isBrickHitbox(row, col)) {
+                        // Xóa brick khỏi map và canvas
+                        gameGMap.removeBrick(row, col);
+
+                        // Lấy buff ẩn (nếu có) và thêm vào scene
+                        BuffGeneric hidden = gameGMap.getHiddenBuff(row, col);
+                        if (hidden != null) {
+                            GameSceneBuilder.addBuffToMap(
+                                    gamePane,
+                                    hidden,
+                                    col * tileSize,
+                                    row * tileSize
+                            );
+                            gameGMap.clearHiddenBuff(row, col);
+                        }
+                    }
                 }
             });
-            delay.play();
 
+            delay.play();
             return true;
         }
         return false;
     }
+
 
 
     public void bombExploded() {

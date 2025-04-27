@@ -6,6 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="thêm gitignore">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/GameSceneBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/GameSceneBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/GMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/GMap.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/Player.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
