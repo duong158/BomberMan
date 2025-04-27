@@ -1,6 +1,9 @@
 package hoyocon.bomberman.Object.EnemyGroup;
 
+import com.almasb.fxgl.dsl.components.HealthIntComponent;
+import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.Map.GMap;
+import java.util.Random;
 
 /**
  * Quái vật Balloon - di chuyển ngẫu nhiên với tốc độ chậm.

@@ -1,8 +1,10 @@
 package hoyocon.bomberman;
 
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.Map.Map1;
+import hoyocon.bomberman.Object.Player;
 import hoyocon.bomberman.Object.EnemyGroup.Balloon;
 import hoyocon.bomberman.Object.EnemyGroup.Enemy;
 import hoyocon.bomberman.Object.EnemyGroup.Oneal;
@@ -30,6 +32,10 @@ import hoyocon.bomberman.Buff.Flame;
 import hoyocon.bomberman.Buff.Speed;
 import hoyocon.bomberman.Object.BuffEntity;
 import hoyocon.bomberman.Buff.BuffGeneric;
+import hoyocon.bomberman.Map.GMap;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameSceneBuilder {
     private static double savedX = 195;
@@ -50,7 +56,7 @@ public class GameSceneBuilder {
     
     // Thay thế các danh sách riêng biệt bằng một Map để quản lý tất cả các loại kẻ địch
     private static Map<Class<? extends Enemy>, List<Entity>> enemyEntities = new HashMap<>();
-    
+
     private static void addBuffToMap(Pane gamePane, BuffGeneric buff, double x, double y) {
         BuffEntity buffEntity = new BuffEntity(buff, x, y);
         buffEntities.add(buffEntity); // Lưu buff vào danh sách
@@ -58,7 +64,7 @@ public class GameSceneBuilder {
     }
     
     // Method chung để spawn bất kỳ loại kẻ địch nào
-    private static <T extends Enemy> void spawnEnemy(Pane gamePane, GMap gameGMap, int row, int col, 
+    private static <T extends Enemy> void spawnEnemy(Pane gamePane, GMap gameGMap, int row, int col,
             Class<T> enemyClass, EnemyFactory<T> factory) {
         try {
             double x = col * GMap.TILE_SIZE;
@@ -70,10 +76,10 @@ public class GameSceneBuilder {
             enemyComponent.setGameMap(gameGMap);
             enemyEntity.addComponent(enemyComponent);
             enemyEntity.setPosition(x, y);
-            
+
             // Thêm vào danh sách tương ứng
             enemyEntities.computeIfAbsent(enemyClass, k -> new ArrayList<>()).add(enemyEntity);
-            
+
             if (enemyEntity.getViewComponent() != null &&
                 enemyEntity.getViewComponent().getParent() != null) {
                 gamePane.getChildren().add(enemyEntity.getViewComponent().getParent());
@@ -86,13 +92,13 @@ public class GameSceneBuilder {
             e.printStackTrace();
         }
     }
-    
+
     // Interface functional để tạo kẻ địch
     @FunctionalInterface
     private interface EnemyFactory<T extends Enemy> {
         T create(int col, int row);
     }
-    
+
     public static Scene buildNewGameScene() {
         // Reset về vị trí ban đầu
         savedX = 195;
@@ -125,31 +131,32 @@ public class GameSceneBuilder {
         // Làm sạch danh sách buff và balloons
         buffEntities.clear();
         enemyEntities.clear();
-        
+
         try {
             // Spawn balloons
             List<int[]> balloonPositions = gameGMap.getBalloonPositions();
             System.out.println("Found " + balloonPositions.size() + " balloon positions in map");
+
             for (int[] position : balloonPositions) {
                 spawnEnemy(gamePane, gameGMap, position[0], position[1], Balloon.class, Balloon::new);
             }
-            
+
             // Spawn passes
             List<int[]> passPositions = gameGMap.getPassPositions();
             System.out.println("Found " + passPositions.size() + " pass positions in map");
             for (int[] position : passPositions) {
                 spawnEnemy(gamePane, gameGMap, position[0], position[1], Pass.class, Pass::new);
             }
-            
+
             // Spawn oneals (nếu có)
             List<int[]> onealPositions = gameGMap.getOnealPositions();
             System.out.println("Found " + onealPositions.size() + " oneal positions in map");
             for (int[] position : onealPositions) {
                 spawnEnemy(gamePane, gameGMap, position[0], position[1], Oneal.class, Oneal::new);
             }
-            
+
             // Có thể dễ dàng thêm các loại kẻ địch mới ở đây
-            
+
         } catch (Exception e) {
             System.err.println("Error setting up enemies: " + e.getMessage());
             e.printStackTrace();
@@ -226,15 +233,15 @@ public class GameSceneBuilder {
 
                 // Use player's method to check buff collisions
                 playerComponent.checkBuffCollision(buffEntities, gamePane);
-                
+
                 // Update tất cả các loại kẻ địch với một vòng lặp duy nhất
                 double deltaTime = 1.0 / 60.0;
-                
+
                 // Duyệt qua tất cả các loại kẻ địch
                 for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
                     Class<? extends Enemy> enemyClass = entry.getKey();
                     List<Entity> entities = entry.getValue();
-                    
+
                     for (Entity enemy : new ArrayList<>(entities)) {
                         if (enemy.getComponentOptional(enemyClass).isPresent()) {
                             Enemy enemyComponent = enemy.getComponent(enemyClass);
