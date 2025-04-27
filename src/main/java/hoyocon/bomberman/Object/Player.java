@@ -73,23 +73,14 @@ public class Player extends Component {
 
     // Get hitbox with margins for better collision detection
     private double[][] getHitboxPoints(double x, double y) {
-        // Create points for each corner of hitbox with margin
         return new double[][] {
-                // Top-left
                 {x + HITBOX_MARGIN, y + HITBOX_MARGIN},
-                // Top-right
                 {x + PLAYER_WIDTH - HITBOX_MARGIN, y + HITBOX_MARGIN},
-                // Bottom-left
                 {x + HITBOX_MARGIN, y + PLAYER_HEIGHT - HITBOX_MARGIN},
-                // Bottom-right
                 {x + PLAYER_WIDTH - HITBOX_MARGIN, y + PLAYER_HEIGHT - HITBOX_MARGIN},
-                // Middle top
                 {x + PLAYER_WIDTH / 2, y + HITBOX_MARGIN},
-                // Middle bottom
                 {x + PLAYER_WIDTH / 2, y + PLAYER_HEIGHT - HITBOX_MARGIN},
-                // Middle left
                 {x + HITBOX_MARGIN, y + PLAYER_HEIGHT / 2},
-                // Middle right
                 {x + PLAYER_WIDTH - HITBOX_MARGIN, y + PLAYER_HEIGHT / 2}
         };
     }
@@ -98,20 +89,16 @@ public class Player extends Component {
     private boolean canMoveTo(double newX, double newY) {
         if (gameGMap == null) return true;
 
-        // Check all points of player hitbox
         double[][] hitboxPoints = getHitboxPoints(newX, newY);
 
         for (double[] point : hitboxPoints) {
             int col = GMap.pixelToTile(point[0]);
             int row = GMap.pixelToTile(point[1]);
 
-            // If any point collides with a non-walkable tile, movement is blocked
             if (row < 0 || row >= gameGMap.height || col < 0 || col >= gameGMap.width || !gameGMap.isWalkable(row, col)) {
                 return false;
             }
         }
-
-        // If all points pass the check, movement is allowed
         return true;
     }
 
@@ -151,6 +138,7 @@ public class Player extends Component {
     @Override
     public void onUpdate(double tpf) {
         updateAnimation();
+        texture.onUpdate(tpf);
         updateBuffs();
     }
 
@@ -179,29 +167,22 @@ public class Player extends Component {
                 switch (entry.getKey()) {
                     case "unlimitedBomb" -> unlimitedBomb = false;
                     case "speed" -> speed = baseSpeed;
-                    // Nếu muốn reset flameRange về mặc định thì thêm ở đây
                 }
             }
             return expired;
         });
     }
 
-
-
-    // Movement với collision detection
     public boolean moveUp(double tpf) {
-        // Tính toán vị trí mới
         double newX = entity.getX();
         double newY = entity.getY() - speed * tpf;
 
-        // Kiểm tra va chạm tại vị trí mới
         if (canMoveTo(newX, newY)) {
             setState(State.UP);
             entity.translateY(-speed * tpf);
             return true;
         } else {
             setState(State.UP);
-            // Tìm khoảng cách gần nhất có thể di chuyển được
             double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 0, -1, speed * tpf);
             if (safeDistance > 0) {
                 entity.translateY(-safeDistance);
@@ -212,18 +193,15 @@ public class Player extends Component {
     }
 
     public boolean moveDown(double tpf) {
-        // Tính toán vị trí mới
         double newX = entity.getX();
         double newY = entity.getY() + speed * tpf;
 
-        // Kiểm tra va chạm tại vị trí mới
         if (canMoveTo(newX, newY)) {
             setState(State.DOWN);
             entity.translateY(speed * tpf);
             return true;
         } else {
             setState(State.DOWN);
-            // Tìm khoảng cách gần nhất có thể di chuyển được
             double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 0, 1, speed * tpf);
             if (safeDistance > 0) {
                 entity.translateY(safeDistance);
@@ -234,18 +212,15 @@ public class Player extends Component {
     }
 
     public boolean moveLeft(double tpf) {
-        // Tính toán vị trí mới
         double newX = entity.getX() - speed * tpf;
         double newY = entity.getY();
 
-        // Kiểm tra va chạm tại vị trí mới
         if (canMoveTo(newX, newY)) {
             setState(State.LEFT);
             entity.translateX(-speed * tpf);
             return true;
         } else {
             setState(State.LEFT);
-            // Tìm khoảng cách gần nhất có thể di chuyển được
             double safeDistance = findSafeDistance(entity.getX(), entity.getY(), -1, 0, speed * tpf);
             if (safeDistance > 0) {
                 entity.translateX(-safeDistance);
@@ -256,18 +231,15 @@ public class Player extends Component {
     }
 
     public boolean moveRight(double tpf) {
-        // Tính toán vị trí mới
         double newX = entity.getX() + speed * tpf;
         double newY = entity.getY();
 
-        // Kiểm tra va chạm tại vị trí mới
         if (canMoveTo(newX, newY)) {
             setState(State.RIGHT);
             entity.translateX(speed * tpf);
             return true;
         } else {
             setState(State.RIGHT);
-            // Tìm khoảng cách gần nhất có thể di chuyển được
             double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 1, 0, speed * tpf);
             if (safeDistance > 0) {
                 entity.translateX(safeDistance);
@@ -277,11 +249,9 @@ public class Player extends Component {
         return false;
     }
 
-    // Phương thức tìm khoảng cách an toàn có thể di chuyển
     private double findSafeDistance(double startX, double startY, int dirX, int dirY, double maxDistance) {
-        // Tìm khoảng cách an toàn lớn nhất có thể di chuyển
         double safeDistance = 0;
-        double step = 1.0; // Bước nhỏ để tìm kiếm
+        double step = 1.0;
 
         for (double distance = step; distance <= maxDistance; distance += step) {
             double newX = startX + dirX * distance;
@@ -301,29 +271,20 @@ public class Player extends Component {
         setState(State.IDLE);
     }
 
-    // Buff collision handling
     public void checkBuffCollision(List<BuffEntity> buffEntities, Pane gamePane) {
         List<BuffEntity> collectedBuffs = new ArrayList<>();
 
         for (BuffEntity buffEntity : buffEntities) {
             if (this.getBounds().intersects(buffEntity.getImageView().getBoundsInParent())) {
-                // Apply buff to player
                 buffEntity.getBuff().apply(this);
-
-                // Add to list of collected buffs
                 collectedBuffs.add(buffEntity);
-
-                // Remove buff image from gamePane
                 gamePane.getChildren().remove(buffEntity.getImageView());
             }
         }
 
-        // Remove collected buffs from buffEntities list
         buffEntities.removeAll(collectedBuffs);
     }
 
-
-    // Đặt bom
     public boolean placeBomb(Pane gamePane) {
         if ((bombCount < maxBombs || unlimitedBomb) && canPlaceBomb) {
             bombCount++;
@@ -333,7 +294,6 @@ public class Player extends Component {
             double snappedX = Math.floor(getEntity().getX() / tileSize) * tileSize;
             double snappedY = Math.floor(getEntity().getY() / tileSize) * tileSize;
 
-            // Tạo texture cho bom và thêm vào Pane
             Bomb bombComponent = new Bomb(this);
             AnimatedTexture bombTexture = bombComponent.getTexture();
             Pane bombPane = new Pane();
@@ -343,13 +303,10 @@ public class Player extends Component {
             bombPane.setLayoutY(snappedY);
             gamePane.getChildren().add(bombPane);
 
-            // Bắt đầu hoạt ảnh
             bombTexture.loop();
 
-            // Hẹn giờ nổ sau 2 giây
             PauseTransition delay = new PauseTransition(Duration.seconds(2));
             delay.setOnFinished(evt -> {
-                // Xóa bom khỏi gamePane và thông báo nổ
                 System.out.println("Bomb exploded!");
                 gamePane.getChildren().remove(bombPane);
                 this.bombExploded();
@@ -363,7 +320,6 @@ public class Player extends Component {
             };
             bombAnimLoop.start();
 
-            // khi bom nổ, dừng luôn timer:
             delay.setOnFinished(evt -> {
                 bombAnimLoop.stop();
                 gamePane.getChildren().remove(bombPane);
@@ -375,7 +331,6 @@ public class Player extends Component {
         return false;
     }
 
-    // Xử lý khi bom nổ
     public void bombExploded() {
         if (bombCount > 0) {
             bombCount--;
@@ -383,13 +338,11 @@ public class Player extends Component {
         canPlaceBomb = true;
     }
 
-    // Xử lý khi bị thương
     public boolean hit() {
         lives--;
         return lives <= 0;
     }
 
-    // Buff logic
     public void setUnlimitedBomb(boolean value) {
         unlimitedBomb = value;
         if (value) {
@@ -412,7 +365,6 @@ public class Player extends Component {
         activeBuffs.put("speed", System.currentTimeMillis());
     }
 
-    // Logic khi nhặt vật phẩm
     public void pickUpItem(String itemType) {
         switch (itemType) {
             case "speed":
@@ -429,8 +381,6 @@ public class Player extends Component {
         }
     }
 
-
-    // Getters và Setters
     public State getState() {
         return state;
     }

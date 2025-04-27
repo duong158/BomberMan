@@ -21,10 +21,10 @@ public class Balloon extends Enemy {
 
     // Replace FXGL timer with simple timestamp approach
     private long lastDirectionChangeTime;
-    
+
     // Add reference to game map
     private GMap gameMap;
-    
+
     /**
      * Khởi tạo Balloon mới tại vị trí x, y.
      */
@@ -43,7 +43,7 @@ public class Balloon extends Enemy {
         // Chọn hướng di chuyển ngẫu nhiên ban đầu
         changeDirection();
     }
-    
+
     /**
      * Set the game map reference for collision detection
      */
@@ -147,7 +147,7 @@ public class Balloon extends Enemy {
 
         // Kiểm tra va chạm với tường hoặc gạch
         return gameMap.checkCollisionWithWall(x, y, width, height) ||
-               gameMap.checkCollisionWithBrick(x, y, width, height);
+                gameMap.checkCollisionWithBrick(x, y, width, height);
     }
 
     /**
