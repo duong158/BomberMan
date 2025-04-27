@@ -22,7 +22,8 @@ public class GMap {
     public static final int EMPTY = 0;
     public static final int WALL = 1;
     public static final int BRICK = 2;
-    public static final int BALLOON = 4; // Add Balloon enemy constant
+    public static final int BALLOON = 5;
+    public static final int PASS = 6;
 
     // Ảnh cho các tile
     private Image wallImage;
@@ -61,7 +62,6 @@ public class GMap {
                     brickHitbox[row][col] = true;
                 } else if (mapData[row][col] == BALLOON) {
                     balloonPositions[row][col] = true;
-                    // The balloon position is walkable (will be drawn as empty)
                     mapData[row][col] = EMPTY;
                 } else {
                     wallHitbox[row][col] = false;
@@ -79,6 +79,19 @@ public class GMap {
             for (int col = 0; col < width; col++) {
                 if (balloonPositions[row][col]) {
                     positions.add(new int[]{row, col});
+                }
+            }
+        }
+        return positions;
+    }
+
+    public java.util.List<int[]> getPassPositions() {
+        java.util.List<int[]> positions = new java.util.ArrayList<>();
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (mapData[row][col] == PASS) {
+                    positions.add(new int[]{row, col});
+                    mapData[row][col] = EMPTY;
                 }
             }
         }
@@ -135,22 +148,21 @@ public class GMap {
         return (int) (pixel / TILE_SIZE);
     }
 
-    public boolean canMoveTo(double x, double y, double width, double height) {
-        // Kiểm tra 4 góc của player
-        int topLeftRow = pixelToTile(y);
-        int topLeftCol = pixelToTile(x);
-        int topRightRow = pixelToTile(y);
-        int topRightCol = pixelToTile(x + width - 1);
-        int bottomLeftRow = pixelToTile(y + height - 1);
-        int bottomLeftCol = pixelToTile(x);
-        int bottomRightRow = pixelToTile(y + height - 1);
-        int bottomRightCol = pixelToTile(x + width - 1);
-        
-        return isWalkable(topLeftRow, topLeftCol) &&
-               isWalkable(topRightRow, topRightCol) &&
-               isWalkable(bottomLeftRow, bottomLeftCol) &&
-               isWalkable(bottomRightRow, bottomRightCol);
-    }
+//    public boolean canMoveTo(double x, double y, double width, double height) {
+//        int topLeftRow = pixelToTile(y);
+//        int topLeftCol = pixelToTile(x);
+//        int topRightRow = pixelToTile(y);
+//        int topRightCol = pixelToTile(x + width - 1);
+//        int bottomLeftRow = pixelToTile(y + height - 1);
+//        int bottomLeftCol = pixelToTile(x);
+//        int bottomRightRow = pixelToTile(y + height - 1);
+//        int bottomRightCol = pixelToTile(x + width - 1);
+//
+//        return isWalkable(topLeftRow, topLeftCol) &&
+//               isWalkable(topRightRow, topRightCol) &&
+//               isWalkable(bottomLeftRow, bottomLeftCol) &&
+//               isWalkable(bottomRightRow, bottomRightCol);
+//    }
 
     public boolean isWallHitbox(int row, int col) {
         return row >= 0 && row < height && col >= 0 && col < width && wallHitbox[row][col];
