@@ -15,6 +15,7 @@ import javafx.scene.layout.Pane;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.AnimatedTexture;
 import com.almasb.fxgl.texture.AnimationChannel;
+import javafx.scene.media.AudioClip;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -294,6 +295,7 @@ public class Player extends Component {
             double snappedX = Math.floor(getEntity().getX() / tileSize) * tileSize;
             double snappedY = Math.floor(getEntity().getY() / tileSize) * tileSize;
 
+            // Tạo và hiển thị quả bom
             Bomb bombComponent = new Bomb(this);
             AnimatedTexture bombTexture = bombComponent.getTexture();
             Pane bombPane = new Pane();
@@ -302,34 +304,90 @@ public class Player extends Component {
             bombPane.setLayoutX(snappedX);
             bombPane.setLayoutY(snappedY);
             gamePane.getChildren().add(bombPane);
+            AudioClip placeSound = new AudioClip(
+                    getClass().getResource("/assets/sounds/place_bomb.wav").toString()
+            );
+            placeSound.play();
 
             bombTexture.loop();
 
+            // Animation loop cho quả bom
             PauseTransition delay = new PauseTransition(Duration.seconds(2));
-            delay.setOnFinished(evt -> {
-                System.out.println("Bomb exploded!");
-                gamePane.getChildren().remove(bombPane);
-                this.bombExploded();
-            });
-            delay.play();
             AnimationTimer bombAnimLoop = new AnimationTimer() {
                 @Override
                 public void handle(long now) {
-                    bombTexture.onUpdate(1.0/60.0);
+                    bombTexture.onUpdate(1.0 / 60.0);
                 }
             };
             bombAnimLoop.start();
 
             delay.setOnFinished(evt -> {
+                // Dừng và xóa bom
                 bombAnimLoop.stop();
                 gamePane.getChildren().remove(bombPane);
                 this.bombExploded();
+
+                // Phát âm thanh nổ
+                AudioClip boom = new AudioClip(
+                        getClass().getResource("/assets/sounds/explosion.wav").toString()
+                );
+                boom.play();
+
+                // Tạo hiệu ứng nổ (flame)
+                double[][] dirs = {
+                        {0, 0},
+                        {0, -tileSize},
+                        {0, tileSize},
+                        {-tileSize, 0},
+                        {tileSize, 0}
+                };
+                String[] texPaths = {
+                        "/assets/textures/central_flame.png",
+                        "/assets/textures/top_up_flame.png",
+                        "/assets/textures/top_down_flame.png",
+                        "/assets/textures/top_left_flame.png",
+                        "/assets/textures/top_right_flame.png"
+                };
+
+                for (int i = 0; i < dirs.length; i++) {
+                    Image img = new Image(
+                            getClass().getResourceAsStream(texPaths[i])
+                    );
+                    AnimationChannel chan = new AnimationChannel(
+                            img, 3, 48, 48, Duration.seconds(1), 0, 2
+                    );
+                    AnimatedTexture flameTex = new AnimatedTexture(chan);
+                    flameTex.loop();
+
+                    Pane flamePane = new Pane(flameTex);
+                    flamePane.setPrefSize(tileSize, tileSize);
+                    flamePane.setLayoutX(snappedX + dirs[i][0]);
+                    flamePane.setLayoutY(snappedY + dirs[i][1]);
+                    gamePane.getChildren().add(flamePane);
+
+                    AnimationTimer flameLoop = new AnimationTimer() {
+                        @Override
+                        public void handle(long now) {
+                            flameTex.onUpdate(1.0 / 60.0);
+                        }
+                    };
+                    flameLoop.start();
+
+                    PauseTransition t = new PauseTransition(Duration.seconds(1));
+                    t.setOnFinished(e2 -> {
+                        flameLoop.stop();
+                        gamePane.getChildren().remove(flamePane);
+                    });
+                    t.play();
+                }
             });
+            delay.play();
 
             return true;
         }
         return false;
     }
+
 
     public void bombExploded() {
         if (bombCount > 0) {
