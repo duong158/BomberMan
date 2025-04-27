@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="đảm bảo quái không ở gần người chơi">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scores.txt" beforeDir="false" afterPath="$PROJECT_DIR$/scores.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/Bomb.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/Bomb.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/Player.java" afterDir="false" />
-    </list>
+    <list default="true" id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="thêm gitignore" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -87,7 +82,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "Merging dng",
+    "git-widget-placeholder": "dng",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/oop-main/BomberMan",
@@ -158,6 +153,7 @@
       <workItem from="1745720763975" duration="12879000" />
       <workItem from="1745736021235" duration="74000" />
       <workItem from="1745736290380" duration="6895000" />
+      <workItem from="1745746162660" duration="322000" />
     </task>
     <task id="LOCAL-00001" summary="thêm lớp Player và các asset">
       <option name="closed" value="true" />
@@ -287,7 +283,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745745640899</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="thêm gitignore">
+      <option name="closed" value="true" />
+      <created>1745746458075</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1745746458075</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -318,6 +322,7 @@
     <MESSAGE value="sửa lỗi bom" />
     <MESSAGE value="thên pass vào thế giới" />
     <MESSAGE value="đảm bảo quái không ở gần người chơi" />
-    <option name="LAST_COMMIT_MESSAGE" value="đảm bảo quái không ở gần người chơi" />
+    <MESSAGE value="thêm gitignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="thêm gitignore" />
   </component>
 </project>
