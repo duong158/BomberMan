@@ -5,6 +5,7 @@ import com.almasb.fxgl.entity.Entity;
 import hoyocon.bomberman.Map.Map1;
 import hoyocon.bomberman.Object.Player;
 import hoyocon.bomberman.Object.EnemyGroup.Balloon;
+import hoyocon.bomberman.Object.EnemyGroup.Pass;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
@@ -45,6 +46,7 @@ public class GameSceneBuilder {
     
     // List to manage balloons
     private static List<Entity> balloonEntities = new ArrayList<>();
+    private static List<Entity> passEntities = new ArrayList<>();
 
     private static void addBuffToMap(Pane gamePane, BuffGeneric buff, double x, double y) {
         BuffEntity buffEntity = new BuffEntity(buff, x, y);
@@ -91,6 +93,43 @@ public class GameSceneBuilder {
             e.printStackTrace();
         }
     }
+    private static void spawnPass(Pane gamePane, GMap gameGMap, int row, int col) {
+        try {
+            double x = col * GMap.TILE_SIZE;
+            double y = row * GMap.TILE_SIZE;
+
+            System.out.println("Attempting to spawn Pass at: row=" + row + ", col=" + col);
+
+            // Create entity without using FXGL entity factory
+            Entity passEntity = new Entity();
+
+            // Create Pass component with tile coordinates
+            Pass passComponent = new Pass(col, row);
+
+            // Set gameMap reference for collision detection
+            passComponent.setGameMap(gameGMap);
+
+            // Add component to entity
+            passEntity.addComponent(passComponent);
+
+            // Set position in pixels
+            passEntity.setPosition(x, y);
+
+            passEntities.add(passEntity);
+
+            // Add to the game scene
+            if (passEntity.getViewComponent() != null &&
+                passEntity.getViewComponent().getParent() != null) {
+                gamePane.getChildren().add(passEntity.getViewComponent().getParent());
+                System.out.println("Pass added to scene at x=" + x + ", y=" + y);
+            } else {
+                System.err.println("Warning: Pass view component is null");
+            }
+        } catch (Exception e) {
+            System.err.println("Error spawning Pass: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     public static Scene buildNewGameScene() {
         // Reset về vị trí ban đầu
@@ -117,13 +156,14 @@ public class GameSceneBuilder {
 
 
         // Tạo và hiển thị map
-        GMap gameGMap = new GMap(Map1.getMapData(46, 23, 0.3f));
+        GMap gameGMap = new GMap(Map1.getMapData(30, 23, 0.3f));
         gameGMap.render();
         gameWorld.getChildren().add(gameGMap.getCanvas());  // Thêm vào gameWorld thay vì gamePane
 
         // Làm sạch danh sách buff và balloons
         buffEntities.clear();
         balloonEntities.clear();
+        passEntities.clear();
 
         try {
             // Spawn balloons at positions marked with 4 in the map
@@ -132,6 +172,18 @@ public class GameSceneBuilder {
 
             for (int[] position : balloonPositions) {
                 spawnBalloon(gamePane, gameGMap, position[0], position[1]);
+            }
+        } catch (Exception e) {
+            System.err.println("Error setting up balloons: " + e.getMessage());
+            e.printStackTrace();
+        }
+        try {
+            // Spawn balloons at positions marked with 4 in the map
+            List<int[]> passPositions = gameGMap.getPassPositions();
+            System.out.println("Found " + passPositions.size() + " balloon positions in map");
+
+            for (int[] position : passPositions) {
+                spawnPass(gamePane, gameGMap, position[0], position[1]);
             }
         } catch (Exception e) {
             System.err.println("Error setting up balloons: " + e.getMessage());
@@ -213,6 +265,12 @@ public class GameSceneBuilder {
                     if (balloon.getComponentOptional(Balloon.class).isPresent()) {
                         Balloon balloonComponent = balloon.getComponent(Balloon.class);
                         balloonComponent.onUpdate(1.0 / 60.0); // Assuming 60 FPS
+                    }
+                }
+                for(Entity pass : new ArrayList<>(passEntities)){
+                    if(pass.getComponentOptional(Pass.class).isPresent()) {
+                        Pass passComponent = pass.getComponent(Pass.class);
+                        passComponent.onUpdate(0.016);
                     }
                 }
             }

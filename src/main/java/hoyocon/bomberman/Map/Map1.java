@@ -1,14 +1,22 @@
 package hoyocon.bomberman.Map;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 public class Map1 {
 
+    public static final int MOBKC = 5;
     public static final int EMPTY = 0;
     public static final int WALL = 1;
     public static final int BRICK = 2;
     public static final int ENTRANCE = 3;
     public static final int EXIT = 4;
+    public static final int BALLOON = 5;
+    public static final int BALLOONNUMS = 5;
+    public static final int PASS = 6;
+    public static final int PASSNUMS = 2;
 
     public static int[][] getMapData(int width, int height, float obstacleDensity) {
         int[][] map = new int[height][width];
@@ -28,14 +36,48 @@ public class Map1 {
         }
 
         //Thêm BRICK
-        for (int y = 1; y < height-1; y++) {
-            for (int x = 1; x < width-1; x++) {
+        for (int y = 4; y < height-1; y++) {
+            for (int x = 4; x < width-1; x++) {
                 if (map[y][x] == EMPTY && rand.nextFloat() < obstacleDensity) {
                     map[y][x] = BRICK;
                 }
             }
         }
+        List<int[]> emptyPositions = new ArrayList<>();
+        for (int y = 1; y < height - 1; y++) {
+            for (int x = 1; x < width - 1; x++) {
+                if (map[y][x] == EMPTY) {
+                    emptyPositions.add(new int[]{y, x});
+                }
+            }
+        }
 
+        // Trộn danh sách vị trí trống để đảm bảo ngẫu nhiên
+        Collections.shuffle(emptyPositions);
+
+        // Spawn balloon
+        int balloonsAdded = 0;
+        for (int[] pos : emptyPositions) {
+            if (balloonsAdded >= BALLOONNUMS) break;
+
+            // Kiểm tra xem vị trí này có còn trống không
+            if (map[pos[0]][pos[1]] == EMPTY && pos[0] > MOBKC && pos[1] > MOBKC) {
+                map[pos[0]][pos[1]] = BALLOON;
+                balloonsAdded++;
+            }
+        }
+
+        // Spawn PASS
+        int passesAdded = 0;
+        for (int[] pos : emptyPositions) {
+            if (passesAdded >= PASSNUMS) break;
+
+            // Kiểm tra xem vị trí này có còn trống không
+            if (map[pos[0]][pos[1]] == EMPTY && pos[0] > MOBKC && pos[1] > MOBKC) {
+                map[pos[0]][pos[1]] = PASS;
+                passesAdded++;
+            }
+        }
         return map;
   
     }
