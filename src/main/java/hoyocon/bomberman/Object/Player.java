@@ -53,7 +53,6 @@ public class Player extends Component {
     private AnimationChannel idledown;
 
     // Buff logic
-    private boolean unlimitedBomb = false;
     private int flameRange = 1;
     private double baseSpeed = 100;
 
@@ -73,6 +72,8 @@ public class Player extends Component {
     private static final int PLAYER_WIDTH = 45;
     private static final int PLAYER_HEIGHT = 45;
     private static final int HITBOX_MARGIN = 0; // Margin to make hitbox slightly smaller than sprite
+
+    private List<Pane> bombs = new ArrayList<>();
 
     // Get hitbox with margins for better collision detection
     private double[][] getHitboxPoints(double x, double y) {
@@ -168,8 +169,9 @@ public class Player extends Component {
             boolean expired = currentTime - entry.getValue() > BUFF_DURATION;
             if (expired) {
                 switch (entry.getKey()) {
-                    case "unlimitedBomb" -> unlimitedBomb = false;
                     case "speed" -> speed = baseSpeed;
+                    case "flameRange" -> flameRange = 1;      // reset về 1 khi flame buff hết
+                    case "bomb" -> maxBombs = Math.max(1, maxBombs - 1); // nếu bạn dùng bomb buff có thời hạn
                 }
             }
             return expired;
@@ -289,186 +291,174 @@ public class Player extends Component {
     }
 
     public boolean placeBomb(Pane gamePane) {
-        if ((bombCount < maxBombs || unlimitedBomb) && canPlaceBomb) {
-            bombCount++;
-            canPlaceBomb = false;
+        double tileSize = GMap.TILE_SIZE;
+        double snappedX = Math.floor(entity.getX() / tileSize) * tileSize;
+        double snappedY = Math.floor(entity.getY() / tileSize) * tileSize;
 
-            double tileSize = GMap.TILE_SIZE;
-            double snappedX = Math.floor(entity.getX() / tileSize) * tileSize;
-            double snappedY = Math.floor(entity.getY() / tileSize) * tileSize;
+        // 1) Không đặt hai quả bom cùng ô
+        for (Pane b : bombs) {
+            if (b.getLayoutX() == snappedX && b.getLayoutY() == snappedY) {
+                return false;
+            }
+        }
 
-            // Tạo bom và thêm vào scene
-            Bomb bombComponent = new Bomb(this);
-            AnimatedTexture bombTexture = bombComponent.getTexture();
-            Pane bombPane = new Pane(bombTexture);
-            bombPane.setPrefSize(tileSize, tileSize);
-            bombPane.setLayoutX(snappedX);
-            bombPane.setLayoutY(snappedY);
-            gamePane.getChildren().add(bombPane);
+        // 2) Giới hạn theo maxBombs
+        if (bombCount >= maxBombs) {
+            return false;
+        }
 
-            // Âm thanh đặt bom
-            AudioClip placeSound = new AudioClip(
-                    getClass().getResource("/assets/sounds/place_bomb.wav").toString()
-            );
-            placeSound.play();
+        // Đặt bom mới
+        bombCount++;
+        Bomb bombComponent = new Bomb(this);
+        AnimatedTexture bombTexture = bombComponent.getTexture();
+        Pane bombPane = new Pane(bombTexture);
+        bombPane.setPrefSize(tileSize, tileSize);
+        bombPane.setLayoutX(snappedX);
+        bombPane.setLayoutY(snappedY);
+        gamePane.getChildren().add(bombPane);
+        bombs.add(bombPane);
 
-            bombTexture.loop();
+        // Âm thanh và animation đặt bom
+        new AudioClip(getClass().getResource("/assets/sounds/place_bomb.wav").toString()).play();
+        bombTexture.loop();
 
-            // Đợi 2s để nổ
-            PauseTransition delay = new PauseTransition(Duration.seconds(2));
-            AnimationTimer bombAnimLoop = new AnimationTimer() {
-                @Override
-                public void handle(long now) {
-                    bombTexture.onUpdate(1.0 / 60.0);
-                }
+        // Hẹn 2s để nổ
+        PauseTransition delay = new PauseTransition(Duration.seconds(2));
+        AnimationTimer bombAnimLoop = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                bombTexture.onUpdate(1.0 / 60.0);
+            }
+        };
+        bombAnimLoop.start();
+
+        delay.setOnFinished(evt -> {
+            // Dừng animation bom và xoá bom khỏi scene
+            bombAnimLoop.stop();
+            gamePane.getChildren().remove(bombPane);
+            bombs.remove(bombPane);
+            bombCount--;
+
+            // Âm thanh nổ
+            new AudioClip(getClass().getResource("/assets/sounds/explosion.wav").toString()).play();
+
+            // Logic nổ với kiểm tra Wall/Brick
+            int bombCellX = (int)(snappedX / tileSize);
+            int bombCellY = (int)(snappedY / tileSize);
+            int[][] gridDirs = {
+                    { 0,  0},  // trung tâm
+                    { 0, -1},  // lên
+                    { 0,  1},  // xuống
+                    {-1,  0},  // trái
+                    { 1,  0}   // phải
             };
-            bombAnimLoop.start();
 
-            delay.setOnFinished(evt -> {
-                // Dừng và xóa bom
-                bombAnimLoop.stop();
-                gamePane.getChildren().remove(bombPane);
-                this.bombExploded();
+            for (int d = 0; d < gridDirs.length; d++) {
+                int dx = gridDirs[d][0];
+                int dy = gridDirs[d][1];
 
-                // Âm thanh nổ
-                AudioClip boom = new AudioClip(
-                        getClass().getResource("/assets/sounds/explosion.wav").toString()
-                );
-                boom.play();
+                for (int step = 0; step <= flameRange; step++) {
+                    int cellX = bombCellX + dx * step;
+                    int cellY = bombCellY + dy * step;
 
-                // --- LOGIC NỔ THEO HƯỚNG VỚI KIỂM TRA WALL/BRICK ---
-                int bombCellX = (int)(snappedX / tileSize);
-                int bombCellY = (int)(snappedY / tileSize);
+                    // 1) Dừng hướng nếu gặp Wall
+                    if (gameGMap.isWallHitbox(cellY, cellX))
+                        break;
 
-                // Bốn hướng: trung tâm, lên, xuống, trái, phải
-                int[][] gridDirs = {
-                        { 0,  0},
-                        { 0, -1},
-                        { 0,  1},
-                        {-1,  0},
-                        { 1,  0}
-                };
+                    // 2) Vẽ flame
+                    double fx = cellX * tileSize;
+                    double fy = cellY * tileSize;
+                    String texPath;
+                    if (step == 0) texPath = "/assets/textures/central_flame.png";
+                    else if (dx == 0 && dy == -1) texPath = "/assets/textures/top_up_flame.png";
+                    else if (dx == 0 && dy == 1) texPath = "/assets/textures/top_down_flame.png";
+                    else if (dx == -1 && dy == 0) texPath = "/assets/textures/top_left_flame.png";
+                    else texPath = "/assets/textures/top_right_flame.png";
 
-                for (int d = 0; d < gridDirs.length; d++) {
-                    int dx = gridDirs[d][0];
-                    int dy = gridDirs[d][1];
+                    Image img = new Image(getClass().getResourceAsStream(texPath));
+                    AnimationChannel chan = new AnimationChannel(
+                            img, 3, (int)tileSize, (int)tileSize, Duration.seconds(1), 0, 2
+                    );
+                    AnimatedTexture flameTex = new AnimatedTexture(chan);
+                    flameTex.loop();
 
-                    // Đổ lửa từng bước từ 0 đến flameRange
-                    for (int step = 0; step <= flameRange; step++) {
-                        int cellX = bombCellX + dx * step;
-                        int cellY = bombCellY + dy * step;
+                    Pane flamePane = new Pane(flameTex);
+                    flamePane.setPrefSize(tileSize, tileSize);
+                    flamePane.setLayoutX(fx);
+                    flamePane.setLayoutY(fy);
+                    gamePane.getChildren().add(flamePane);
 
-                        // 1) Nếu gặp Wall thì dừng hướng
-                        if (gameGMap.isWallHitbox(cellY, cellX)) {
-                            break;
+                    AnimationTimer flameLoop = new AnimationTimer() {
+                        @Override
+                        public void handle(long now) {
+                            flameTex.onUpdate(1.0 / 60.0);
                         }
+                    };
+                    flameLoop.start();
 
-                        // 2) Tọa độ pixel để vẽ flame
-                        double fx = cellX * tileSize;
-                        double fy = cellY * tileSize;
+                    // Xóa flame sau 1s
+                    PauseTransition t = new PauseTransition(Duration.seconds(1));
+                    t.setOnFinished(e2 -> {
+                        flameLoop.stop();
+                        gamePane.getChildren().remove(flamePane);
+                    });
+                    t.play();
 
-                        // Chọn texture theo hướng
-                        String texPath;
-                        if (step == 0) {
-                            texPath = "/assets/textures/central_flame.png";
-                        } else if (dx == 0 && dy == -1) {
-                            texPath = "/assets/textures/top_up_flame.png";
-                        } else if (dx == 0 && dy == 1) {
-                            texPath = "/assets/textures/top_down_flame.png";
-                        } else if (dx == -1 && dy == 0) {
-                            texPath = "/assets/textures/top_left_flame.png";
-                        } else {
-                            texPath = "/assets/textures/top_right_flame.png";
-                        }
-
-                        // Tạo và vẽ flame
-                        Image img = new Image(getClass().getResourceAsStream(texPath));
-                        AnimationChannel chan = new AnimationChannel(
-                                img, 3, (int)tileSize, (int)tileSize,
-                                Duration.seconds(1), 0, 2
+                    // 3) Nếu gặp Brick thì phá và dừng
+                    if (gameGMap.isBrickHitbox(cellY, cellX)) {
+                        // Hiệu ứng phá Brick
+                        Image breakSheet = new Image(
+                                getClass().getResourceAsStream("/assets/textures/brick_break.png")
                         );
-                        AnimatedTexture flameTex = new AnimatedTexture(chan);
-                        flameTex.loop();
+                        AnimationChannel breakChan = new AnimationChannel(
+                                breakSheet, 3, (int)tileSize, (int)tileSize,
+                                Duration.seconds(0.8), 0, 2
+                        );
+                        AnimatedTexture breakTex = new AnimatedTexture(breakChan);
+                        breakTex.play();
 
-                        Pane flamePane = new Pane(flameTex);
-                        flamePane.setPrefSize(tileSize, tileSize);
-                        flamePane.setLayoutX(fx);
-                        flamePane.setLayoutY(fy);
-                        gamePane.getChildren().add(flamePane);
+                        Pane breakPane = new Pane(breakTex);
+                        breakPane.setPrefSize(tileSize, tileSize);
+                        breakPane.setLayoutX(cellX * tileSize);
+                        breakPane.setLayoutY(cellY * tileSize);
+                        gamePane.getChildren().add(breakPane);
 
-                        AnimationTimer flameLoop = new AnimationTimer() {
+                        AnimationTimer breakLoop = new AnimationTimer() {
                             @Override
                             public void handle(long now) {
-                                flameTex.onUpdate(1.0 / 60.0);
+                                breakTex.onUpdate(1.0 / 60.0);
                             }
                         };
-                        flameLoop.start();
+                        breakLoop.start();
 
-                        // Xóa flame sau 1s
-                        PauseTransition t = new PauseTransition(Duration.seconds(1));
-                        t.setOnFinished(e2 -> {
-                            flameLoop.stop();
-                            gamePane.getChildren().remove(flamePane);
+                        PauseTransition pb = new PauseTransition(Duration.seconds(0.8));
+                        pb.setOnFinished(ev3 -> {
+                            breakLoop.stop();
+                            gamePane.getChildren().remove(breakPane);
+
+                            gameGMap.removeBrick(cellY, cellX);
+                            BuffGeneric hidden = gameGMap.getHiddenBuff(cellY, cellX);
+                            if (hidden != null) {
+                                GameSceneBuilder.addBuffToMap(
+                                        gamePane, hidden,
+                                        cellX * tileSize, cellY * tileSize
+                                );
+                                gameGMap.clearHiddenBuff(cellY, cellX);
+                            }
                         });
-                        t.play();
+                        pb.play();
 
-                        // 3) Nếu gặp Brick thì phá và dừng
-                        if (gameGMap.isBrickHitbox(cellY, cellX)) {
-                            // Hiệu ứng phá Brick (giống code cũ của bạn)
-                            Image breakSheet = new Image(
-                                    getClass().getResourceAsStream("/assets/textures/brick_break.png")
-                            );
-                            AnimationChannel breakChan = new AnimationChannel(
-                                    breakSheet, 3, (int)tileSize, (int)tileSize,
-                                    Duration.seconds(0.8), 0, 2
-                            );
-                            AnimatedTexture breakTex = new AnimatedTexture(breakChan);
-                            breakTex.play();
-
-                            Pane breakPane = new Pane(breakTex);
-                            breakPane.setPrefSize(tileSize, tileSize);
-                            breakPane.setLayoutX(cellX * tileSize);
-                            breakPane.setLayoutY(cellY * tileSize);
-                            gamePane.getChildren().add(breakPane);
-
-                            AnimationTimer breakLoop = new AnimationTimer() {
-                                @Override
-                                public void handle(long now) {
-                                    breakTex.onUpdate(1.0 / 60.0);
-                                }
-                            };
-                            breakLoop.start();
-
-                            PauseTransition pb = new PauseTransition(Duration.seconds(0.8));
-                            pb.setOnFinished(ev3 -> {
-                                breakLoop.stop();
-                                gamePane.getChildren().remove(breakPane);
-
-                                // Xóa Brick và reveal buff
-                                gameGMap.removeBrick(cellY, cellX);
-                                BuffGeneric hidden = gameGMap.getHiddenBuff(cellY, cellX);
-                                if (hidden != null) {
-                                    GameSceneBuilder.addBuffToMap(
-                                            gamePane, hidden,
-                                            cellX * tileSize, cellY * tileSize
-                                    );
-                                    gameGMap.clearHiddenBuff(cellY, cellX);
-                                }
-                            });
-                            pb.play();
-
-                            break;  // Dừng propagation sau khi phá Brick
-                        }
+                        break;
                     }
                 }
-                // --- Kết thúc logic nổ ---
-            });
+            }
+            // Kết thúc logic nổ
+        });
 
-            delay.play();
-            return true;
-        }
-        return false;
+        delay.play();
+        return true;
     }
+
 
 
     public void bombExploded() {
@@ -481,17 +471,6 @@ public class Player extends Component {
     public boolean hit() {
         lives--;
         return lives <= 0;
-    }
-
-    public void setUnlimitedBomb(boolean value) {
-        unlimitedBomb = value;
-        if (value) {
-            activeBuffs.put("unlimitedBomb", System.currentTimeMillis());
-        }
-    }
-
-    public boolean isUnlimitedBomb() {
-        return unlimitedBomb;
     }
 
     public void increaseFlameRange(int delta) {
@@ -513,8 +492,8 @@ public class Player extends Component {
             case "flameRange":
                 increaseFlameRange(1);
                 break;
-            case "unlimitedBomb":
-                setUnlimitedBomb(true);
+            case "bomb":
+                setMaxBombs(getMaxBombs() + 1);
                 break;
             default:
                 System.out.println("Unknown item type: " + itemType);
