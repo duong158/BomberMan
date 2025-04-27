@@ -1,10 +1,9 @@
 package hoyocon.bomberman.Object.EnemyGroup;
 
 import com.almasb.fxgl.dsl.components.HealthIntComponent;
-import com.almasb.fxgl.time.LocalTimer;
-import javafx.util.Duration;
+import hoyocon.bomberman.EntitiesState.State;
+import hoyocon.bomberman.Map.GMap;
 import java.util.Random;
-import static com.almasb.fxgl.dsl.FXGL.newLocalTimer;
 
 /**
  * Quái vật Balloon - di chuyển ngẫu nhiên với tốc độ chậm.
@@ -12,29 +11,44 @@ import static com.almasb.fxgl.dsl.FXGL.newLocalTimer;
 public class Balloon extends Enemy {
     // Hằng số
     private static final double BALLOON_SPEED = 40; // Tốc độ chậm hơn
-    private static final int DIRECTION_CHANGE_INTERVAL = 3; // Đổi hướng sau mỗi 3 giây
-    private static final int SCREEN_WIDTH = 1080;     // Chiều rộng màn hình (cần điều chỉnh)
-    private static final int SCREEN_HEIGHT = 1920;    // Chiều cao màn hình (cần điều chỉnh)
+    private static final int DIRECTION_CHANGE_INTERVAL = 3000; // Đổi hướng sau mỗi 3 giây (ms)
+    private static final int SCREEN_WIDTH = 1920;     // Chiều rộng màn hình
+    private static final int SCREEN_HEIGHT = 1080;    // Chiều cao màn hình
 
     // Thuộc tính
-    private final LocalTimer movementTimer; // Hẹn giờ đổi hướng
-    private final Random random;            // Bộ sinh số ngẫu nhiên
-    private boolean isDead = false;         // Trạng thái chết
+    private final Random random = new Random();       // Bộ sinh số ngẫu nhiên
+    private boolean isDead = false;                   // Trạng thái chết
 
+    // Replace FXGL timer with simple timestamp approach
+    private long lastDirectionChangeTime;
+    
+    // Add reference to game map
+    private GMap gameMap;
+    
     /**
      * Khởi tạo Balloon mới tại vị trí x, y.
      */
-    public Balloon(int x, int y) {
-        // Gọi constructor của lớp cha với tốc độ chậm và hình ảnh balloon
-        super(x, y, BALLOON_SPEED, "/assets/textures/enemy1.png"); // Sử dụng asset enemy1.png
+    public Balloon(int col, int row) {
+        // Convert tile coordinates to pixel coordinates
+        super(
+                (int)(col * GMap.TILE_SIZE),
+                (int)(row * GMap.TILE_SIZE),
+                BALLOON_SPEED,
+                "/assets/textures/enemy1.png"
+        );
 
-        // Khởi tạo timer và random
-        movementTimer = newLocalTimer();
-        movementTimer.capture();
-        random = new Random();
+        // Initialize with current timestamp instead of FXGL timer
+        lastDirectionChangeTime = System.currentTimeMillis();
 
         // Chọn hướng di chuyển ngẫu nhiên ban đầu
         changeDirection();
+    }
+    
+    /**
+     * Set the game map reference for collision detection
+     */
+    public void setGameMap(GMap gameMap) {
+        this.gameMap = gameMap;
     }
 
     @Override
@@ -43,9 +57,6 @@ public class Balloon extends Enemy {
 
         // Thiết lập máu (ví dụ: 1 máu)
         entity.addComponent(new HealthIntComponent(1));
-
-        // Nếu bạn sử dụng EntityType, hãy thêm dòng này:
-        // entity.setType(EntityType.ENEMY);
     }
 
     @Override
@@ -56,10 +67,11 @@ public class Balloon extends Enemy {
         // Di chuyển theo hướng hiện tại
         move(tpf);
 
-        // Đổi hướng ngẫu nhiên theo thời gian
-        if (movementTimer.elapsed(Duration.seconds(DIRECTION_CHANGE_INTERVAL))) {
+        // Đổi hướng ngẫu nhiên theo thời gian - use elapsed time instead of FXGL timer
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastDirectionChangeTime > DIRECTION_CHANGE_INTERVAL) {
             changeDirection();
-            movementTimer.capture();
+            lastDirectionChangeTime = currentTime;
         }
 
         // Kiểm tra va chạm với biên màn hình
@@ -114,57 +126,71 @@ public class Balloon extends Enemy {
                 return; // Không di chuyển trong frame này
         }
 
-        // Cập nhật vị trí nếu hợp lệ (không ra khỏi biên)
-        // Việc kiểm tra va chạm với tường/gạch nên được xử lý bởi hệ thống va chạm của FXGL
-        if (isValidMove(nextX, nextY)) {
-            entity.setPosition(nextX, nextY);
+        // Kiểm tra va chạm với tường hoặc gạch
+        if (checkCollisionWithWallOrBrick(nextX, nextY)) {
+            handleCollision();
         } else {
-            // Nếu di chuyển không hợp lệ (ra khỏi biên), đổi hướng
-            changeDirection();
+            // Nếu không va chạm, cập nhật vị trí
+            entity.setPosition(nextX, nextY);
         }
     }
 
-     /**
-     * Kiểm tra vị trí mới có nằm trong giới hạn màn hình không.
+    /**
+     * Kiểm tra va chạm với tường hoặc gạch bằng hitbox.
      */
-    private boolean isValidMove(double x, double y) {
-        // Sử dụng FRAME_SIZE từ lớp Enemy (nếu có) hoặc kích thước cố định
-        int frameSize = 48; // Giả sử kích thước frame là 48x48
-        return x >= 0 && x <= SCREEN_WIDTH - frameSize &&
-               y >= 0 && y <= SCREEN_HEIGHT - frameSize;
+    private boolean checkCollisionWithWallOrBrick(double x, double y) {
+        if (gameMap == null) {
+            return false; // Không thể kiểm tra nếu không có tham chiếu đến bản đồ
+        }
+
+        // Kích thước hitbox của Balloon
+        double width = 48; // Giả sử kích thước Balloon là 48x48
+        double height = 48;
+
+        // Kiểm tra va chạm với tường hoặc gạch
+        return gameMap.checkCollisionWithWall(x, y, width, height) ||
+               gameMap.checkCollisionWithBrick(x, y, width, height);
+    }
+
+    /**
+     * Xử lý va chạm với tường hoặc gạch.
+     */
+    public void handleCollision() {
+        // Đổi hướng di chuyển ngẫu nhiên khi va chạm với tường hoặc gạch
+        changeDirection();
+
+        // Reset thời gian đổi hướng để tránh đổi hướng liên tục
+        lastDirectionChangeTime = System.currentTimeMillis();
     }
 
     /**
      * Kiểm tra và xử lý va chạm với biên màn hình.
      */
     private void checkBoundaryCollisions() {
+        // Lấy vị trí hiện tại của balloon
         double x = entity.getX();
         double y = entity.getY();
-        int frameSize = 48; // Giả sử kích thước frame là 48x48
-        boolean needsDirectionChange = false;
 
-        // Kiểm tra biên trái/phải
+        // Kiểm tra va chạm với biên trái
         if (x < 0) {
-            entity.setX(0);
-            needsDirectionChange = true;
-        } else if (x > SCREEN_WIDTH - frameSize) {
-            entity.setX(SCREEN_WIDTH - frameSize);
-            needsDirectionChange = true;
+            x = 0;
+        }
+        // Kiểm tra va chạm với biên phải
+        else if (x > SCREEN_WIDTH - 48) { // 48 là kích thước của balloon
+            x = SCREEN_WIDTH - 48;
         }
 
-        // Kiểm tra biên trên/dưới
+        // Kiểm tra va chạm với biên trên
         if (y < 0) {
-            entity.setY(0);
-            needsDirectionChange = true;
-        } else if (y > SCREEN_HEIGHT - frameSize) {
-            entity.setY(SCREEN_HEIGHT - frameSize);
-            needsDirectionChange = true;
+            y = 0;
+        }
+        // Kiểm tra va chạm với biên dưới
+        else if (y > SCREEN_HEIGHT - 48) { // 48 là kích thước của balloon
+            y = SCREEN_HEIGHT - 48;
         }
 
-        // Đổi hướng nếu chạm biên
-        if (needsDirectionChange) {
-            changeDirection();
-        }
+        // Cập nhật vị trí của balloon
+        entity.setPosition(x, y);
     }
 
     /**
@@ -190,6 +216,6 @@ public class Balloon extends Enemy {
      * Kiểm tra trạng thái chết.
      */
     public boolean isDead() {
-        return isDead;
+        return  isDead;
     }
 }

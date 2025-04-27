@@ -65,9 +65,9 @@ public class Player extends Component {
     private static final long BUFF_DURATION = 10 * 1000; // 10 seconds in milliseconds
     
     // Hitbox constants
-    private static final int PLAYER_WIDTH = 48;
-    private static final int PLAYER_HEIGHT = 48;
-    private static final int HITBOX_MARGIN = 2; // Margin to make hitbox slightly smaller than sprite
+    private static final int PLAYER_WIDTH = 45;
+    private static final int PLAYER_HEIGHT = 45;
+    private static final int HITBOX_MARGIN = 3; // Margin to make hitbox slightly smaller than sprite
     
     // Get hitbox with margins for better collision detection
     private double[][] getHitboxPoints(double x, double y) {
