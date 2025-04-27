@@ -35,13 +35,12 @@ public class Map1 {
                 }
             }
         }
-        placeEntranceAndExit(map);
 
         return map;
   
     }
 
-    private static void placeEntranceAndExit(int[][] map) {
+    private void placeEntranceAndExit(int[][] map) {
         int height = map.length;
         int width = map[0].length;
 
@@ -54,7 +53,7 @@ public class Map1 {
         createSafeArea(map, width-2, 1);
     }
 
-    private static void createSafeArea(int[][] map, int x, int y) {
+    private void createSafeArea(int[][] map, int x, int y) {
         int[] dx = {-1, 0, 1, 0};
         int[] dy = {0, -1, 0, 1};
 

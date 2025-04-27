@@ -344,9 +344,9 @@ public class Player extends Component {
             gamePane.getChildren().add(bombPane);
 
             // Bắt đầu hoạt ảnh
-            bombTexture.play();
+            bombTexture.loop();
 
-            // Hẹn giờ nổ sau 3 giây
+            // Hẹn giờ nổ sau 2 giây
             PauseTransition delay = new PauseTransition(Duration.seconds(2));
             delay.setOnFinished(evt -> {
                 // Xóa bom khỏi gamePane và thông báo nổ
@@ -358,7 +358,7 @@ public class Player extends Component {
             AnimationTimer bombAnimLoop = new AnimationTimer() {
                 @Override
                 public void handle(long now) {
-                    bombTexture.onUpdate(1.0/60.0);   // hoặc truyền đúng tpf
+                    bombTexture.onUpdate(1.0/60.0);
                 }
             };
             bombAnimLoop.start();

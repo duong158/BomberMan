@@ -29,8 +29,8 @@ public class Bomb extends Component {
     @Override
     public void onAdded() {
         entity.getViewComponent().addChild(texture);
-        texture.play();
-        FXGL.runOnce(this::explode, Duration.seconds(2)); // hẹn giờ nổ sau 3s
+        texture.loop();
+        FXGL.runOnce(this::explode, Duration.seconds(2)); // hẹn giờ nổ sau 2s
     }
 
     public Entity createEntity(double x, double y, Player owner) {
