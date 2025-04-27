@@ -36,8 +36,8 @@ public class Map1 {
         }
 
         //Thêm BRICK
-        for (int y = 2; y < height-1; y++) {
-            for (int x = 2; x < width-1; x++) {
+        for (int y = 4; y < height-1; y++) {
+            for (int x = 4; x < width-1; x++) {
                 if (map[y][x] == EMPTY && rand.nextFloat() < obstacleDensity) {
                     map[y][x] = BRICK;
                 }
