@@ -1,11 +1,19 @@
 package hoyocon.bomberman;
 
-import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
+import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.Map.Map1;
-import hoyocon.bomberman.Object.Player;
 import hoyocon.bomberman.Object.EnemyGroup.Balloon;
+import hoyocon.bomberman.Object.EnemyGroup.Enemy;
+import hoyocon.bomberman.Object.EnemyGroup.Oneal;
 import hoyocon.bomberman.Object.EnemyGroup.Pass;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import hoyocon.bomberman.Object.Player;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
@@ -22,10 +30,6 @@ import hoyocon.bomberman.Buff.Flame;
 import hoyocon.bomberman.Buff.Speed;
 import hoyocon.bomberman.Object.BuffEntity;
 import hoyocon.bomberman.Buff.BuffGeneric;
-import hoyocon.bomberman.Map.GMap;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GameSceneBuilder {
     private static double savedX = 195;
@@ -44,93 +48,51 @@ public class GameSceneBuilder {
     // Quản lí buff.
     private static List<BuffEntity> buffEntities = new ArrayList<>();
     
-    // List to manage balloons
-    private static List<Entity> balloonEntities = new ArrayList<>();
-    private static List<Entity> passEntities = new ArrayList<>();
-
+    // Thay thế các danh sách riêng biệt bằng một Map để quản lý tất cả các loại kẻ địch
+    private static Map<Class<? extends Enemy>, List<Entity>> enemyEntities = new HashMap<>();
+    
     private static void addBuffToMap(Pane gamePane, BuffGeneric buff, double x, double y) {
         BuffEntity buffEntity = new BuffEntity(buff, x, y);
         buffEntities.add(buffEntity); // Lưu buff vào danh sách
         gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
     }
     
-    // Method to spawn a balloon at the given map coordinates with exception handling
-    private static void spawnBalloon(Pane gamePane, GMap gameGMap, int row, int col) {
+    // Method chung để spawn bất kỳ loại kẻ địch nào
+    private static <T extends Enemy> void spawnEnemy(Pane gamePane, GMap gameGMap, int row, int col, 
+            Class<T> enemyClass, EnemyFactory<T> factory) {
         try {
             double x = col * GMap.TILE_SIZE;
             double y = row * GMap.TILE_SIZE;
 
-            System.out.println("Attempting to spawn balloon at: row=" + row + ", col=" + col);
-
-            // Create entity without using FXGL entity factory
-            Entity balloonEntity = new Entity();
-
-            // Create balloon component with tile coordinates
-            Balloon balloonComponent = new Balloon(col, row);
-
-            // Set gameMap reference for collision detection
-            balloonComponent.setGameMap(gameGMap);
-
-            // Add component to entity
-            balloonEntity.addComponent(balloonComponent);
-
-            // Set position in pixels
-            balloonEntity.setPosition(x, y);
-
-            // Add to our tracking list
-            balloonEntities.add(balloonEntity);
-
-            // Add to the game scene
-            if (balloonEntity.getViewComponent() != null &&
-                balloonEntity.getViewComponent().getParent() != null) {
-                gamePane.getChildren().add(balloonEntity.getViewComponent().getParent());
-                System.out.println("Balloon added to scene at x=" + x + ", y=" + y);
+            System.out.println("Attempting to spawn " + enemyClass.getSimpleName() + " at: row=" + row + ", col=" + col);
+            Entity enemyEntity = new Entity();
+            T enemyComponent = factory.create(col, row);
+            enemyComponent.setGameMap(gameGMap);
+            enemyEntity.addComponent(enemyComponent);
+            enemyEntity.setPosition(x, y);
+            
+            // Thêm vào danh sách tương ứng
+            enemyEntities.computeIfAbsent(enemyClass, k -> new ArrayList<>()).add(enemyEntity);
+            
+            if (enemyEntity.getViewComponent() != null &&
+                enemyEntity.getViewComponent().getParent() != null) {
+                gamePane.getChildren().add(enemyEntity.getViewComponent().getParent());
+                System.out.println(enemyClass.getSimpleName() + " added to scene at x=" + x + ", y=" + y);
             } else {
-                System.err.println("Warning: Balloon view component is null");
+                System.err.println("Warning: " + enemyClass.getSimpleName() + " view component is null");
             }
         } catch (Exception e) {
-            System.err.println("Error spawning balloon: " + e.getMessage());
+            System.err.println("Error spawning " + enemyClass.getSimpleName() + ": " + e.getMessage());
             e.printStackTrace();
         }
     }
-    private static void spawnPass(Pane gamePane, GMap gameGMap, int row, int col) {
-        try {
-            double x = col * GMap.TILE_SIZE;
-            double y = row * GMap.TILE_SIZE;
-
-            System.out.println("Attempting to spawn Pass at: row=" + row + ", col=" + col);
-
-            // Create entity without using FXGL entity factory
-            Entity passEntity = new Entity();
-
-            // Create Pass component with tile coordinates
-            Pass passComponent = new Pass(col, row);
-
-            // Set gameMap reference for collision detection
-            passComponent.setGameMap(gameGMap);
-
-            // Add component to entity
-            passEntity.addComponent(passComponent);
-
-            // Set position in pixels
-            passEntity.setPosition(x, y);
-
-            passEntities.add(passEntity);
-
-            // Add to the game scene
-            if (passEntity.getViewComponent() != null &&
-                passEntity.getViewComponent().getParent() != null) {
-                gamePane.getChildren().add(passEntity.getViewComponent().getParent());
-                System.out.println("Pass added to scene at x=" + x + ", y=" + y);
-            } else {
-                System.err.println("Warning: Pass view component is null");
-            }
-        } catch (Exception e) {
-            System.err.println("Error spawning Pass: " + e.getMessage());
-            e.printStackTrace();
-        }
+    
+    // Interface functional để tạo kẻ địch
+    @FunctionalInterface
+    private interface EnemyFactory<T extends Enemy> {
+        T create(int col, int row);
     }
-
+    
     public static Scene buildNewGameScene() {
         // Reset về vị trí ban đầu
         savedX = 195;
@@ -162,33 +124,37 @@ public class GameSceneBuilder {
 
         // Làm sạch danh sách buff và balloons
         buffEntities.clear();
-        balloonEntities.clear();
-        passEntities.clear();
-
+        enemyEntities.clear();
+        
         try {
-            // Spawn balloons at positions marked with 4 in the map
+            // Spawn balloons
             List<int[]> balloonPositions = gameGMap.getBalloonPositions();
             System.out.println("Found " + balloonPositions.size() + " balloon positions in map");
-
             for (int[] position : balloonPositions) {
-                spawnBalloon(gamePane, gameGMap, position[0], position[1]);
+                spawnEnemy(gamePane, gameGMap, position[0], position[1], Balloon.class, Balloon::new);
             }
-        } catch (Exception e) {
-            System.err.println("Error setting up balloons: " + e.getMessage());
-            e.printStackTrace();
-        }
-        try {
-            // Spawn balloons at positions marked with 4 in the map
+            
+            // Spawn passes
             List<int[]> passPositions = gameGMap.getPassPositions();
-            System.out.println("Found " + passPositions.size() + " balloon positions in map");
-
+            System.out.println("Found " + passPositions.size() + " pass positions in map");
             for (int[] position : passPositions) {
-                spawnPass(gamePane, gameGMap, position[0], position[1]);
+                spawnEnemy(gamePane, gameGMap, position[0], position[1], Pass.class, Pass::new);
             }
+            
+            // Spawn oneals (nếu có)
+            List<int[]> onealPositions = gameGMap.getOnealPositions();
+            System.out.println("Found " + onealPositions.size() + " oneal positions in map");
+            for (int[] position : onealPositions) {
+                spawnEnemy(gamePane, gameGMap, position[0], position[1], Oneal.class, Oneal::new);
+            }
+            
+            // Có thể dễ dàng thêm các loại kẻ địch mới ở đây
+            
         } catch (Exception e) {
-            System.err.println("Error setting up balloons: " + e.getMessage());
+            System.err.println("Error setting up enemies: " + e.getMessage());
             e.printStackTrace();
         }
+
 
         // Tạo entity và thêm Player component
         Entity playerEntity = new Entity();
@@ -260,17 +226,20 @@ public class GameSceneBuilder {
 
                 // Use player's method to check buff collisions
                 playerComponent.checkBuffCollision(buffEntities, gamePane);
-                // Update balloons
-                for (Entity balloon : new ArrayList<>(balloonEntities)) {
-                    if (balloon.getComponentOptional(Balloon.class).isPresent()) {
-                        Balloon balloonComponent = balloon.getComponent(Balloon.class);
-                        balloonComponent.onUpdate(1.0 / 60.0); // Assuming 60 FPS
-                    }
-                }
-                for(Entity pass : new ArrayList<>(passEntities)){
-                    if(pass.getComponentOptional(Pass.class).isPresent()) {
-                        Pass passComponent = pass.getComponent(Pass.class);
-                        passComponent.onUpdate(0.016);
+                
+                // Update tất cả các loại kẻ địch với một vòng lặp duy nhất
+                double deltaTime = 1.0 / 60.0;
+                
+                // Duyệt qua tất cả các loại kẻ địch
+                for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
+                    Class<? extends Enemy> enemyClass = entry.getKey();
+                    List<Entity> entities = entry.getValue();
+                    
+                    for (Entity enemy : new ArrayList<>(entities)) {
+                        if (enemy.getComponentOptional(enemyClass).isPresent()) {
+                            Enemy enemyComponent = enemy.getComponent(enemyClass);
+                            enemyComponent.onUpdate(deltaTime);
+                        }
                     }
                 }
             }

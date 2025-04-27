@@ -10,6 +10,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GMap {
     public static final double TILE_SIZE = 48;
     private int[][] mapData;
@@ -24,6 +27,7 @@ public class GMap {
     public static final int BRICK = 2;
     public static final int BALLOON = 5;
     public static final int PASS = 6;
+    public static final int ONEAL = 7;
 
     // Ảnh cho các tile
     private Image wallImage;
@@ -73,8 +77,8 @@ public class GMap {
     }
 
     // Method to get balloon spawn positions
-    public java.util.List<int[]> getBalloonPositions() {
-        java.util.List<int[]> positions = new java.util.ArrayList<>();
+    public List<int[]> getBalloonPositions() {
+        List<int[]> positions = new ArrayList<>();
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 if (balloonPositions[row][col]) {
@@ -85,11 +89,23 @@ public class GMap {
         return positions;
     }
 
-    public java.util.List<int[]> getPassPositions() {
-        java.util.List<int[]> positions = new java.util.ArrayList<>();
+    public List<int[]> getPassPositions() {
+        List<int[]> positions = new ArrayList<>();
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 if (mapData[row][col] == PASS) {
+                    positions.add(new int[]{row, col});
+                    mapData[row][col] = EMPTY;
+                }
+            }
+        }
+        return positions;
+    }
+    public List<int[]> getOnealPositions() {
+        List<int[]> positions = new ArrayList<>();
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (mapData[row][col] == ONEAL) {
                     positions.add(new int[]{row, col});
                     mapData[row][col] = EMPTY;
                 }
