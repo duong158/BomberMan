@@ -204,7 +204,7 @@ public class GameSceneBuilder {
                     playerComponent.stop();
                 }
 
-                playerComponent.onUpdate(0.5);
+                playerComponent.onUpdate(1.0 / 60.0);
 
                 // Use player's method to check buff collisions
                 playerComponent.checkBuffCollision(buffEntities, gamePane);

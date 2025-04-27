@@ -5,7 +5,9 @@ import com.almasb.fxgl.entity.Entity;
 import hoyocon.bomberman.EntitiesState.EntityType;
 import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.Map.GMap;
+import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
+import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.geometry.Bounds;
 import javafx.scene.layout.Pane;
@@ -23,7 +25,7 @@ import java.util.Map;
 public class Player extends Component {
     // Vị trí người chơi
     private int x, y;
-    
+
     // Thuộc tính người chơi
     private int lives;
     private double speed;
@@ -32,11 +34,11 @@ public class Player extends Component {
     private boolean canPlaceBomb;
     private final int FRAMESIZE = 45;
     private final int NUMFRAME = 3;
-    
+
     // Trạng thái người chơi
     private State state;
     private State lastAni;
-    
+
     // Hình ảnh và animation
     private AnimatedTexture texture;
 
@@ -63,52 +65,52 @@ public class Player extends Component {
     // Buff timers
     private Map<String, Long> activeBuffs = new HashMap<>();
     private static final long BUFF_DURATION = 10 * 1000; // 10 seconds in milliseconds
-    
+
     // Hitbox constants
     private static final int PLAYER_WIDTH = 45;
     private static final int PLAYER_HEIGHT = 45;
     private static final int HITBOX_MARGIN = 0; // Margin to make hitbox slightly smaller than sprite
-    
+
     // Get hitbox with margins for better collision detection
     private double[][] getHitboxPoints(double x, double y) {
         // Create points for each corner of hitbox with margin
         return new double[][] {
-            // Top-left
-            {x + HITBOX_MARGIN, y + HITBOX_MARGIN},
-            // Top-right
-            {x + PLAYER_WIDTH - HITBOX_MARGIN, y + HITBOX_MARGIN},
-            // Bottom-left
-            {x + HITBOX_MARGIN, y + PLAYER_HEIGHT - HITBOX_MARGIN},
-            // Bottom-right
-            {x + PLAYER_WIDTH - HITBOX_MARGIN, y + PLAYER_HEIGHT - HITBOX_MARGIN},
-            // Middle top
-            {x + PLAYER_WIDTH / 2, y + HITBOX_MARGIN},
-            // Middle bottom
-            {x + PLAYER_WIDTH / 2, y + PLAYER_HEIGHT - HITBOX_MARGIN},
-            // Middle left
-            {x + HITBOX_MARGIN, y + PLAYER_HEIGHT / 2},
-            // Middle right
-            {x + PLAYER_WIDTH - HITBOX_MARGIN, y + PLAYER_HEIGHT / 2}
+                // Top-left
+                {x + HITBOX_MARGIN, y + HITBOX_MARGIN},
+                // Top-right
+                {x + PLAYER_WIDTH - HITBOX_MARGIN, y + HITBOX_MARGIN},
+                // Bottom-left
+                {x + HITBOX_MARGIN, y + PLAYER_HEIGHT - HITBOX_MARGIN},
+                // Bottom-right
+                {x + PLAYER_WIDTH - HITBOX_MARGIN, y + PLAYER_HEIGHT - HITBOX_MARGIN},
+                // Middle top
+                {x + PLAYER_WIDTH / 2, y + HITBOX_MARGIN},
+                // Middle bottom
+                {x + PLAYER_WIDTH / 2, y + PLAYER_HEIGHT - HITBOX_MARGIN},
+                // Middle left
+                {x + HITBOX_MARGIN, y + PLAYER_HEIGHT / 2},
+                // Middle right
+                {x + PLAYER_WIDTH - HITBOX_MARGIN, y + PLAYER_HEIGHT / 2}
         };
     }
-    
+
     // Enhanced collision detection
     private boolean canMoveTo(double newX, double newY) {
         if (gameGMap == null) return true;
-        
+
         // Check all points of player hitbox
         double[][] hitboxPoints = getHitboxPoints(newX, newY);
-        
+
         for (double[] point : hitboxPoints) {
             int col = GMap.pixelToTile(point[0]);
             int row = GMap.pixelToTile(point[1]);
-            
+
             // If any point collides with a non-walkable tile, movement is blocked
             if (row < 0 || row >= gameGMap.height || col < 0 || col >= gameGMap.width || !gameGMap.isWalkable(row, col)) {
                 return false;
             }
         }
-        
+
         // If all points pass the check, movement is allowed
         return true;
     }
@@ -121,37 +123,37 @@ public class Player extends Component {
         this.canPlaceBomb = true;
         this.state = State.IDLE;
         this.lastAni = State.IDLE;
-        
+
         Image upImage = new Image(getClass().getResourceAsStream("/assets/textures/player_up.png"));
         Image downImage = new Image(getClass().getResourceAsStream("/assets/textures/player_down.png"));
         Image leftImage = new Image(getClass().getResourceAsStream("/assets/textures/player_left.png"));
         Image rightImage = new Image(getClass().getResourceAsStream("/assets/textures/player_right.png"));
         Image idleImage = new Image(getClass().getResourceAsStream("/assets/textures/player_down.png"));
-        
+
         walkup = new AnimationChannel(upImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
         walkdown = new AnimationChannel(downImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
         walkleft = new AnimationChannel(leftImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
         walkright = new AnimationChannel(rightImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
         idledown = new AnimationChannel(idleImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(1), 0, 0);
-        
+
         texture = new AnimatedTexture(idledown);
     }
-    
+
     public void setGameMap(GMap GMap) {
         this.gameGMap = GMap;
     }
-    
+
     @Override
     public void onAdded() {
         entity.getViewComponent().addChild(texture);
     }
-    
+
     @Override
     public void onUpdate(double tpf) {
         updateAnimation();
         updateBuffs();
     }
-    
+
     private void updateAnimation() {
         switch (state) {
             case UP:
@@ -168,7 +170,7 @@ public class Player extends Component {
                 break;
         }
     }
-    
+
     private void updateBuffs() {
         long currentTime = System.currentTimeMillis();
         activeBuffs.entrySet().removeIf(entry -> {
@@ -183,7 +185,7 @@ public class Player extends Component {
             return expired;
         });
     }
-    
+
 
 
     // Movement với collision detection
@@ -294,11 +296,11 @@ public class Player extends Component {
 
         return safeDistance;
     }
-    
+
     public void stop() {
         setState(State.IDLE);
     }
-    
+
     // Buff collision handling
     public void checkBuffCollision(List<BuffEntity> buffEntities, Pane gamePane) {
         List<BuffEntity> collectedBuffs = new ArrayList<>();
@@ -320,7 +322,7 @@ public class Player extends Component {
         buffEntities.removeAll(collectedBuffs);
     }
 
-    
+
     // Đặt bom
     public boolean placeBomb(Pane gamePane) {
         if ((bombCount < maxBombs || unlimitedBomb) && canPlaceBomb) {
@@ -342,22 +344,37 @@ public class Player extends Component {
             gamePane.getChildren().add(bombPane);
 
             // Bắt đầu hoạt ảnh
-            bombTexture.play();
+            bombTexture.loop();
 
-            // Hẹn giờ nổ sau 3 giây
-            PauseTransition delay = new PauseTransition(Duration.seconds(3));
+            // Hẹn giờ nổ sau 2 giây
+            PauseTransition delay = new PauseTransition(Duration.seconds(2));
             delay.setOnFinished(evt -> {
                 // Xóa bom khỏi gamePane và thông báo nổ
+                System.out.println("Bomb exploded!");
                 gamePane.getChildren().remove(bombPane);
                 this.bombExploded();
             });
             delay.play();
+            AnimationTimer bombAnimLoop = new AnimationTimer() {
+                @Override
+                public void handle(long now) {
+                    bombTexture.onUpdate(1.0/60.0);
+                }
+            };
+            bombAnimLoop.start();
+
+            // khi bom nổ, dừng luôn timer:
+            delay.setOnFinished(evt -> {
+                bombAnimLoop.stop();
+                gamePane.getChildren().remove(bombPane);
+                this.bombExploded();
+            });
 
             return true;
         }
         return false;
     }
-    
+
     // Xử lý khi bom nổ
     public void bombExploded() {
         if (bombCount > 0) {
@@ -365,7 +382,7 @@ public class Player extends Component {
         }
         canPlaceBomb = true;
     }
-    
+
     // Xử lý khi bị thương
     public boolean hit() {
         lives--;
@@ -417,39 +434,39 @@ public class Player extends Component {
     public State getState() {
         return state;
     }
-    
+
     public void setState(State state) {
         this.state = state;
     }
-    
+
     public double getSpeed() {
         return speed;
     }
-    
+
     public void setSpeed(double speed) {
         this.speed = speed;
     }
-    
+
     public int getLives() {
         return lives;
     }
-    
+
     public void setLives(int lives) {
         this.lives = lives;
     }
-    
+
     public int getMaxBombs() {
         return maxBombs;
     }
-    
+
     public void setMaxBombs(int maxBombs) {
         this.maxBombs = maxBombs;
     }
-    
+
     public boolean isCanPlaceBomb() {
         return canPlaceBomb;
     }
-    
+
     public void setCanPlaceBomb(boolean canPlaceBomb) {
         this.canPlaceBomb = canPlaceBomb;
     }

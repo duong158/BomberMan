@@ -18,7 +18,7 @@ public class Bomb extends Component {
         this.owner = owner;
 
         Image bombImage = new Image(getClass().getResourceAsStream("/assets/textures/bomb.png"));
-        bombAnimation = new AnimationChannel(bombImage, 3, 48, 48, Duration.seconds(1), 0, 2);
+        bombAnimation = new AnimationChannel(bombImage, 3, 48, 48, Duration.seconds(2), 0, 2);
         texture = new AnimatedTexture(bombAnimation);
     }
 
@@ -28,12 +28,9 @@ public class Bomb extends Component {
 
     @Override
     public void onAdded() {
-        System.out.println("Bomb added to world");
         entity.getViewComponent().addChild(texture);
         texture.loop();
-
-        // Schedule explosion
-        FXGL.runOnce(this::explode, Duration.seconds(3));
+        FXGL.runOnce(this::explode, Duration.seconds(2)); // hẹn giờ nổ sau 2s
     }
 
     public Entity createEntity(double x, double y, Player owner) {
@@ -43,6 +40,11 @@ public class Bomb extends Component {
         bombEntity.addComponent(bombComponent);
         bombEntity.setPosition(x, y);
         return bombEntity;
+    }
+
+    @Override
+    public void onUpdate(double tpf) {
+        texture.onUpdate(tpf); // Cập nhật Animation
     }
 
     public void explode() {
