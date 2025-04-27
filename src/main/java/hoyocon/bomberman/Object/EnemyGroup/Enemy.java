@@ -15,7 +15,7 @@ import java.util.Random;
 import static com.almasb.fxgl.dsl.FXGL.image;
 
 public class Enemy extends Component {
-    private final int FRAME_SIZE = 48;
+    protected final int FRAME_SIZE = 48;
     protected static final int SCREEN_WIDTH = 1920;
     protected static final int SCREEN_HEIGHT = 1080;
     protected static final int DIRECTION_CHANGE_INTERVAL = 3000;
@@ -168,6 +168,38 @@ public class Enemy extends Component {
 
         // Reset thời gian đổi hướng để tránh đổi hướng liên tục
         lastDirectionChangeTime = System.currentTimeMillis();
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public void moveLeft() {

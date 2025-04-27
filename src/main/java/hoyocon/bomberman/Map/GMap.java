@@ -163,6 +163,9 @@ public class GMap {
     public static int pixelToTile(double pixel) {
         return (int) (pixel / TILE_SIZE);
     }
+    public static double tileToPixel(int tile){
+        return (double) tile*TILE_SIZE;
+    }
 
 //    public boolean canMoveTo(double x, double y, double width, double height) {
 //        int topLeftRow = pixelToTile(y);
