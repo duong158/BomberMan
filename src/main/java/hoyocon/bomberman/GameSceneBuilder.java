@@ -55,44 +55,29 @@ public class GameSceneBuilder {
     }
     
     // Method to spawn a balloon at the given map coordinates with exception handling
-    private static void spawnBalloon(Pane gamePane, GMap gameGMap, int row, int col) {
+    private static void spawnBalloon(Pane gamePane, Group gameWorld, GMap gameGMap, int row, int col) {
         try {
             double x = col * GMap.TILE_SIZE;
             double y = row * GMap.TILE_SIZE;
 
-            System.out.println("Attempting to spawn balloon at: row=" + row + ", col=" + col);
-
-            // Create entity without using FXGL entity factory
             Entity balloonEntity = new Entity();
-
-            // Create balloon component with tile coordinates
             Balloon balloonComponent = new Balloon(col, row);
-
-            // Set gameMap reference for collision detection
             balloonComponent.setGameMap(gameGMap);
-
-            // Add component to entity
             balloonEntity.addComponent(balloonComponent);
-
-            // Set position in pixels
             balloonEntity.setPosition(x, y);
-
-            // Add to our tracking list
             balloonEntities.add(balloonEntity);
 
-            // Add to the game scene
             if (balloonEntity.getViewComponent() != null &&
-                balloonEntity.getViewComponent().getParent() != null) {
-                gamePane.getChildren().add(balloonEntity.getViewComponent().getParent());
-                System.out.println("Balloon added to scene at x=" + x + ", y=" + y);
+                    balloonEntity.getViewComponent().getParent() != null) {
+                gameWorld.getChildren().add(balloonEntity.getViewComponent().getParent());
             } else {
                 System.err.println("Warning: Balloon view component is null");
             }
         } catch (Exception e) {
-            System.err.println("Error spawning balloon: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
     private static void spawnPass(Pane gamePane, GMap gameGMap, int row, int col) {
         try {
             double x = col * GMap.TILE_SIZE;
@@ -171,7 +156,7 @@ public class GameSceneBuilder {
             System.out.println("Found " + balloonPositions.size() + " balloon positions in map");
 
             for (int[] position : balloonPositions) {
-                spawnBalloon(gamePane, gameGMap, position[0], position[1]);
+                spawnBalloon(gamePane, gameWorld, gameGMap, position[0], position[1]);
             }
         } catch (Exception e) {
             System.err.println("Error setting up balloons: " + e.getMessage());
