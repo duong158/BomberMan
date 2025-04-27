@@ -11,8 +11,8 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import java.util.ArrayList;
-import java.util.List;
+import javafx.scene.Group;
+import hoyocon.bomberman.Camera.Camera;
 
 import hoyocon.bomberman.Buff.Bomb;
 import hoyocon.bomberman.Buff.Flame;
@@ -20,6 +20,9 @@ import hoyocon.bomberman.Buff.Speed;
 import hoyocon.bomberman.Object.BuffEntity;
 import hoyocon.bomberman.Buff.BuffGeneric;
 import hoyocon.bomberman.Map.GMap;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameSceneBuilder {
     private static double savedX = 195;
@@ -56,13 +59,18 @@ public class GameSceneBuilder {
     }
 
     private static Scene buildGameScene(double startX, double startY) {
+        // Container chính cho toàn bộ scene
         Pane gamePane = new Pane();
-        gamePane.setStyle("-fx-background-color: black;"); // Đổi màu nền
+        gamePane.setStyle("-fx-background-color: black;");
 
-        // Tạo và hiển thị map trước khi tạo player
-        GMap gameGMap = new GMap(Map1.getMapData());
+        // Tạo một Group để chứa thế giới game (camera sẽ di chuyển group này)
+        Group gameWorld = new Group();
+        gamePane.getChildren().add(gameWorld);
+
+        // Tạo và hiển thị map
+        GMap gameGMap = new GMap(Map1.getMapData(46, 23, 0.3f));
         gameGMap.render();
-        gamePane.getChildren().add(gameGMap.getCanvas());
+        gameWorld.getChildren().add(gameGMap.getCanvas());  // Thêm vào gameWorld thay vì gamePane
 
         // Làm sạch danh sách buff
         buffEntities.clear();
@@ -71,23 +79,36 @@ public class GameSceneBuilder {
         Entity playerEntity = new Entity();
         Player playerComponent = new Player();
         playerEntity.addComponent(playerComponent);
-        
+
         // Set the game map for collision detection
         playerComponent.setGameMap(gameGMap);
-        
-        // Đặt vị trí ban đầu - điều chỉnh thành vị trí phù hợp trong map
-        // Vị trí tile 1,1 (ô trống đầu tiên sau viền tường)
-        startX = GMap.TILE_SIZE;  // Điều chỉnh vị trí trong ô (48 + 8)
-        startY = GMap.TILE_SIZE;  // Điều chỉnh vị trí trong ô
-        playerEntity.setPosition(startX, startY);
-        
-        // Thêm playerEntity vào gamePane
-        gamePane.getChildren().add(playerEntity.getViewComponent().getParent());
 
-        // Thêm các buff vào bản đồ (giữ nguyên code này)
+        // Đặt vị trí ban đầu
+        startX = GMap.TILE_SIZE;
+        startY = GMap.TILE_SIZE;
+        playerEntity.setPosition(startX, startY);
+
+        // Thêm playerEntity vào gameWorld thay vì gamePane
+        gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
+
+        // Thêm các buff vào bản đồ
         addBuffToMap(gamePane, new Bomb(), 300, 300);
         addBuffToMap(gamePane, new Speed(), 500, 500);
         addBuffToMap(gamePane, new Flame(), 700, 700);
+
+        // Tính kích thước thế giới game
+        int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
+        int worldHeight = gameGMap.height * (int)GMap.TILE_SIZE;
+
+        // Tạo camera theo dõi người chơi
+        Camera camera = new Camera(
+                gameWorld,
+                playerEntity.getViewComponent().getParent(),
+                (int)screenWidth,
+                (int)screenHeight,
+                worldWidth,
+                worldHeight
+        );
 
         Scene scene = new Scene(gamePane, screenWidth, screenHeight);
 
@@ -98,7 +119,7 @@ public class GameSceneBuilder {
         gamePane.setOnMouseClicked(e -> gamePane.requestFocus());
         gamePane.requestFocus();
 
-        // Sửa đổi AnimationTimer để sử dụng phương thức từ Player
+        // AnimationTimer để cập nhật game loop
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -116,7 +137,7 @@ public class GameSceneBuilder {
                 else if (isRightPressed) {
                     moved = playerComponent.moveRight(0.016);
                 }
-                
+
                 if(!moved){
                     playerComponent.stop();
                 }
@@ -145,11 +166,11 @@ public class GameSceneBuilder {
                 // Lưu vị trí hiện tại
                 savedX = playerEntity.getX();
                 savedY = playerEntity.getY();
-                
+
                 try {
                     // Dừng game loop khi thoát
                     gameLoop.stop();
-                    
+
                     Parent menuRoot = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/Menu-view.fxml"));
                     Scene menuScene = new Scene(menuRoot, screenWidth, screenHeight);
 
@@ -163,19 +184,19 @@ public class GameSceneBuilder {
                 }
             }
         });
-        
+
         // Xử lý khi thả phím
         gamePane.setOnKeyReleased(event -> {
             if (event.getCode() == KeyCode.W) {
                 isUpPressed = false;
             } else if (event.getCode() == KeyCode.S) {
-                isDownPressed = false; 
+                isDownPressed = false;
             } else if (event.getCode() == KeyCode.A) {
                 isLeftPressed = false;
             } else if (event.getCode() == KeyCode.D) {
                 isRightPressed = false;
             }
-            
+
             if (!isUpPressed && !isDownPressed && !isLeftPressed && !isRightPressed) {
                 playerComponent.stop();
             }
