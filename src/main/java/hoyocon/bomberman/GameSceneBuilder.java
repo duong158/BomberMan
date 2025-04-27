@@ -1,5 +1,6 @@
 package hoyocon.bomberman;
 
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import hoyocon.bomberman.Map.Map1;
 import hoyocon.bomberman.Object.Player;
@@ -57,6 +58,7 @@ public class GameSceneBuilder {
 
     private static Scene buildGameScene(double startX, double startY) {
         Pane gamePane = new Pane();
+        gamePane.setFocusTraversable(true);
         gamePane.setStyle("-fx-background-color: black;"); // Đổi màu nền
 
         // Tạo và hiển thị map trước khi tạo player
@@ -71,7 +73,7 @@ public class GameSceneBuilder {
         Entity playerEntity = new Entity();
         Player playerComponent = new Player();
         playerEntity.addComponent(playerComponent);
-        
+
         // Set the game map for collision detection
         playerComponent.setGameMap(gameGMap);
         
@@ -140,7 +142,8 @@ public class GameSceneBuilder {
             } else if (event.getCode() == KeyCode.D) {
                 isRightPressed = true;
             } else if (event.getCode() == KeyCode.SPACE) {
-                playerComponent.placeBomb();
+                playerComponent.placeBomb(gamePane);
+                System.out.println("Key pressed: " + event.getCode());
             } else if (event.getCode() == KeyCode.ESCAPE) {
                 // Lưu vị trí hiện tại
                 savedX = playerEntity.getX();
