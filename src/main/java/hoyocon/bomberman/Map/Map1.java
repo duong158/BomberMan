@@ -7,6 +7,7 @@ import java.util.Random;
 
 public class Map1 {
 
+    public static final int MOBKC = 5;
     public static final int EMPTY = 0;
     public static final int WALL = 1;
     public static final int BRICK = 2;
@@ -60,7 +61,7 @@ public class Map1 {
             if (balloonsAdded >= BALLOONNUMS) break;
 
             // Kiểm tra xem vị trí này có còn trống không
-            if (map[pos[0]][pos[1]] == EMPTY) {
+            if (map[pos[0]][pos[1]] == EMPTY && pos[0] > MOBKC && pos[1] > MOBKC) {
                 map[pos[0]][pos[1]] = BALLOON;
                 balloonsAdded++;
             }
@@ -72,7 +73,7 @@ public class Map1 {
             if (passesAdded >= PASSNUMS) break;
 
             // Kiểm tra xem vị trí này có còn trống không
-            if (map[pos[0]][pos[1]] == EMPTY) {
+            if (map[pos[0]][pos[1]] == EMPTY && pos[0] > MOBKC && pos[1] > MOBKC) {
                 map[pos[0]][pos[1]] = PASS;
                 passesAdded++;
             }
