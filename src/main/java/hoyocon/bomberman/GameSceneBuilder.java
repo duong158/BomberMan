@@ -48,7 +48,7 @@ public class GameSceneBuilder {
     private static List<Entity> balloonEntities = new ArrayList<>();
     private static List<Entity> passEntities = new ArrayList<>();
 
-    private static void addBuffToMap(Pane gamePane, BuffGeneric buff, double x, double y) {
+    public static void addBuffToMap(Pane gamePane, BuffGeneric buff, double x, double y) {
         BuffEntity buffEntity = new BuffEntity(buff, x, y);
         buffEntities.add(buffEntity); // Lưu buff vào danh sách
         gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
@@ -190,11 +190,6 @@ public class GameSceneBuilder {
 
         // Thêm playerEntity vào gameWorld thay vì gamePane
         gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
-
-        // Thêm các buff vào bản đồ
-        addBuffToMap(gamePane, new Bomb(), 300, 300);
-        addBuffToMap(gamePane, new Speed(), 500, 500);
-        addBuffToMap(gamePane, new Flame(), 700, 700);
 
         // Tính kích thước thế giới game
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
