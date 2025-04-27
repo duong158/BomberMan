@@ -1,8 +1,10 @@
 package hoyocon.bomberman;
 
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import hoyocon.bomberman.Map.Map1;
 import hoyocon.bomberman.Object.Player;
+import hoyocon.bomberman.Object.EnemyGroup.Balloon;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
@@ -40,11 +42,54 @@ public class GameSceneBuilder {
 
     // Quản lí buff.
     private static List<BuffEntity> buffEntities = new ArrayList<>();
+    
+    // List to manage balloons
+    private static List<Entity> balloonEntities = new ArrayList<>();
 
     private static void addBuffToMap(Pane gamePane, BuffGeneric buff, double x, double y) {
         BuffEntity buffEntity = new BuffEntity(buff, x, y);
         buffEntities.add(buffEntity); // Lưu buff vào danh sách
         gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
+    }
+    
+    // Method to spawn a balloon at the given map coordinates with exception handling
+    private static void spawnBalloon(Pane gamePane, GMap gameGMap, int row, int col) {
+        try {
+            double x = col * GMap.TILE_SIZE;
+            double y = row * GMap.TILE_SIZE;
+
+            System.out.println("Attempting to spawn balloon at: row=" + row + ", col=" + col);
+
+            // Create entity without using FXGL entity factory
+            Entity balloonEntity = new Entity();
+
+            // Create balloon component with tile coordinates
+            Balloon balloonComponent = new Balloon(col, row);
+
+            // Set gameMap reference for collision detection
+            balloonComponent.setGameMap(gameGMap);
+
+            // Add component to entity
+            balloonEntity.addComponent(balloonComponent);
+
+            // Set position in pixels
+            balloonEntity.setPosition(x, y);
+
+            // Add to our tracking list
+            balloonEntities.add(balloonEntity);
+
+            // Add to the game scene
+            if (balloonEntity.getViewComponent() != null &&
+                balloonEntity.getViewComponent().getParent() != null) {
+                gamePane.getChildren().add(balloonEntity.getViewComponent().getParent());
+                System.out.println("Balloon added to scene at x=" + x + ", y=" + y);
+            } else {
+                System.err.println("Warning: Balloon view component is null");
+            }
+        } catch (Exception e) {
+            System.err.println("Error spawning balloon: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public static Scene buildNewGameScene() {
@@ -61,19 +106,37 @@ public class GameSceneBuilder {
     private static Scene buildGameScene(double startX, double startY) {
         // Container chính cho toàn bộ scene
         Pane gamePane = new Pane();
+
         gamePane.setStyle("-fx-background-color: black;");
 
         // Tạo một Group để chứa thế giới game (camera sẽ di chuyển group này)
         Group gameWorld = new Group();
         gamePane.getChildren().add(gameWorld);
 
+        gamePane.setFocusTraversable(true);
+
+
         // Tạo và hiển thị map
         GMap gameGMap = new GMap(Map1.getMapData(46, 23, 0.3f));
         gameGMap.render();
         gameWorld.getChildren().add(gameGMap.getCanvas());  // Thêm vào gameWorld thay vì gamePane
 
-        // Làm sạch danh sách buff
+        // Làm sạch danh sách buff và balloons
         buffEntities.clear();
+        balloonEntities.clear();
+
+        try {
+            // Spawn balloons at positions marked with 4 in the map
+            List<int[]> balloonPositions = gameGMap.getBalloonPositions();
+            System.out.println("Found " + balloonPositions.size() + " balloon positions in map");
+
+            for (int[] position : balloonPositions) {
+                spawnBalloon(gamePane, gameGMap, position[0], position[1]);
+            }
+        } catch (Exception e) {
+            System.err.println("Error setting up balloons: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         // Tạo entity và thêm Player component
         Entity playerEntity = new Entity();
@@ -119,7 +182,6 @@ public class GameSceneBuilder {
         gamePane.setOnMouseClicked(e -> gamePane.requestFocus());
         gamePane.requestFocus();
 
-        // AnimationTimer để cập nhật game loop
         AnimationTimer gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -128,13 +190,13 @@ public class GameSceneBuilder {
                 if (isUpPressed) {
                     moved = playerComponent.moveUp(0.016);
                 }
-                else if (isDownPressed) {
+                if (isDownPressed) {
                     moved = playerComponent.moveDown(0.016);
                 }
-                else if (isLeftPressed) {
+                if (isLeftPressed) {
                     moved = playerComponent.moveLeft(0.016);
                 }
-                else if (isRightPressed) {
+                if (isRightPressed) {
                     moved = playerComponent.moveRight(0.016);
                 }
 
@@ -146,6 +208,13 @@ public class GameSceneBuilder {
 
                 // Use player's method to check buff collisions
                 playerComponent.checkBuffCollision(buffEntities, gamePane);
+                // Update balloons
+                for (Entity balloon : new ArrayList<>(balloonEntities)) {
+                    if (balloon.getComponentOptional(Balloon.class).isPresent()) {
+                        Balloon balloonComponent = balloon.getComponent(Balloon.class);
+                        balloonComponent.onUpdate(1.0 / 60.0); // Assuming 60 FPS
+                    }
+                }
             }
         };
         gameLoop.start();
@@ -161,7 +230,8 @@ public class GameSceneBuilder {
             } else if (event.getCode() == KeyCode.D) {
                 isRightPressed = true;
             } else if (event.getCode() == KeyCode.SPACE) {
-                playerComponent.placeBomb();
+                playerComponent.placeBomb(gamePane);
+                System.out.println("Key pressed: " + event.getCode());
             } else if (event.getCode() == KeyCode.ESCAPE) {
                 // Lưu vị trí hiện tại
                 savedX = playerEntity.getX();

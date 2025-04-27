@@ -1,7 +1,11 @@
 package hoyocon.bomberman.Object;
 
+import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.entity.Entity;
+import hoyocon.bomberman.EntitiesState.EntityType;
 import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.Map.GMap;
+import javafx.animation.PauseTransition;
 import javafx.scene.image.Image;
 import javafx.geometry.Bounds;
 import javafx.scene.layout.Pane;
@@ -61,9 +65,9 @@ public class Player extends Component {
     private static final long BUFF_DURATION = 10 * 1000; // 10 seconds in milliseconds
     
     // Hitbox constants
-    private static final int PLAYER_WIDTH = 48;
-    private static final int PLAYER_HEIGHT = 48;
-    private static final int HITBOX_MARGIN = 2; // Margin to make hitbox slightly smaller than sprite
+    private static final int PLAYER_WIDTH = 45;
+    private static final int PLAYER_HEIGHT = 45;
+    private static final int HITBOX_MARGIN = 0; // Margin to make hitbox slightly smaller than sprite
     
     // Get hitbox with margins for better collision detection
     private double[][] getHitboxPoints(double x, double y) {
@@ -167,7 +171,17 @@ public class Player extends Component {
     
     private void updateBuffs() {
         long currentTime = System.currentTimeMillis();
-        activeBuffs.entrySet().removeIf(entry -> currentTime - entry.getValue() > BUFF_DURATION);
+        activeBuffs.entrySet().removeIf(entry -> {
+            boolean expired = currentTime - entry.getValue() > BUFF_DURATION;
+            if (expired) {
+                switch (entry.getKey()) {
+                    case "unlimitedBomb" -> unlimitedBomb = false;
+                    case "speed" -> speed = baseSpeed;
+                    // Nếu muốn reset flameRange về mặc định thì thêm ở đây
+                }
+            }
+            return expired;
+        });
     }
     
 
@@ -305,14 +319,40 @@ public class Player extends Component {
         // Remove collected buffs from buffEntities list
         buffEntities.removeAll(collectedBuffs);
     }
+
     
     // Đặt bom
-    public boolean placeBomb() {
+    public boolean placeBomb(Pane gamePane) {
         if ((bombCount < maxBombs || unlimitedBomb) && canPlaceBomb) {
             bombCount++;
-            // Logic cho việc tạo bom ở vị trí hiện tại của player
-            // Có thể gửi event hoặc gọi factory để tạo bom
-            
+            canPlaceBomb = false;
+
+            double tileSize = GMap.TILE_SIZE;
+            double snappedX = Math.floor(getEntity().getX() / tileSize) * tileSize;
+            double snappedY = Math.floor(getEntity().getY() / tileSize) * tileSize;
+
+            // Tạo texture cho bom và thêm vào Pane
+            Bomb bombComponent = new Bomb(this);
+            AnimatedTexture bombTexture = bombComponent.getTexture();
+            Pane bombPane = new Pane();
+            bombPane.setPrefSize(tileSize, tileSize);
+            bombPane.getChildren().add(bombTexture);
+            bombPane.setLayoutX(snappedX);
+            bombPane.setLayoutY(snappedY);
+            gamePane.getChildren().add(bombPane);
+
+            // Bắt đầu hoạt ảnh
+            bombTexture.play();
+
+            // Hẹn giờ nổ sau 3 giây
+            PauseTransition delay = new PauseTransition(Duration.seconds(3));
+            delay.setOnFinished(evt -> {
+                // Xóa bom khỏi gamePane và thông báo nổ
+                gamePane.getChildren().remove(bombPane);
+                this.bombExploded();
+            });
+            delay.play();
+
             return true;
         }
         return false;
@@ -323,6 +363,7 @@ public class Player extends Component {
         if (bombCount > 0) {
             bombCount--;
         }
+        canPlaceBomb = true;
     }
     
     // Xử lý khi bị thương

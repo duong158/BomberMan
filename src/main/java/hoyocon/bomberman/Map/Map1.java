@@ -37,6 +37,7 @@ public class Map1 {
         }
 
         return map;
+  
     }
 
     private void placeEntranceAndExit(int[][] map) {
