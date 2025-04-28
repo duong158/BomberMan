@@ -4,11 +4,8 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.Map.Map1;
+import hoyocon.bomberman.Object.EnemyGroup.*;
 import hoyocon.bomberman.Object.Player;
-import hoyocon.bomberman.Object.EnemyGroup.Balloon;
-import hoyocon.bomberman.Object.EnemyGroup.Enemy;
-import hoyocon.bomberman.Object.EnemyGroup.Oneal;
-import hoyocon.bomberman.Object.EnemyGroup.Pass;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -134,7 +131,7 @@ public class GameSceneBuilder {
 
         try {
             // Spawn balloons
-            List<int[]> balloonPositions = gameGMap.getBalloonPositions();
+            List<int[]> balloonPositions = gameGMap.getESpawnPositions(GMap.BALLOON);
             System.out.println("Found " + balloonPositions.size() + " balloon positions in map");
 
             for (int[] position : balloonPositions) {
@@ -142,17 +139,29 @@ public class GameSceneBuilder {
             }
 
             // Spawn passes
-            List<int[]> passPositions = gameGMap.getPassPositions();
+            List<int[]> passPositions = gameGMap.getESpawnPositions(GMap.PASS);
             System.out.println("Found " + passPositions.size() + " pass positions in map");
             for (int[] position : passPositions) {
                 spawnEnemy(gamePane, gameGMap, position[0], position[1], Pass.class, Pass::new);
             }
 
             // Spawn oneals (nếu có)
-            List<int[]> onealPositions = gameGMap.getOnealPositions();
+            List<int[]> onealPositions = gameGMap.getESpawnPositions(GMap.ONEAL);
             System.out.println("Found " + onealPositions.size() + " oneal positions in map");
             for (int[] position : onealPositions) {
                 spawnEnemy(gamePane, gameGMap, position[0], position[1], Oneal.class, Oneal::new);
+            }
+
+            List<int[]> dahlPositions = gameGMap.getESpawnPositions(GMap.DAHL);
+            System.out.println("Found " + onealPositions.size() + " oneal positions in map");
+            for (int[] position : dahlPositions) {
+                spawnEnemy(gamePane, gameGMap, position[0], position[1], Dahl.class, Dahl::new);
+            }
+
+            List<int[]> doriaPositions = gameGMap.getESpawnPositions(GMap.DORIA);
+            System.out.println("Found " + doriaPositions.size() + " oneal positions in map");
+            for (int[] position : doriaPositions) {
+                spawnEnemy(gamePane, gameGMap, position[0], position[1], Doria.class, Doria::new);
             }
 
             // Có thể dễ dàng thêm các loại kẻ địch mới ở đây
@@ -178,6 +187,23 @@ public class GameSceneBuilder {
 
         // Thêm playerEntity vào gameWorld thay vì gamePane
         gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
+        for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
+            Class<? extends Enemy> enemyClass = entry.getKey();
+            List<Entity> entities = entry.getValue();
+            
+            // Kiểm tra xem đây có phải là Oneal hoặc lớp con của Oneal không
+            if (Oneal.class.isAssignableFrom(enemyClass)) {
+                for (Entity enemy : entities) {
+                    if (enemy.getComponentOptional(enemyClass).isPresent()) {
+                        Enemy component = enemy.getComponent(enemyClass);
+                        if (component instanceof Oneal) {
+                            ((Oneal) component).setPlayer(playerComponent);
+                            System.out.println("Player reference set for " + enemyClass.getSimpleName());
+                        }
+                    }
+                }
+            }
+        }
 
         // Tính kích thước thế giới game
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;

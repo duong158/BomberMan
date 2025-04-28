@@ -36,6 +36,8 @@ public class GMap {
     public static final int BALLOON = 5;
     public static final int PASS = 6;
     public static final int ONEAL = 7;
+    public static final int DAHL = 8;
+    public static final int DORIA = 9;
 
     // Ảnh cho các tile
     private Image wallImage;
@@ -46,8 +48,6 @@ public class GMap {
     private boolean[][] wallHitbox;
     private boolean[][] brickHitbox;
 
-    // Additional array to track balloon positions
-    private boolean[][] balloonPositions;
 
     public GMap(int[][] mapData) {
         this.mapData = mapData;
@@ -59,7 +59,6 @@ public class GMap {
 
         wallHitbox = new boolean[height][width];
         brickHitbox = new boolean[height][width];
-        balloonPositions = new boolean[height][width];
 
         initializeHitboxes();
         loadImages();
@@ -106,48 +105,20 @@ public class GMap {
                     wallHitbox[row][col] = true;
                 } else if (mapData[row][col] == BRICK) {
                     brickHitbox[row][col] = true;
-                } else if (mapData[row][col] == BALLOON) {
-                    balloonPositions[row][col] = true;
-                    mapData[row][col] = EMPTY;
                 } else {
                     wallHitbox[row][col] = false;
                     brickHitbox[row][col] = false;
-                    balloonPositions[row][col] = false;
                 }
             }
         }
     }
 
     // Method to get balloon spawn positions
-    public List<int[]> getBalloonPositions() {
+    public List<int[]> getESpawnPositions(int enemyType) {
         List<int[]> positions = new ArrayList<>();
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
-                if (balloonPositions[row][col]) {
-                    positions.add(new int[]{row, col});
-                }
-            }
-        }
-        return positions;
-    }
-
-    public List<int[]> getPassPositions() {
-        List<int[]> positions = new ArrayList<>();
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                if (mapData[row][col] == PASS) {
-                    positions.add(new int[]{row, col});
-                    mapData[row][col] = EMPTY;
-                }
-            }
-        }
-        return positions;
-    }
-    public List<int[]> getOnealPositions() {
-        List<int[]> positions = new ArrayList<>();
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                if (mapData[row][col] == ONEAL) {
+                if (mapData[row][col] == enemyType) {
                     positions.add(new int[]{row, col});
                     mapData[row][col] = EMPTY;
                 }

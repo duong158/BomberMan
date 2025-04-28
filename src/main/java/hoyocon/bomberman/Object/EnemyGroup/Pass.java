@@ -12,11 +12,11 @@ public class Pass extends Enemy {
     /**
      * Khởi tạo Pass mới tại vị trí x, y.
      */
-    public Pass(int col, int row) {
+    public Pass(int row, int col) {
         // Convert tile coordinates to pixel coordinates
         super(
-                (int)(col * GMap.TILE_SIZE),
                 (int)(row * GMap.TILE_SIZE),
+                (int)(col * GMap.TILE_SIZE),
                 PASS_SPEED,
                 "/assets/textures/enemy3.png"
         );

@@ -15,11 +15,11 @@ public class Balloon extends Enemy {
     /**
      * Khởi tạo Balloon mới tại vị trí x, y.
      */
-    public Balloon(int col, int row) {
+    public Balloon(int row, int col) {
         // Convert tile coordinates to pixel coordinates
         super(
-                (int)(col * GMap.TILE_SIZE),
                 (int)(row * GMap.TILE_SIZE),
+                (int)(col * GMap.TILE_SIZE),
                 BALLOON_SPEED,
                 "/assets/textures/enemy1.png"
         );

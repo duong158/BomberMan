@@ -4,10 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="thay thuật toán tìm đường theo hướng bằng bfs">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="thêm lớp doria">
+      <change afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Doria.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/GameSceneBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/GameSceneBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/GMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/GMap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/Map1.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/Map1.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Balloon.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Balloon.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Cylinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Dahl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Enemy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Enemy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Ghost.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Pass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Pass.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,6 +94,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
@@ -154,6 +163,8 @@
       <workItem from="1745759225211" duration="6344000" />
       <workItem from="1745780913841" duration="42000" />
       <workItem from="1745822721989" duration="1808000" />
+      <workItem from="1745830417198" duration="6520000" />
+      <workItem from="1745847242495" duration="10886000" />
     </task>
     <task id="LOCAL-00001" summary="thêm lớp Player và các asset">
       <option name="closed" value="true" />
@@ -323,7 +334,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745824517849</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="resolve conflict merge dng to main #34">
+      <option name="closed" value="true" />
+      <created>1745825027185</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1745825027185</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -359,24 +378,20 @@
     <MESSAGE value="merge main to dng" />
     <MESSAGE value="thêm thuật toán tìm đường cho lớp oneal (đã khôn)" />
     <MESSAGE value="thay thuật toán tìm đường theo hướng bằng bfs" />
-    <option name="LAST_COMMIT_MESSAGE" value="thay thuật toán tìm đường theo hướng bằng bfs" />
+    <MESSAGE value="resolve conflict merge dng to main #34" />
+    <option name="LAST_COMMIT_MESSAGE" value="resolve conflict merge dng to main #34" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint type="java-method">
+        <line-breakpoint enabled="true" type="java-method">
           <url>file://$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java</url>
-          <line>36</line>
-          <properties class="hoyocon.bomberman.Object.EnemyGroup.Oneal" method="isPlayerInRange">
+          <line>210</line>
+          <properties class="hoyocon.bomberman.Object.EnemyGroup.Oneal" method="moveToAlign">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
           </properties>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java</url>
-          <line>225</line>
-          <option name="timeStamp" value="9" />
+          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -16,13 +16,17 @@ public class Map1 {
     public static final int BALLOON = 5;
     public static final int PASS = 6;
     public static final int ONEAL = 7;
+    public static final int DAHL = 8;
+    public static final int DORIA = 9;
 
-    public static final int MOBNUMS = 8;
+    public static final int MOBNUMS = 10;
     
     // Tỷ lệ phần trăm của từng loại quái
-    private static final double BALLOON_PERCENT = 0.5;
-    private static final double PASS_PERCENT = 0.3;
+    private static final double BALLOON_PERCENT = 0.3;
+    private static final double PASS_PERCENT = 0.2;
     private static final double ONEAL_PERCENT = 0.2;
+    private static final double DAHL_PERCENT = 0.2;
+    private static final double DORIA_PERCENT = 0.1;
 
     public static int[][] getMapData(int width, int height, float obstacleDensity) {
         int[][] map = new int[height][width];
@@ -62,13 +66,17 @@ public class Map1 {
         Collections.shuffle(emptyPositions);
 
         // Spawn balloon
-        int balloonCount = (int) Math.ceil(MOBNUMS * BALLOON_PERCENT);
-        int passCount = (int) Math.ceil(MOBNUMS * PASS_PERCENT);
-        int onealCount = (int) Math.ceil(MOBNUMS * ONEAL_PERCENT); // Đảm bảo tổng chính xác
+        int balloonCount = (int) Math.round(MOBNUMS * BALLOON_PERCENT);
+        int passCount = (int) Math.round(MOBNUMS * PASS_PERCENT);
+        int onealCount = (int) Math.round(MOBNUMS * ONEAL_PERCENT);
+        int dahlCount = (int) Math.round(MOBNUMS * DAHL_PERCENT);
+        int doriaCount = (int) Math.round(MOBNUMS * DORIA_PERCENT);
+
+        // Đảm bảo tổng chính xác
         
         // Mảng chứa thông tin về các loại quái và số lượng
-        int[] mobTypes = {BALLOON, PASS, ONEAL};
-        int[] mobCounts = {balloonCount, passCount, onealCount};
+        int[] mobTypes = {BALLOON, PASS, ONEAL, DAHL, DORIA};
+        int[] mobCounts = {balloonCount, passCount, onealCount, dahlCount, doriaCount};
         
         int mobsAdded = 0;
         int mobTypeIndex = 0;  // Loại quái hiện tại đang được spawn
