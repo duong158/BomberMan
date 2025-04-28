@@ -11,9 +11,9 @@ import java.util.*;
  * khi người chơi vào phạm vi xác định
  */
 public class Oneal extends Enemy {
-    private static final double ONEAL_NORMAL_SPEED = 80;
-    private static final double ONEAL_CHASE_SPEED = 100;
-    private static final int DETECTION_RANGE = 100;
+    protected static final double ONEAL_NORMAL_SPEED = 80;
+    protected static final double ONEAL_CHASE_SPEED = 100;
+    protected static final int DETECTION_RANGE = 100;
     private static final double STUCK_THRESHOLD = 0.3;
     private static final double MOVE_EPSILON = 1.0;
 
@@ -22,12 +22,16 @@ public class Oneal extends Enemy {
     private double lastX, lastY;
 
     private Player player;
-    private boolean isChasing = false;
+    protected boolean isChasing = false;
     private boolean isAligning = false;
     private double targetAlignX, targetAlignY;
 
-    public Oneal(int col, int row) {
-        super((int)(col * GMap.TILE_SIZE), (int)(row * GMap.TILE_SIZE), ONEAL_NORMAL_SPEED, "/assets/textures/enemy2.png");
+    public Oneal(int row, int col) {
+        super((int)(row * GMap.TILE_SIZE), (int)(col * GMap.TILE_SIZE), ONEAL_NORMAL_SPEED, "/assets/textures/enemy2.png");
+    }
+
+    public Oneal(int row, int col, double speed, String assetName) {
+        super((int)(row * GMap.TILE_SIZE), (int)(col * GMap.TILE_SIZE), speed, assetName);
     }
 
     public void setPlayer(Player player) {
@@ -36,7 +40,7 @@ public class Oneal extends Enemy {
 
     private boolean isPlayerInRange(int playerRow, int playerCol, int onealRow, int onealCol) {
         int distance = Math.abs(playerRow - onealRow) + Math.abs(playerCol - onealCol);
-        return distance <= DETECTION_RANGE;
+        return distance <= getDetectionRange();
     }
 
     @Override
@@ -61,11 +65,11 @@ public class Oneal extends Enemy {
 
         if (playerInRange) {
             if (!isChasing) {
-                setSpeed(ONEAL_CHASE_SPEED);
+                setSpeed(getChaseSpeed());
                 isChasing = true;
             }
         } else if (isChasing) {
-            setSpeed(ONEAL_NORMAL_SPEED);
+            setSpeed(getNormalSpeed());
             isChasing = false;
         }
 
@@ -103,7 +107,7 @@ public class Oneal extends Enemy {
 
         int[] dir = findNextDirectionBFS(onealRow, onealCol, playerRow, playerCol);
         if (dir == null) {
-            setSpeed(ONEAL_NORMAL_SPEED);
+            setSpeed(getNormalSpeed());
             isChasing = false;
             super.move(tpf);
             return;
@@ -124,7 +128,7 @@ public class Oneal extends Enemy {
         }
     }
 
-    private int[] findNextDirectionBFS(int startRow, int startCol, int targetRow, int targetCol) {
+    protected int[] findNextDirectionBFS(int startRow, int startCol, int targetRow, int targetCol) {
         if (startRow == targetRow && startCol == targetCol) {
             return new int[]{0, 0};
         }
@@ -219,8 +223,8 @@ public class Oneal extends Enemy {
             return;
         }
 
-        double moveX = (dx / distance) * ONEAL_CHASE_SPEED * tpf;
-        double moveY = (dy / distance) * ONEAL_CHASE_SPEED * tpf;
+        double moveX = (dx / distance) * getChaseSpeed() * tpf;
+        double moveY = (dy / distance) * getChaseSpeed() * tpf;
 
         entity.setPosition(currentX + moveX, currentY + moveY);
     }
@@ -233,4 +237,8 @@ public class Oneal extends Enemy {
             isChasing = false;
         }
     }
+    protected double getNormalSpeed()    { return ONEAL_NORMAL_SPEED; }
+    protected double getChaseSpeed()     { return ONEAL_CHASE_SPEED; }
+    protected int    getDetectionRange() { return DETECTION_RANGE;    }
+
 }

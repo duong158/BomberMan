@@ -240,4 +240,5 @@ public class Enemy extends Component {
     public boolean isDead() {
         return isDead;
     }
+
 }
