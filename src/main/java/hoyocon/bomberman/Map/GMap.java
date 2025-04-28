@@ -6,14 +6,22 @@ import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.physics.PhysicsComponent;
 import com.almasb.fxgl.physics.BoundingShape;
+import hoyocon.bomberman.Buff.Bomb;
+import hoyocon.bomberman.Buff.BuffGeneric;
+import hoyocon.bomberman.Buff.Flame;
+import hoyocon.bomberman.Buff.Speed;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class GMap {
+    private BuffGeneric[][] hiddenBuffs;
     public static final double TILE_SIZE = 48;
     private int[][] mapData;
     public int height;
@@ -55,6 +63,40 @@ public class GMap {
 
         initializeHitboxes();
         loadImages();
+        // Khởi tạo mảng và gán 5 buff ngẫu nhiên vào các vị trí brick
+        hiddenBuffs = new BuffGeneric[height][width];
+        assignHiddenBuffs(15);
+    }
+
+    private void assignHiddenBuffs(int count) {
+        List<int[]> bricks = new ArrayList<>();
+        for (int r = 0; r < height; r++) {
+            for (int c = 0; c < width; c++) {
+                if (brickHitbox[r][c])  // nếu là brick
+                    bricks.add(new int[]{r, c});
+            }
+        }
+        Collections.shuffle(bricks);
+        BuffGeneric[] types = { new Bomb(), new Speed(), new Flame() };
+        Random rnd = new Random();
+        for (int i = 0; i < count && i < bricks.size(); i++) {
+            int[] p = bricks.get(i);
+            hiddenBuffs[p[0]][p[1]] = types[rnd.nextInt(types.length)];
+        }
+    }
+
+    public BuffGeneric getHiddenBuff(int row, int col) {
+        return hiddenBuffs[row][col];
+    }
+    public void clearHiddenBuff(int row, int col) {
+        hiddenBuffs[row][col] = null;
+    }
+    // Phương thức xoá brick (khi bị nổ)
+    public void removeBrick(int row, int col) {
+        mapData[row][col] = EMPTY;
+        brickHitbox[row][col] = false;
+        // Vẽ lại ô trống lên canvas
+        gc.drawImage(emptyImage, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }
 
     private void initializeHitboxes() {
@@ -113,7 +155,7 @@ public class GMap {
         }
         return positions;
     }
-    
+
     private void loadImages() {
         // Tải các hình ảnh cho map
         wallImage = new Image(getClass().getResourceAsStream("/assets/textures/wall.png"));

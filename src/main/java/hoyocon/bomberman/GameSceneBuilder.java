@@ -179,16 +179,6 @@ public class GameSceneBuilder {
         // Thêm playerEntity vào gameWorld thay vì gamePane
         gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
 
-        // THÊM CODE NÀY: Set the player reference for all Oneal enemies
-        List<Entity> oneals = enemyEntities.getOrDefault(Oneal.class, new ArrayList<>());
-        for (Entity onealEntity : oneals) {
-            if (onealEntity.getComponentOptional(Oneal.class).isPresent()) {
-                Oneal onealComponent = onealEntity.getComponent(Oneal.class);
-                onealComponent.setPlayer(playerComponent);
-                System.out.println("Player reference set for Oneal");
-            }
-        }
-
         // Thêm các buff vào bản đồ
         addBuffToMap(gamePane, new Bomb(), 300, 300);
         addBuffToMap(gamePane, new Speed(), 500, 500);
