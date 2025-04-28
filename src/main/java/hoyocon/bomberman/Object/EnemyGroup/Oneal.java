@@ -12,10 +12,10 @@ import java.util.*;
  */
 public class Oneal extends Enemy {
     private static final double ONEAL_NORMAL_SPEED = 80;
-    private static final double ONEAL_CHASE_SPEED = 120;
-    private static final int DETECTION_RANGE = 5;
-    private static final double STUCK_THRESHOLD = 0.5; // giây
-    private static final double MOVE_EPSILON = 1.0; // độ thay đổi tối thiểu để tính là di chuyển
+    private static final double ONEAL_CHASE_SPEED = 100;
+    private static final int DETECTION_RANGE = 100;
+    private static final double STUCK_THRESHOLD = 0.3;
+    private static final double MOVE_EPSILON = 1.0;
 
     private double directionChangeTimer = 0;
     private double stuckTimer = 0;
@@ -23,14 +23,11 @@ public class Oneal extends Enemy {
 
     private Player player;
     private boolean isChasing = false;
+    private boolean isAligning = false;
+    private double targetAlignX, targetAlignY;
 
     public Oneal(int col, int row) {
-        super(
-                (int)(col * GMap.TILE_SIZE),
-                (int)(row * GMap.TILE_SIZE),
-                ONEAL_NORMAL_SPEED,
-                "/assets/textures/enemy2.png"
-        );
+        super((int)(col * GMap.TILE_SIZE), (int)(row * GMap.TILE_SIZE), ONEAL_NORMAL_SPEED, "/assets/textures/enemy2.png");
     }
 
     public void setPlayer(Player player) {
@@ -82,67 +79,113 @@ public class Oneal extends Enemy {
             }
         }
 
-        checkAndSnapIfStuck(tpf);
+        checkAndPrepareAlign(tpf);
     }
 
     @Override
     protected void move(double tpf) {
         if (isDead) return;
 
+        if (isAligning) {
+            moveToAlign(tpf);
+            return;
+        }
+
         if (!isChasing) {
             super.move(tpf);
             return;
         }
 
-        double playerX = player.getEntity().getX();
-        double playerY = player.getEntity().getY();
-        double dx = playerX - entity.getX();
-        double dy = playerY - entity.getY();
+        int onealRow = GMap.pixelToTile(entity.getY());
+        int onealCol = GMap.pixelToTile(entity.getX());
+        int playerRow = GMap.pixelToTile(player.getEntity().getY());
+        int playerCol = GMap.pixelToTile(player.getEntity().getX());
 
-        double nextX = entity.getX();
-        double nextY = entity.getY();
+        int[] dir = findNextDirectionBFS(onealRow, onealCol, playerRow, playerCol);
+        if (dir == null) {
+            setSpeed(ONEAL_NORMAL_SPEED);
+            isChasing = false;
+            super.move(tpf);
+            return;
+        }
 
-        if (Math.abs(dx) > Math.abs(dy)) {
-            if (dx > 0) moveRight(); else moveLeft();
+        if (dir[0] == -1) moveUp();
+        else if (dir[0] == 1) moveDown();
+        else if (dir[1] == -1) moveLeft();
+        else if (dir[1] == 1) moveRight();
 
-            double tempNextX = nextX + (dx > 0 ? speed * tpf : -speed * tpf);
-            if (!checkCollisionWithWallOrBrick(tempNextX, nextY)) {
-                nextX = tempNextX;
-            } else {
-                if (dy > 0) moveDown(); else moveUp();
-                double tempNextY = nextY + (dy > 0 ? speed * tpf : -speed * tpf);
-                if (!checkCollisionWithWallOrBrick(nextX, tempNextY)) {
-                    nextY = tempNextY;
-                }
+        double nextX = entity.getX() + dir[1] * speed * tpf;
+        double nextY = entity.getY() + dir[0] * speed * tpf;
+
+        if (!checkCollisionWithWallOrBrick(nextX, nextY)) {
+            entity.setPosition(nextX, nextY);
+            this.x = (int) nextX;
+            this.y = (int) nextY;
+        }
+    }
+
+    private int[] findNextDirectionBFS(int startRow, int startCol, int targetRow, int targetCol) {
+        if (startRow == targetRow && startCol == targetCol) {
+            return new int[]{0, 0};
+        }
+
+        boolean[][] visited = new boolean[gameMap.height][gameMap.width];
+        int[][][] parent = new int[gameMap.height][gameMap.width][2];
+
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[]{startRow, startCol});
+        visited[startRow][startCol] = true;
+        parent[startRow][startCol] = new int[]{-1, -1};
+
+        int[] dr = {-1, 1, 0, 0};
+        int[] dc = {0, 0, -1, 1};
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            int row = current[0];
+            int col = current[1];
+
+            if (row == targetRow && col == targetCol) {
+                break;
             }
-        } else {
-            if (dy > 0) moveDown(); else moveUp();
 
-            double tempNextY = nextY + (dy > 0 ? speed * tpf : -speed * tpf);
-            if (!checkCollisionWithWallOrBrick(nextX, tempNextY)) {
-                nextY = tempNextY;
-            } else {
-                if (dx > 0) moveRight(); else moveLeft();
-                double tempNextX = nextX + (dx > 0 ? speed * tpf : -speed * tpf);
-                if (!checkCollisionWithWallOrBrick(tempNextX, nextY)) {
-                    nextX = tempNextX;
+            for (int i = 0; i < 4; i++) {
+                int newRow = row + dr[i];
+                int newCol = col + dc[i];
+                if (newRow >= 0 && newRow < gameMap.height && newCol >= 0 && newCol < gameMap.width
+                        && gameMap.isWalkable(newRow, newCol) && !visited[newRow][newCol]) {
+                    queue.add(new int[]{newRow, newCol});
+                    visited[newRow][newCol] = true;
+                    parent[newRow][newCol][0] = row;
+                    parent[newRow][newCol][1] = col;
                 }
             }
         }
 
-        entity.setPosition(nextX, nextY);
-        this.x = (int) nextX;
-        this.y = (int) nextY;
+        if (!visited[targetRow][targetCol]) {
+            return null;
+        }
+
+        int row = targetRow;
+        int col = targetCol;
+        while (!(parent[row][col][0] == startRow && parent[row][col][1] == startCol)) {
+            int tempRow = parent[row][col][0];
+            int tempCol = parent[row][col][1];
+            row = tempRow;
+            col = tempCol;
+        }
+
+        return new int[]{row - startRow, col - startCol};
     }
 
-    private void checkAndSnapIfStuck(double tpf) {
+    private void checkAndPrepareAlign(double tpf) {
         double deltaX = Math.abs(entity.getX() - lastX);
         double deltaY = Math.abs(entity.getY() - lastY);
 
         if (deltaX < MOVE_EPSILON && deltaY < MOVE_EPSILON) {
             stuckTimer += tpf;
             if (stuckTimer > STUCK_THRESHOLD) {
-                snapToTileCenter();
+                prepareAlignToTileCenter();
                 stuckTimer = 0;
             }
         } else {
@@ -153,17 +196,39 @@ public class Oneal extends Enemy {
         lastY = entity.getY();
     }
 
-    private void snapToTileCenter() {
-        double tileCenterX = GMap.tileToPixel(GMap.pixelToTile(entity.getX()));
-        double tileCenterY = GMap.tileToPixel(GMap.pixelToTile(entity.getY()));
-        entity.setPosition(tileCenterX, tileCenterY);
+    private void prepareAlignToTileCenter() {
+        targetAlignX = GMap.tileToPixel(GMap.pixelToTile(entity.getX()));
+        targetAlignY = GMap.tileToPixel(GMap.pixelToTile(entity.getY()));
+//        targetAlignX = tileCenterX - FRAME_SIZE / 2.0;
+//        targetAlignY = tileCenterY - FRAME_SIZE / 2.0;
+        isAligning = true;
+    }
+
+    private void moveToAlign(double tpf) {
+        double currentX = entity.getX();
+        double currentY = entity.getY();
+
+        double dx = targetAlignX - currentX;
+        double dy = targetAlignY - currentY;
+
+        double distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 1.0) {
+            entity.setPosition(targetAlignX, targetAlignY);
+            isAligning = false;
+            return;
+        }
+
+        double moveX = (dx / distance) * ONEAL_CHASE_SPEED * tpf;
+        double moveY = (dy / distance) * ONEAL_CHASE_SPEED * tpf;
+
+        entity.setPosition(currentX + moveX, currentY + moveY);
     }
 
     @Override
     public void handleCollision() {
         if (!isChasing) {
             super.handleCollision();
-            return;
         } else {
             isChasing = false;
         }

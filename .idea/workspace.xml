@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="merge main to dng">
+    <list default="true" id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="thêm thuật toán tìm đường cho lớp oneal (đã khôn)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/GameSceneBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/GameSceneBuilder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/GMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/GMap.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Enemy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Enemy.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -80,26 +77,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.HelloApplication.executor": "Run",
-    "Application.Main.executor": "Run",
-    "Application.Unnamed.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "dng",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/oop-main/BomberMan",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.HelloApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.Unnamed.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dng&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/oop-main/BomberMan&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
       <recent name="hoyocon.bomberman" />
@@ -162,6 +159,8 @@
       <workItem from="1745746162660" duration="1088000" />
       <workItem from="1745748541082" duration="433000" />
       <workItem from="1745759225211" duration="6344000" />
+      <workItem from="1745780913841" duration="42000" />
+      <workItem from="1745822721989" duration="1431000" />
     </task>
     <task id="LOCAL-00001" summary="thêm lớp Player và các asset">
       <option name="closed" value="true" />
@@ -315,7 +314,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745766875074</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="thêm thuật toán tìm đường cho lớp oneal (đã khôn)">
+      <option name="closed" value="true" />
+      <created>1745780875418</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1745780875418</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -349,14 +356,15 @@
     <MESSAGE value="thêm gitignore" />
     <MESSAGE value="ggg" />
     <MESSAGE value="merge main to dng" />
-    <option name="LAST_COMMIT_MESSAGE" value="merge main to dng" />
+    <MESSAGE value="thêm thuật toán tìm đường cho lớp oneal (đã khôn)" />
+    <option name="LAST_COMMIT_MESSAGE" value="thêm thuật toán tìm đường cho lớp oneal (đã khôn)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint type="java-method">
           <url>file://$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java</url>
-          <line>39</line>
+          <line>36</line>
           <properties class="hoyocon.bomberman.Object.EnemyGroup.Oneal" method="isPlayerInRange">
             <option name="EMULATED" value="true" />
             <option name="WATCH_EXIT" value="false" />
@@ -365,7 +373,7 @@
         </line-breakpoint>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java</url>
-          <line>159</line>
+          <line>225</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
