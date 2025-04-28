@@ -14,6 +14,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,6 +35,7 @@ public class GMap {
     public static final int BRICK = 2;
     public static final int BALLOON = 5;
     public static final int PASS = 6;
+    public static final int ONEAL = 7;
 
     // Ảnh cho các tile
     private Image wallImage;
@@ -117,8 +119,8 @@ public class GMap {
     }
 
     // Method to get balloon spawn positions
-    public java.util.List<int[]> getBalloonPositions() {
-        java.util.List<int[]> positions = new java.util.ArrayList<>();
+    public List<int[]> getBalloonPositions() {
+        List<int[]> positions = new ArrayList<>();
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 if (balloonPositions[row][col]) {
@@ -129,8 +131,8 @@ public class GMap {
         return positions;
     }
 
-    public java.util.List<int[]> getPassPositions() {
-        java.util.List<int[]> positions = new java.util.ArrayList<>();
+    public List<int[]> getPassPositions() {
+        List<int[]> positions = new ArrayList<>();
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 if (mapData[row][col] == PASS) {
@@ -141,7 +143,19 @@ public class GMap {
         }
         return positions;
     }
-    
+    public List<int[]> getOnealPositions() {
+        List<int[]> positions = new ArrayList<>();
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (mapData[row][col] == ONEAL) {
+                    positions.add(new int[]{row, col});
+                    mapData[row][col] = EMPTY;
+                }
+            }
+        }
+        return positions;
+    }
+
     private void loadImages() {
         // Tải các hình ảnh cho map
         wallImage = new Image(getClass().getResourceAsStream("/assets/textures/wall.png"));
@@ -190,6 +204,9 @@ public class GMap {
 
     public static int pixelToTile(double pixel) {
         return (int) (pixel / TILE_SIZE);
+    }
+    public static double tileToPixel(int tile){
+        return (double) tile*TILE_SIZE;
     }
 
 //    public boolean canMoveTo(double x, double y, double width, double height) {

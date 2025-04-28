@@ -154,11 +154,14 @@ public class Player extends Component {
             case RIGHT:
                 texture.loopNoOverride(walkright);
                 break;
-            case DOWN, IDLE:
+            case DOWN:
                 texture.loopNoOverride(walkdown);
                 break;
             case LEFT:
                 texture.loopNoOverride(walkleft);
+                break;
+            case IDLE:
+                texture.loopNoOverride(idledown);
                 break;
         }
     }

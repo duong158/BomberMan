@@ -14,9 +14,15 @@ public class Map1 {
     public static final int ENTRANCE = 3;
     public static final int EXIT = 4;
     public static final int BALLOON = 5;
-    public static final int BALLOONNUMS = 5;
     public static final int PASS = 6;
-    public static final int PASSNUMS = 2;
+    public static final int ONEAL = 7;
+
+    public static final int MOBNUMS = 8;
+    
+    // Tỷ lệ phần trăm của từng loại quái
+    private static final double BALLOON_PERCENT = 0.5;
+    private static final double PASS_PERCENT = 0.3;
+    private static final double ONEAL_PERCENT = 0.2;
 
     public static int[][] getMapData(int width, int height, float obstacleDensity) {
         int[][] map = new int[height][width];
@@ -56,28 +62,41 @@ public class Map1 {
         Collections.shuffle(emptyPositions);
 
         // Spawn balloon
-        int balloonsAdded = 0;
+        int balloonCount = (int) Math.ceil(MOBNUMS * BALLOON_PERCENT);
+        int passCount = (int) Math.ceil(MOBNUMS * PASS_PERCENT);
+        int onealCount = (int) Math.ceil(MOBNUMS * ONEAL_PERCENT); // Đảm bảo tổng chính xác
+        
+        // Mảng chứa thông tin về các loại quái và số lượng
+        int[] mobTypes = {BALLOON, PASS, ONEAL};
+        int[] mobCounts = {balloonCount, passCount, onealCount};
+        
+        int mobsAdded = 0;
+        int mobTypeIndex = 0;  // Loại quái hiện tại đang được spawn
+        int currentTypeCount = 0;  // Số lượng đã spawn của loại quái hiện tại
+        
+        // Spawn quái vật trong một vòng lặp duy nhất
         for (int[] pos : emptyPositions) {
-            if (balloonsAdded >= BALLOONNUMS) break;
-
-            // Kiểm tra xem vị trí này có còn trống không
             if (map[pos[0]][pos[1]] == EMPTY && pos[0] > MOBKC && pos[1] > MOBKC) {
-                map[pos[0]][pos[1]] = BALLOON;
-                balloonsAdded++;
+                if (currentTypeCount >= mobCounts[mobTypeIndex]) {
+                    mobTypeIndex++;
+                    currentTypeCount = 0;
+                    if (mobTypeIndex >= mobTypes.length) {
+                        break;
+                    }
+                }
+                
+                // Spawn quái vật hiện tại
+                map[pos[0]][pos[1]] = mobTypes[mobTypeIndex];
+                currentTypeCount++;
+                mobsAdded++;
+                
+                // Nếu đã spawn đủ tổng số quái vật, thoát khỏi vòng lặp
+                if (mobsAdded >= MOBNUMS) {
+                    break;
+                }
             }
         }
 
-        // Spawn PASS
-        int passesAdded = 0;
-        for (int[] pos : emptyPositions) {
-            if (passesAdded >= PASSNUMS) break;
-
-            // Kiểm tra xem vị trí này có còn trống không
-            if (map[pos[0]][pos[1]] == EMPTY && pos[0] > MOBKC && pos[1] > MOBKC) {
-                map[pos[0]][pos[1]] = PASS;
-                passesAdded++;
-            }
-        }
         return map;
   
     }
