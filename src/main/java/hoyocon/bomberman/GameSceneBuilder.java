@@ -205,11 +205,6 @@ public class GameSceneBuilder {
             }
         }
 
-        // Thêm các buff vào bản đồ
-        addBuffToMap(gamePane, new Bomb(), 300, 300);
-        addBuffToMap(gamePane, new Speed(), 500, 500);
-        addBuffToMap(gamePane, new Flame(), 700, 700);
-
         // Tính kích thước thế giới game
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
         int worldHeight = gameGMap.height * (int)GMap.TILE_SIZE;

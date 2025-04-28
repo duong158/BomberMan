@@ -62,7 +62,7 @@ public class GMap {
 
         initializeHitboxes();
         loadImages();
-        // Khởi tạo mảng và gán 5 buff ngẫu nhiên vào các vị trí brick
+        // Khởi tạo mảng và gán 15 buff ngẫu nhiên vào các vị trí brick
         hiddenBuffs = new BuffGeneric[height][width];
         assignHiddenBuffs(15);
     }
