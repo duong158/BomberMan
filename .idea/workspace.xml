@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="thêm thuật toán tìm đường cho lớp oneal (đã khôn)">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java" afterDir="false" />
-    </list>
+    <list default="true" id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="thay thuật toán tìm đường theo hướng bằng bfs" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -160,7 +157,7 @@
       <workItem from="1745748541082" duration="433000" />
       <workItem from="1745759225211" duration="6344000" />
       <workItem from="1745780913841" duration="42000" />
-      <workItem from="1745822721989" duration="1431000" />
+      <workItem from="1745822721989" duration="1808000" />
     </task>
     <task id="LOCAL-00001" summary="thêm lớp Player và các asset">
       <option name="closed" value="true" />
@@ -322,7 +319,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745780875418</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="thay thuật toán tìm đường theo hướng bằng bfs">
+      <option name="closed" value="true" />
+      <created>1745824517849</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1745824517849</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -357,7 +362,8 @@
     <MESSAGE value="ggg" />
     <MESSAGE value="merge main to dng" />
     <MESSAGE value="thêm thuật toán tìm đường cho lớp oneal (đã khôn)" />
-    <option name="LAST_COMMIT_MESSAGE" value="thêm thuật toán tìm đường cho lớp oneal (đã khôn)" />
+    <MESSAGE value="thay thuật toán tìm đường theo hướng bằng bfs" />
+    <option name="LAST_COMMIT_MESSAGE" value="thay thuật toán tìm đường theo hướng bằng bfs" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
