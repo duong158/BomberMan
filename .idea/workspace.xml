@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="thêm lớp doria">
+      <change afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Doria.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/GameSceneBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/GameSceneBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/GMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/GMap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/Map1.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Map/Map1.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Balloon.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Balloon.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Cylinder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Dahl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Enemy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Enemy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Ghost.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Pass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Pass.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaFXApplication" />
+        <option value="Kotlin Enum" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="tdha" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;duong158&quot;
+  }
+}</component>
+  <component name="GitHubPullRequestState">{
+  &quot;prStates&quot;: [
+    {
+      &quot;id&quot;: {
+        &quot;id&quot;: &quot;PR_kwDOOFGz2s6UDpAi&quot;,
+        &quot;number&quot;: 26
+      },
+      &quot;lastSeen&quot;: 1745735874047
+    }
+  ]
+}</component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/duong158/BomberMan.git",
+    "accountId": "084a3550-be83-4224-b0a8-4995298af8e3"
+  },
+  "recentNewPullRequestHead": {
+    "server": {
+      "useHttp": false,
+      "host": "github.com",
+      "port": null,
+      "suffix": null
+    },
+    "owner": "duong158",
+    "repository": "BomberMan"
+  }
+}]]></component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 7
+}</component>
+  <component name="ProjectId" id="2vMQpEbyLLZRyrZnhDGQBacEy51" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.HelloApplication.executor": "Run",
+    "Application.Main.executor": "Run",
+    "Application.Unnamed.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/BomberMan",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "reference.settings.project.maven.repository.indices",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="hoyocon.bomberman" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="hoyocon.bomberman.Main" />
+      <module name="BomberMan" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9cec5dfc-c035-4eea-9a14-b8cdcddc9671" name="Changes" comment="" />
+      <created>1743952647803</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1743952647803</updated>
+      <workItem from="1743952650502" duration="2241000" />
+      <workItem from="1744070999767" duration="2188000" />
+      <workItem from="1744081050868" duration="2011000" />
+      <workItem from="1744092608014" duration="4865000" />
+      <workItem from="1744339304056" duration="1320000" />
+      <workItem from="1744341815424" duration="1552000" />
+      <workItem from="1744425932300" duration="2620000" />
+      <workItem from="1744945953571" duration="1728000" />
+      <workItem from="1745037729810" duration="14000" />
+      <workItem from="1745283045492" duration="237000" />
+      <workItem from="1745283892747" duration="2086000" />
+      <workItem from="1745287617191" duration="4816000" />
+      <workItem from="1745301456702" duration="2140000" />
+      <workItem from="1745329294460" duration="494000" />
+      <workItem from="1745329890855" duration="778000" />
+      <workItem from="1745330684687" duration="1812000" />
+      <workItem from="1745336378853" duration="794000" />
+      <workItem from="1745393792413" duration="6469000" />
+      <workItem from="1745417832361" duration="5070000" />
+      <workItem from="1745463027060" duration="3250000" />
+      <workItem from="1745573019318" duration="4540000" />
+      <workItem from="1745590632084" duration="6119000" />
+      <workItem from="1745599516181" duration="39000" />
+      <workItem from="1745635700838" duration="7365000" />
+      <workItem from="1745653529689" duration="7690000" />
+      <workItem from="1745674819512" duration="15993000" />
+      <workItem from="1745720763975" duration="12879000" />
+      <workItem from="1745736021235" duration="74000" />
+      <workItem from="1745736290380" duration="6895000" />
+      <workItem from="1745746162660" duration="1088000" />
+      <workItem from="1745748541082" duration="433000" />
+      <workItem from="1745759225211" duration="6344000" />
+      <workItem from="1745780913841" duration="42000" />
+      <workItem from="1745822721989" duration="1808000" />
+      <workItem from="1745830417198" duration="6520000" />
+      <workItem from="1745847242495" duration="10886000" />
+    </task>
+    <task id="LOCAL-00001" summary="thêm lớp Player và các asset">
+      <option name="closed" value="true" />
+      <created>1743952808631</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1743952808631</updated>
+    </task>
+    <task id="LOCAL-00002" summary="thêm file">
+      <option name="closed" value="true" />
+      <created>1744081722527</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1744081722527</updated>
+    </task>
+    <task id="LOCAL-00003" summary="thêm file">
+      <option name="closed" value="true" />
+      <created>1744339393552</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1744339393552</updated>
+    </task>
+    <task id="LOCAL-00004" summary="thêm file">
+      <option name="closed" value="true" />
+      <created>1744339570273</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1744339570273</updated>
+    </task>
+    <task id="LOCAL-00005" summary="cho hình nhân vật vào chạy">
+      <option name="closed" value="true" />
+      <created>1745301527778</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1745301527778</updated>
+    </task>
+    <task id="LOCAL-00006" summary="đã sửa xong bug thiếu sfx controller">
+      <option name="closed" value="true" />
+      <created>1745329711515</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1745329711515</updated>
+    </task>
+    <task id="LOCAL-00007" summary="thêm nhạc nền chính">
+      <option name="closed" value="true" />
+      <created>1745330451122</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1745330451122</updated>
+    </task>
+    <task id="LOCAL-00008" summary="test">
+      <option name="closed" value="true" />
+      <created>1745573920739</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1745573920739</updated>
+    </task>
+    <task id="LOCAL-00009" summary="test">
+      <option name="closed" value="true" />
+      <created>1745574766243</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1745574766243</updated>
+    </task>
+    <task id="LOCAL-00010" summary="thêm lớp ballon">
+      <option name="closed" value="true" />
+      <created>1745638974344</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1745638974344</updated>
+    </task>
+    <task id="LOCAL-00011" summary="sửa collision">
+      <option name="closed" value="true" />
+      <created>1745683447777</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1745683447777</updated>
+    </task>
+    <task id="LOCAL-00012" summary="thêm ballon vào map và cho player di chuyển mượt hơn">
+      <option name="closed" value="true" />
+      <created>1745735227926</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1745735227926</updated>
+    </task>
+    <task id="LOCAL-00013" summary="sửa lỗi bom">
+      <option name="closed" value="true" />
+      <created>1745735517438</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1745735517438</updated>
+    </task>
+    <task id="LOCAL-00014" summary="thên pass vào thế giới">
+      <option name="closed" value="true" />
+      <created>1745744780953</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1745744780953</updated>
+    </task>
+    <task id="LOCAL-00015" summary="đảm bảo quái không ở gần người chơi">
+      <option name="closed" value="true" />
+      <created>1745745136405</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1745745136406</updated>
+    </task>
+    <task id="LOCAL-00016" summary="đảm bảo quái không ở gần người chơi">
+      <option name="closed" value="true" />
+      <created>1745745640899</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1745745640899</updated>
+    </task>
+    <task id="LOCAL-00017" summary="thêm gitignore">
+      <option name="closed" value="true" />
+      <created>1745746458075</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1745746458075</updated>
+    </task>
+    <task id="LOCAL-00018" summary="ggg">
+      <option name="closed" value="true" />
+      <created>1745746550486</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1745746550486</updated>
+    </task>
+    <task id="LOCAL-00019" summary="merge main to dng">
+      <option name="closed" value="true" />
+      <created>1745766875074</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1745766875074</updated>
+    </task>
+    <task id="LOCAL-00020" summary="thêm thuật toán tìm đường cho lớp oneal (đã khôn)">
+      <option name="closed" value="true" />
+      <created>1745780875418</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1745780875418</updated>
+    </task>
+    <task id="LOCAL-00021" summary="thay thuật toán tìm đường theo hướng bằng bfs">
+      <option name="closed" value="true" />
+      <created>1745824517849</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1745824517849</updated>
+    </task>
+    <task id="LOCAL-00022" summary="resolve conflict merge dng to main #34">
+      <option name="closed" value="true" />
+      <created>1745825027185</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1745825027185</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="tạo mới" />
+    <MESSAGE value="thêm lớp Player và các asset" />
+    <MESSAGE value="thêm file" />
+    <MESSAGE value="cho hình nhân vật vào chạy" />
+    <MESSAGE value="đã sửa xong bug thiếu sfx controller" />
+    <MESSAGE value="thêm nhạc nền chính" />
+    <MESSAGE value="test" />
+    <MESSAGE value="thêm lớp ballon" />
+    <MESSAGE value="sửa collision" />
+    <MESSAGE value="thêm ballon vào map và cho player di chuyển mượt hơn" />
+    <MESSAGE value="sửa lỗi bom" />
+    <MESSAGE value="thên pass vào thế giới" />
+    <MESSAGE value="đảm bảo quái không ở gần người chơi" />
+    <MESSAGE value="thêm gitignore" />
+    <MESSAGE value="ggg" />
+    <MESSAGE value="merge main to dng" />
+    <MESSAGE value="thêm thuật toán tìm đường cho lớp oneal (đã khôn)" />
+    <MESSAGE value="thay thuật toán tìm đường theo hướng bằng bfs" />
+    <MESSAGE value="resolve conflict merge dng to main #34" />
+    <option name="LAST_COMMIT_MESSAGE" value="resolve conflict merge dng to main #34" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-method">
+          <url>file://$PROJECT_DIR$/src/main/java/hoyocon/bomberman/Object/EnemyGroup/Oneal.java</url>
+          <line>210</line>
+          <properties class="hoyocon.bomberman.Object.EnemyGroup.Oneal" method="moveToAlign">
+            <option name="EMULATED" value="true" />
+            <option name="WATCH_EXIT" value="false" />
+          </properties>
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>
