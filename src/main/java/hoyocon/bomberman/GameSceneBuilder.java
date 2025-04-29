@@ -121,7 +121,7 @@ public class GameSceneBuilder {
 
 
         // Tạo và hiển thị map
-        GMap gameGMap = new GMap(Map1.getMapData(30, 23, 0.3f));
+        GMap gameGMap = new GMap(Map1.getMapData(60, 40, 0.3f));
         gameGMap.render();
         gameWorld.getChildren().add(gameGMap.getCanvas());  // Thêm vào gameWorld thay vì gamePane
 
