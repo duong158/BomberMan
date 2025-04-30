@@ -46,8 +46,8 @@ public class Map1 {
         }
 
         //Thêm BRICK
-        for (int y = 4; y < height-1; y++) {
-            for (int x = 4; x < width-1; x++) {
+        for (int y = 1; y < height-1; y++) {
+            for (int x = 1; x < width-1; x++) {
                 if (map[y][x] == EMPTY && rand.nextFloat() < obstacleDensity) {
                     map[y][x] = BRICK;
                 }
@@ -105,6 +105,8 @@ public class Map1 {
             }
         }
 
+        new Map1().placeEntranceAndExit(map);
+
         return map;
   
     }
@@ -114,19 +116,18 @@ public class Map1 {
         int width = map[0].length;
 
         // Đặt Entrance và Exit
-        map[height-2][1] = ENTRANCE;
-        map[1][width-2] = EXIT;
+        map[1][1] = ENTRANCE;
+        map[height-2][width-2] = EXIT;
 
         // Tạo ô an toàn quanh Entrance và Exit
-        createSafeArea(map, 1, height-2);
-        createSafeArea(map, width-2, 1);
+        createSafeArea(map, 1, 1);
+        createSafeArea(map, width-2, height-2);
     }
 
     private void createSafeArea(int[][] map, int x, int y) {
         int[] dx = {-1, 0, 1, 0};
         int[] dy = {0, -1, 0, 1};
 
-        map[y][x] = EMPTY;
 
         for (int i = 0; i < 4; i++) {
             int nx = x + dx[i];

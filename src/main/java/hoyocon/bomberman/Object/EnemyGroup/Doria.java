@@ -8,7 +8,7 @@ import java.util.Queue;
 public class Doria extends Oneal {
     private static final double DORIA_NORMAL_SPEED    = 80;
     private static final double DORIA_CHASE_SPEED     = 120;
-    private static final int    DORIA_DETECTION_RANGE = 100;
+    private static final int    DORIA_DETECTION_RANGE = 7;
 
     public Doria(int x, int y) {
         super(x, y, DORIA_NORMAL_SPEED, "/assets/textures/enemy5.png");
