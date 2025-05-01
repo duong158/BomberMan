@@ -188,6 +188,17 @@ public class GMap {
         return (double) tile*TILE_SIZE;
     }
 
+    public static boolean isPlayerInTile(double playerX, double playerY, double playerWidth, double playerHeight) {
+        // Chuyển đổi tọa độ pixel của hai góc hitbox sang tọa độ tile
+        int topLeftRow = pixelToTile(playerY);
+        int topLeftCol = pixelToTile(playerX);
+        int bottomRightRow = pixelToTile(playerY + playerHeight - 1);
+        int bottomRightCol = pixelToTile(playerX + playerWidth - 1);
+
+        // Kiểm tra xem hai góc có nằm trong cùng một ô không
+        return topLeftRow == bottomRightRow && topLeftCol == bottomRightCol;
+    }
+
 //    public boolean canMoveTo(double x, double y, double width, double height) {
 //        int topLeftRow = pixelToTile(y);
 //        int topLeftCol = pixelToTile(x);

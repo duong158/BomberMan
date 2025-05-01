@@ -1,7 +1,6 @@
 package hoyocon.bomberman.AI;
 
 import com.almasb.fxgl.entity.Entity;
-import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.Object.EnemyGroup.Doria;
 import hoyocon.bomberman.Object.EnemyGroup.Enemy;
@@ -54,12 +53,13 @@ public class PlayerAIController {
         int playerRow,playerCol;
         playerRow = GMap.pixelToTile(playerEntity.getY());
         playerCol = GMap.pixelToTile(playerEntity.getX());
+        int playerRow1 = GMap.pixelToTile(playerEntity.getY() + 45);
+        int playerCol1 = GMap.pixelToTile(playerEntity.getX() + 45);
+
 
 
         // Debug output
-        System.out.println("AI Update: Player at [" + playerRow + "," + playerCol + "]");
-        System.out.println("Player state: " + player.getState());
-        System.out.println("Player position updated: [" + playerRow + ", " + playerCol + "]");
+        System.out.println("AI Update: Player at [" + playerRow + "," + playerCol + "] " + playerEntity.getX() + ", " + playerEntity.getY());
 
         if (waitingForBomb) {
             if (now - bombPlacedTime >= BOMB_DELAY_NS) {
@@ -95,6 +95,8 @@ public class PlayerAIController {
         }
 
         Node next = currentPath.get(0);
+        if(next.row < playerRow) next.row += 1;
+        if(next.col < playerCol) next.col += 1;
         if (isEnemyNearby(next.row, next.col)) {
             currentPath = null;
             return;
@@ -113,7 +115,8 @@ public class PlayerAIController {
         }
 
         moveTo(next);
-        if (playerRow == next.row && playerCol == next.col) {
+        if (playerRow == next.row && playerCol == next.col ) {
+            System.out.println("Player reached node [" + next.row + "," + next.col + "], removing from path");
             currentPath.remove(0);
         }
     }
@@ -221,7 +224,6 @@ public class PlayerAIController {
         return best;
     }
 
-
     private List<Node> buildPath(Node end) {
         List<Node> path = new ArrayList<>();
         for (Node cur = end; cur != null && cur.parent != null; cur = cur.parent) {
@@ -256,9 +258,9 @@ public class PlayerAIController {
         double tx = next.col;
         double ty = next.row;
         int px,py;
-        px = (int) Math.round(playerEntity.getX() / TILE_SIZE);
-        py = (int) Math.round(playerEntity.getY() / TILE_SIZE);
-        
+        px = (int) (playerEntity.getX() / TILE_SIZE);
+        py = (int) (playerEntity.getY() / TILE_SIZE);
+
         if (px!=tx) {
             if (px < tx) {
                 System.out.println("AI moving RIGHT to get to column " + next.col);

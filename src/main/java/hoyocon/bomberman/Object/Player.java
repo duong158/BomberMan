@@ -64,7 +64,7 @@ public class Player extends Component {
         return flameRange;
     }
 
-    private double baseSpeed = 200;
+    private double baseSpeed = 150;
 
     // Map collision reference
     private GMap gameGMap;

@@ -47,6 +47,9 @@ public class Oneal extends Enemy {
     public void onUpdate(double tpf) {
         this.x = (int) entity.getX();
         this.y = (int) entity.getY();
+        if (texture != null) {
+            texture.onUpdate(tpf);
+        }
 
         if (isDead) return;
 
