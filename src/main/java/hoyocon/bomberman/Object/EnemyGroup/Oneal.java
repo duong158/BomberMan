@@ -203,8 +203,6 @@ public class Oneal extends Enemy {
     private void prepareAlignToTileCenter() {
         targetAlignX = GMap.tileToPixel(GMap.pixelToTile(entity.getX()));
         targetAlignY = GMap.tileToPixel(GMap.pixelToTile(entity.getY()));
-//        targetAlignX = tileCenterX - FRAME_SIZE / 2.0;
-//        targetAlignY = tileCenterY - FRAME_SIZE / 2.0;
         isAligning = true;
     }
 

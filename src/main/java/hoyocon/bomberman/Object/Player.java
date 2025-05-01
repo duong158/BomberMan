@@ -54,6 +54,11 @@ public class Player extends Component {
 
     // Buff logic
     private int flameRange = 1;
+
+    public int getFlameRange() {
+        return flameRange;
+    }
+
     private double baseSpeed = 100;
 
     // Map collision reference

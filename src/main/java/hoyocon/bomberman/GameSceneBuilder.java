@@ -6,6 +6,8 @@ import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.Map.Map1;
 import hoyocon.bomberman.Object.EnemyGroup.*;
 import hoyocon.bomberman.Object.Player;
+import hoyocon.bomberman.AI.PlayerAIController;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,11 +50,15 @@ public class GameSceneBuilder {
     private static boolean isLeftPressed = false;
     private static boolean isRightPressed = false;
 
+
+
     // Quản lí buff.
     private static List<BuffEntity> buffEntities = new ArrayList<>();
     
     // Thay thế các danh sách riêng biệt bằng một Map để quản lý tất cả các loại kẻ địch
     private static Map<Class<? extends Enemy>, List<Entity>> enemyEntities = new HashMap<>();
+    // Add this new list to store all enemies in one place
+    private static List<Enemy> allEnemyEntities = new ArrayList<>();
 
     public static void addBuffToMap(Pane gamePane, BuffGeneric buff, double x, double y) {
         BuffEntity buffEntity = new BuffEntity(buff, x, y);
@@ -76,6 +82,8 @@ public class GameSceneBuilder {
 
             // Thêm vào danh sách tương ứng
             enemyEntities.computeIfAbsent(enemyClass, k -> new ArrayList<>()).add(enemyEntity);
+            // Also add to the flat list of all enemies
+            allEnemyEntities.add(enemyComponent);
 
             if (enemyEntity.getViewComponent() != null &&
                 enemyEntity.getViewComponent().getParent() != null) {
@@ -204,6 +212,8 @@ public class GameSceneBuilder {
                 }
             }
         }
+        PlayerAIController playerAI = new PlayerAIController(playerComponent, gameGMap, allEnemyEntities, gamePane);
+
 
         // Tính kích thước thế giới game
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
@@ -249,7 +259,8 @@ public class GameSceneBuilder {
                 if(!moved){
                     playerComponent.stop();
                 }
-
+                //Muốn dùng AI thì bỏ comment
+//                playerAI.update(now);
                 playerComponent.onUpdate(1.0 / 60.0);
 
                 // Use player's method to check buff collisions

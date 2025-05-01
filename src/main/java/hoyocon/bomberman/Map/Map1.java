@@ -65,15 +65,13 @@ public class Map1 {
         // Trộn danh sách vị trí trống để đảm bảo ngẫu nhiên
         Collections.shuffle(emptyPositions);
 
-        // Spawn balloon
         int balloonCount = (int) Math.round(MOBNUMS * BALLOON_PERCENT);
         int passCount = (int) Math.round(MOBNUMS * PASS_PERCENT);
         int onealCount = (int) Math.round(MOBNUMS * ONEAL_PERCENT);
         int dahlCount = (int) Math.round(MOBNUMS * DAHL_PERCENT);
         int doriaCount = (int) Math.round(MOBNUMS * DORIA_PERCENT);
 
-        // Đảm bảo tổng chính xác
-        
+
         // Mảng chứa thông tin về các loại quái và số lượng
         int[] mobTypes = {BALLOON, PASS, ONEAL, DAHL, DORIA};
         int[] mobCounts = {balloonCount, passCount, onealCount, dahlCount, doriaCount};
@@ -92,12 +90,12 @@ public class Map1 {
                         break;
                     }
                 }
-                
+
                 // Spawn quái vật hiện tại
                 map[pos[0]][pos[1]] = mobTypes[mobTypeIndex];
                 currentTypeCount++;
                 mobsAdded++;
-                
+
                 // Nếu đã spawn đủ tổng số quái vật, thoát khỏi vòng lặp
                 if (mobsAdded >= MOBNUMS) {
                     break;
