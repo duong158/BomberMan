@@ -1,5 +1,7 @@
 package hoyocon.bomberman.Map;
 
+import hoyocon.bomberman.Object.Player;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +21,7 @@ public class Map1 {
     public static final int DAHL = 8;
     public static final int DORIA = 9;
 
-    public static final int MOBNUMS = 10;
+    public static int MOBNUMS = 5;
     
     // Tỷ lệ phần trăm của từng loại quái
     private static final double BALLOON_PERCENT = 0.3;
@@ -64,7 +66,7 @@ public class Map1 {
 
         // Trộn danh sách vị trí trống để đảm bảo ngẫu nhiên
         Collections.shuffle(emptyPositions);
-
+        if(MOBNUMS < emptyPositions.size()) MOBNUMS += Player.getLevel();
         int balloonCount = (int) Math.round(MOBNUMS * BALLOON_PERCENT);
         int passCount = (int) Math.round(MOBNUMS * PASS_PERCENT);
         int onealCount = (int) Math.round(MOBNUMS * ONEAL_PERCENT);

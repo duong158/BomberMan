@@ -50,15 +50,18 @@ public class GameSceneBuilder {
     private static boolean isLeftPressed = false;
     private static boolean isRightPressed = false;
 
+    public static AnimationTimer gameLoop; // Lưu tham chiếu đến game loop
+
+
 
 
     // Quản lí buff.
-    private static List<BuffEntity> buffEntities = new ArrayList<>();
+    public static List<BuffEntity> buffEntities = new ArrayList<>();
     
     // Thay thế các danh sách riêng biệt bằng một Map để quản lý tất cả các loại kẻ địch
-    private static Map<Class<? extends Enemy>, List<Entity>> enemyEntities = new HashMap<>();
+    public static Map<Class<? extends Enemy>, List<Entity>> enemyEntities = new HashMap<>();
     // Add this new list to store all enemies in one place
-    private static List<Enemy> allEnemyEntities = new ArrayList<>();
+    public static List<Enemy> allEnemyEntities = new ArrayList<>();
 
     public static void addBuffToMap(Pane gamePane, BuffGeneric buff, double x, double y) {
         BuffEntity buffEntity = new BuffEntity(buff, x, y);
@@ -238,7 +241,7 @@ public class GameSceneBuilder {
         gamePane.setOnMouseClicked(e -> gamePane.requestFocus());
         gamePane.requestFocus();
 
-        AnimationTimer gameLoop = new AnimationTimer() {
+        gameLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 boolean moved = false;
