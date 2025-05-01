@@ -4,10 +4,12 @@ import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import hoyocon.bomberman.EntitiesState.EntityType;
 import hoyocon.bomberman.EntitiesState.State;
+import hoyocon.bomberman.Main;
 import hoyocon.bomberman.Map.GMap;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.geometry.Bounds;
 import javafx.scene.layout.Pane;
@@ -28,6 +30,9 @@ import java.util.Map;
 public class Player extends Component {
     // Vị trí người chơi
     private int x, y;
+
+    private static int level = 1;
+    private boolean hasExited = false;
 
     // Thuộc tính người chơi
     private int lives;
@@ -54,7 +59,12 @@ public class Player extends Component {
 
     // Buff logic
     private int flameRange = 1;
-    private double baseSpeed = 100;
+
+    public int getFlameRange() {
+        return flameRange;
+    }
+
+    private double baseSpeed = 150;
 
     // Map collision reference
     private GMap gameGMap;
@@ -144,6 +154,12 @@ public class Player extends Component {
         updateAnimation();
         texture.onUpdate(tpf);
         updateBuffs();
+        int pRow = GMap.pixelToTile(entity.getY());
+        int pCol = GMap.pixelToTile(entity.getX());
+        if(!hasExited && gameGMap.getTileType(pRow,pCol) == GMap.EXIT){
+            onExit();
+            hasExited = true;
+        }
     }
 
     private void updateAnimation() {
@@ -502,6 +518,30 @@ public class Player extends Component {
                 System.out.println("Unknown item type: " + itemType);
         }
     }
+    private void onExit(){
+        level++; // Tăng level
+
+        // Dừng game loop hiện tại
+        if (GameSceneBuilder.gameLoop != null) {
+            GameSceneBuilder.gameLoop.stop();
+        }
+
+        // Làm sạch danh sách thực thể và trạng thái
+        GameSceneBuilder.buffEntities.clear();
+        GameSceneBuilder.enemyEntities.clear();
+        GameSceneBuilder.allEnemyEntities.clear();
+
+        // Tạo màn chơi mới
+        Scene newGameScene = GameSceneBuilder.buildNewGameScene();
+        Main.mainStage.setScene(newGameScene);
+        Main.mainStage.setTitle("Bomberman Game - Level: " + level);
+
+        // Đặt lại trạng thái
+        hasExited = false;
+
+        // Đảm bảo focus vào màn chơi mới
+        newGameScene.getRoot().requestFocus();
+    }
 
     public State getState() {
         return state;
@@ -541,5 +581,13 @@ public class Player extends Component {
 
     public void setCanPlaceBomb(boolean canPlaceBomb) {
         this.canPlaceBomb = canPlaceBomb;
+    }
+
+    public static int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 }

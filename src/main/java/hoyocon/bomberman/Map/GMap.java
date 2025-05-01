@@ -15,10 +15,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class GMap {
     private BuffGeneric[][] hiddenBuffs;
@@ -33,6 +30,8 @@ public class GMap {
     public static final int EMPTY = 0;
     public static final int WALL = 1;
     public static final int BRICK = 2;
+    public static final int ENTRANCE = 3;
+    public static final int EXIT = 4;
     public static final int BALLOON = 5;
     public static final int PASS = 6;
     public static final int ONEAL = 7;
@@ -43,6 +42,8 @@ public class GMap {
     private Image wallImage;
     private Image brickImage;
     private Image emptyImage;
+    private Image exitImage;
+    private Image entranceImage;
 
     // Hitbox data for walls and bricks
     private boolean[][] wallHitbox;
@@ -132,6 +133,8 @@ public class GMap {
         wallImage = new Image(getClass().getResourceAsStream("/assets/textures/wall.png"));
         brickImage = new Image(getClass().getResourceAsStream("/assets/textures/brick.png"));
         emptyImage = new Image(getClass().getResourceAsStream("/assets/textures/empty.png"));
+        exitImage = new Image(getClass().getResourceAsStream("/assets/textures/portal.png"));
+        entranceImage = new Image(getClass().getResourceAsStream("/assets/textures/gate1.png"));
     }
 
     public void render() {
@@ -149,7 +152,12 @@ public class GMap {
                     case BRICK:
                         gc.drawImage(brickImage, x, y, TILE_SIZE, TILE_SIZE);
                         break;
-                    case EMPTY:
+                    case EXIT:
+                        gc.drawImage(exitImage, x, y, TILE_SIZE, TILE_SIZE);
+                        break;
+                    case ENTRANCE:
+                        gc.drawImage(entranceImage, x, y, TILE_SIZE, TILE_SIZE);
+                        break;
                     default:
                         gc.drawImage(emptyImage, x, y, TILE_SIZE, TILE_SIZE);
                         break;
@@ -170,7 +178,7 @@ public class GMap {
     }
 
     public boolean isWalkable(int row, int col) {
-        return getTileType(row, col) == EMPTY;
+        return getTileType(row, col) == EMPTY || getTileType(row, col) == EXIT || getTileType(row, col) == ENTRANCE;
     }
 
     public static int pixelToTile(double pixel) {
@@ -178,6 +186,17 @@ public class GMap {
     }
     public static double tileToPixel(int tile){
         return (double) tile*TILE_SIZE;
+    }
+
+    public static boolean isPlayerInTile(double playerX, double playerY, double playerWidth, double playerHeight) {
+        // Chuyển đổi tọa độ pixel của hai góc hitbox sang tọa độ tile
+        int topLeftRow = pixelToTile(playerY);
+        int topLeftCol = pixelToTile(playerX);
+        int bottomRightRow = pixelToTile(playerY + playerHeight - 1);
+        int bottomRightCol = pixelToTile(playerX + playerWidth - 1);
+
+        // Kiểm tra xem hai góc có nằm trong cùng một ô không
+        return topLeftRow == bottomRightRow && topLeftCol == bottomRightCol;
     }
 
 //    public boolean canMoveTo(double x, double y, double width, double height) {
