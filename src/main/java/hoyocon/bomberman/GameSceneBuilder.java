@@ -3,6 +3,7 @@ package hoyocon.bomberman;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.texture.AnimationChannel;
+import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.Map.Map1;
 import hoyocon.bomberman.Object.EnemyGroup.*;
@@ -14,6 +15,7 @@ import java.util.*;
 
 import hoyocon.bomberman.Object.Player;
 import javafx.animation.AnimationTimer;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
@@ -33,9 +35,6 @@ import hoyocon.bomberman.Object.BuffEntity;
 import hoyocon.bomberman.Buff.BuffGeneric;
 import hoyocon.bomberman.Map.GMap;
 import javafx.util.Duration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GameSceneBuilder {
     private static double savedX = 195;
@@ -57,7 +56,7 @@ public class GameSceneBuilder {
 
 
     // Quản lí buff.
-    private static List<BuffEntity> buffEntities = new ArrayList<>();
+    public static List<BuffEntity> buffEntities = new ArrayList<>();
 
     /** Danh sách quản lý các Pane explosion để kiểm tra va chạm */
     public static List<Pane> explosionEntities = new ArrayList<>();
@@ -253,21 +252,23 @@ public class GameSceneBuilder {
             public void handle(long now) {
                 boolean moved = false;
 
-                if (isUpPressed) {
-                    moved = playerComponent.moveUp(0.016);
-                }
-                if (isDownPressed) {
-                    moved = playerComponent.moveDown(0.016);
-                }
-                if (isLeftPressed) {
-                    moved = playerComponent.moveLeft(0.016);
-                }
-                if (isRightPressed) {
-                    moved = playerComponent.moveRight(0.016);
-                }
+                if (playerComponent.getState() != State.DEAD) {
+                    if (isUpPressed) {
+                        moved = playerComponent.moveUp(0.016);
+                    }
+                    if (isDownPressed) {
+                        moved = playerComponent.moveDown(0.016);
+                    }
+                    if (isLeftPressed) {
+                        moved = playerComponent.moveLeft(0.016);
+                    }
+                    if (isRightPressed) {
+                        moved = playerComponent.moveRight(0.016);
+                    }
 
-                if (!moved) {
-                    playerComponent.stop();
+                    if (!moved) {
+                        playerComponent.stop();
+                    }
                 }
                 //Muốn dùng AI thì bỏ comment
 //                playerAI.update(now);
@@ -282,20 +283,42 @@ public class GameSceneBuilder {
                 // Player vs Flame
                 for (Pane flamePane : explosionEntities) {
                     if (flamePane.getBoundsInParent().intersects(playerBounds)) {
-                        if (!playerComponent.isInvincible()) {
+                        if (!playerComponent.isInvincible()&& playerComponent.getState() != State.DEAD) {
                             if (playerComponent.hit()) {
                                 System.out.println("Player died by explosion!");
                                 stop(); // Dừng game loop
                                 try {
                                     Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
                                     Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
-                                    Stage stage = (Stage) gamePane.getScene().getWindow();
-                                    stage.setScene(gameOverScene);
+
+                                    // Add null check before accessing window/stage
+                                    if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
+                                        Stage stage = (Stage) gamePane.getScene().getWindow();
+                                        stage.setScene(gameOverScene);
+                                    } else {
+                                        System.err.println("Cannot show game over screen: Scene or Window is null");
+                                        // Consider an alternative method to end the game
+                                    }
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                             } else {
-                                playerComponent.triggerInvincibility();
+                                // Chạy animation chết và hồi sinh
+                                playerComponent.setState(State.DEAD);
+
+                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
+                                deathDelay.setOnFinished(event -> {
+                                    // Khôi phục vị trí ban đầu
+                                    playerEntity.setPosition(48, 48);
+
+                                    // Trigger invincibility sau khi hồi sinh
+                                    playerComponent.triggerInvincibility();
+
+                                    // Đặt lại trạng thái
+                                    playerComponent.setState(State.IDLE);
+
+                                });
+                                deathDelay.play();
                             }
                         }
                     }
@@ -318,13 +341,15 @@ public class GameSceneBuilder {
                                     Entity e = enemyEntity;
                                     List<Entity> refList = list;
                                     // Hẹn xóa khi animation 'dead' đã hoàn thành (1.5s)
-                                    FXGL.getGameTimer().runOnceAfter(() -> {
+                                    PauseTransition delay = new PauseTransition(Duration.seconds(1.5));
+                                    delay.setOnFinished(event -> {
                                         Platform.runLater(() -> {
                                             refList.remove(e);
                                             gameWorld.getChildren().remove(e.getViewComponent().getParent());
                                             e.removeFromWorld();
                                         });
-                                    }, Duration.seconds(1.5));
+                                    });
+                                    delay.play();
                                 }
                             }
                         }
@@ -339,20 +364,42 @@ public class GameSceneBuilder {
                             continue;   // bỏ qua enemy đã chết
                         Bounds enemyBounds = enemyEntity.getViewComponent().getParent().getBoundsInParent();
                         if (enemyBounds.intersects(playerBounds)) {
-                            if (!playerComponent.isInvincible()) {
+                            if (!playerComponent.isInvincible() && playerComponent.getState() != State.DEAD) {
                                 if (playerComponent.hit()) {
                                     System.out.println("Player died by enemy collision!");
                                     stop(); // Dừng game loop
                                     try {
                                         Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
                                         Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
-                                        Stage stage = (Stage) gamePane.getScene().getWindow();
-                                        stage.setScene(gameOverScene);
+
+                                        // Add null check before accessing window/stage
+                                        if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
+                                            Stage stage = (Stage) gamePane.getScene().getWindow();
+                                            stage.setScene(gameOverScene);
+                                        } else {
+                                            System.err.println("Cannot show game over screen: Scene or Window is null");
+                                            // Consider an alternative method to end the game
+                                        }
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                 } else {
-                                    playerComponent.triggerInvincibility();
+                                    // Chạy animation chết và hồi sinh
+                                    playerComponent.setState(State.DEAD);
+
+                                    PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
+                                    deathDelay.setOnFinished(event -> {
+                                        // Khôi phục vị trí ban đầu
+                                        playerEntity.setPosition(48, 48);
+
+                                        // Trigger invincibility sau khi hồi sinh
+                                        playerComponent.triggerInvincibility();
+
+                                        // Đặt lại trạng thái
+                                        playerComponent.setState(State.IDLE);
+
+                                    });
+                                    deathDelay.play();
                                 }
                             }
                         }
@@ -376,18 +423,23 @@ public class GameSceneBuilder {
 
         // Xử lý phím nhấn
         gamePane.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.W) {
-                isUpPressed = true;
-            } else if (event.getCode() == KeyCode.S) {
-                isDownPressed = true;
-            } else if (event.getCode() == KeyCode.A) {
-                isLeftPressed = true;
-            } else if (event.getCode() == KeyCode.D) {
-                isRightPressed = true;
-            } else if (event.getCode() == KeyCode.SPACE) {
-                playerComponent.placeBomb(gamePane);
-                System.out.println("Key pressed: " + event.getCode());
-            } else if (event.getCode() == KeyCode.ESCAPE) {
+            if (playerComponent.getState() != State.DEAD) {
+                if (event.getCode() == KeyCode.W) {
+                    isUpPressed = true;
+                } else if (event.getCode() == KeyCode.S) {
+                    isDownPressed = true;
+                } else if (event.getCode() == KeyCode.A) {
+                    isLeftPressed = true;
+                } else if (event.getCode() == KeyCode.D) {
+                    isRightPressed = true;
+                } else if (event.getCode() == KeyCode.SPACE) {
+                    playerComponent.placeBomb(gamePane);
+                    System.out.println("Key pressed: " + event.getCode());
+                }
+            }
+
+            // Always allow ESC key regardless of player state
+            if (event.getCode() == KeyCode.ESCAPE) {
                 // Lưu vị trí hiện tại
                 savedX = playerEntity.getX();
                 savedY = playerEntity.getY();
@@ -429,4 +481,5 @@ public class GameSceneBuilder {
 
         return scene;
     }
+
 }
