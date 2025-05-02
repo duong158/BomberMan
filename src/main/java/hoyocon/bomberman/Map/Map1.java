@@ -21,7 +21,7 @@ public class Map1 {
     public static final int DAHL = 8;
     public static final int DORIA = 9;
 
-    public static int MOBNUMS = 5;
+    public static double MOBNUMS = 5;
     
     // Tỷ lệ phần trăm của từng loại quái
     private static final double BALLOON_PERCENT = 0.3;
@@ -83,27 +83,27 @@ public class Map1 {
         int currentTypeCount = 0;  // Số lượng đã spawn của loại quái hiện tại
         
         // Spawn quái vật trong một vòng lặp duy nhất
-        for (int[] pos : emptyPositions) {
-            if (map[pos[0]][pos[1]] == EMPTY && pos[0] > MOBKC && pos[1] > MOBKC) {
-                if (currentTypeCount >= mobCounts[mobTypeIndex]) {
-                    mobTypeIndex++;
-                    currentTypeCount = 0;
-                    if (mobTypeIndex >= mobTypes.length) {
-                        break;
-                    }
-                }
-
-                // Spawn quái vật hiện tại
-                map[pos[0]][pos[1]] = mobTypes[mobTypeIndex];
-                currentTypeCount++;
-                mobsAdded++;
-
-                // Nếu đã spawn đủ tổng số quái vật, thoát khỏi vòng lặp
-                if (mobsAdded >= MOBNUMS) {
-                    break;
-                }
-            }
-        }
+//        for (int[] pos : emptyPositions) {
+//            if (map[pos[0]][pos[1]] == EMPTY && pos[0] > MOBKC && pos[1] > MOBKC) {
+//                if (currentTypeCount >= mobCounts[mobTypeIndex]) {
+//                    mobTypeIndex++;
+//                    currentTypeCount = 0;
+//                    if (mobTypeIndex >= mobTypes.length) {
+//                        break;
+//                    }
+//                }
+//
+//                // Spawn quái vật hiện tại
+//                map[pos[0]][pos[1]] = mobTypes[mobTypeIndex];
+//                currentTypeCount++;
+//                mobsAdded++;
+//
+//                // Nếu đã spawn đủ tổng số quái vật, thoát khỏi vòng lặp
+//                if (mobsAdded >= MOBNUMS) {
+//                    break;
+//                }
+//            }
+//        }
 
         new Map1().placeEntranceAndExit(map);
 
@@ -141,9 +141,9 @@ public class Map1 {
     }
 
     public void printMapToConsole(int[][] map) {
-        for (int y = 0; y < map.length; y++) {
+        for (int[] ints : map) {
             for (int x = 0; x < map[0].length; x++) {
-                System.out.print(map[y][x] + " ");
+                System.out.print(ints[x] + " ");
             }
             System.out.println();
         }

@@ -271,7 +271,7 @@ public class GameSceneBuilder {
                     }
                 }
                 //Muốn dùng AI thì bỏ comment
-//                playerAI.update(now);
+                playerAI.update(now);
                 playerComponent.onUpdate(1.0 / 60.0);
 
                 // Buff collision
@@ -284,28 +284,29 @@ public class GameSceneBuilder {
                 for (Pane flamePane : explosionEntities) {
                     if (flamePane.getBoundsInParent().intersects(playerBounds)) {
                         if (!playerComponent.isInvincible()&& playerComponent.getState() != State.DEAD) {
+                            playerComponent.setState(State.DEAD);
                             if (playerComponent.hit()) {
-                                System.out.println("Player died by explosion!");
-                                stop(); // Dừng game loop
-                                try {
-                                    Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
-                                    Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
+                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
+                                deathDelay.setOnFinished(event -> {
+                                    stop(); // Stop game loop after animation completes
 
-                                    // Add null check before accessing window/stage
-                                    if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
-                                        Stage stage = (Stage) gamePane.getScene().getWindow();
-                                        stage.setScene(gameOverScene);
-                                    } else {
-                                        System.err.println("Cannot show game over screen: Scene or Window is null");
-                                        // Consider an alternative method to end the game
+                                    try {
+                                        Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
+                                        Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
+
+                                        // Add null check before accessing window/stage
+                                        if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
+                                            Stage stage = (Stage) gamePane.getScene().getWindow();
+                                            stage.setScene(gameOverScene);
+                                        } else {
+                                            System.err.println("Cannot show game over screen: Scene or Window is null");
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
                                     }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+                                });
+                                deathDelay.play();
                             } else {
-                                // Chạy animation chết và hồi sinh
-                                playerComponent.setState(State.DEAD);
-
                                 PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
                                 deathDelay.setOnFinished(event -> {
                                     // Khôi phục vị trí ban đầu
@@ -365,27 +366,30 @@ public class GameSceneBuilder {
                         Bounds enemyBounds = enemyEntity.getViewComponent().getParent().getBoundsInParent();
                         if (enemyBounds.intersects(playerBounds)) {
                             if (!playerComponent.isInvincible() && playerComponent.getState() != State.DEAD) {
+                                playerComponent.setState(State.DEAD);
                                 if (playerComponent.hit()) {
-                                    System.out.println("Player died by enemy collision!");
-                                    stop(); // Dừng game loop
-                                    try {
-                                        Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
-                                        Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
+                                    PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
+                                    deathDelay.setOnFinished(event -> {
+                                        stop(); // Stop game loop after animation completes
 
-                                        // Add null check before accessing window/stage
-                                        if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
-                                            Stage stage = (Stage) gamePane.getScene().getWindow();
-                                            stage.setScene(gameOverScene);
-                                        } else {
-                                            System.err.println("Cannot show game over screen: Scene or Window is null");
-                                            // Consider an alternative method to end the game
+                                        try {
+                                            Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
+                                            Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
+
+                                            // Add null check before accessing window/stage
+                                            if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
+                                                Stage stage = (Stage) gamePane.getScene().getWindow();
+                                                stage.setScene(gameOverScene);
+                                            } else {
+                                                System.err.println("Cannot show game over screen: Scene or Window is null");
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
                                         }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
+                                    });
+                                    deathDelay.play();
                                 } else {
                                     // Chạy animation chết và hồi sinh
-                                    playerComponent.setState(State.DEAD);
 
                                     PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
                                     deathDelay.setOnFinished(event -> {
