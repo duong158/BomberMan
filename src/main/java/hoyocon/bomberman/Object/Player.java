@@ -13,6 +13,8 @@ import javafx.geometry.Bounds;
 import javafx.scene.layout.Pane;
 import hoyocon.bomberman.GameSceneBuilder;
 import hoyocon.bomberman.Buff.BuffGeneric;
+import javafx.scene.layout.Pane;
+import hoyocon.bomberman.Object.Bomb;
 
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.AnimatedTexture;
@@ -41,6 +43,7 @@ public class Player extends Component {
     // Trạng thái người chơi
     private State state;
     private State lastAni;
+    private boolean invincible = false;
 
     // Hình ảnh và animation
     private AnimatedTexture texture;
@@ -312,7 +315,7 @@ public class Player extends Component {
 
         // Đặt bom mới
         bombCount++;
-        Bomb bombComponent = new Bomb(this);
+        Bomb bombComponent = new Bomb(this, gamePane);
         AnimatedTexture bombTexture = bombComponent.getTexture();
         Pane bombPane = new Pane(bombTexture);
         bombPane.setPrefSize(tileSize, tileSize);
@@ -390,6 +393,7 @@ public class Player extends Component {
                     flamePane.setLayoutX(fx);
                     flamePane.setLayoutY(fy);
                     gamePane.getChildren().add(flamePane);
+                    GameSceneBuilder.explosionEntities.add(flamePane);
 
                     AnimationTimer flameLoop = new AnimationTimer() {
                         @Override
@@ -404,6 +408,7 @@ public class Player extends Component {
                     t.setOnFinished(e2 -> {
                         flameLoop.stop();
                         gamePane.getChildren().remove(flamePane);
+                        GameSceneBuilder.explosionEntities.remove(flamePane);
                     });
                     t.play();
 
@@ -501,6 +506,37 @@ public class Player extends Component {
             default:
                 System.out.println("Unknown item type: " + itemType);
         }
+    }
+
+    public boolean isInvincible() {
+        return invincible;
+    }
+
+    public void triggerInvincibility() {
+        invincible = true;
+
+        Group view = (Group) entity.getViewComponent().getParent();
+        AnimationTimer blink = new AnimationTimer() {
+            private long lastToggle = 0;
+
+            @Override
+            public void handle(long now) {
+                if (now - lastToggle > 100_000_000) { // 100ms
+                    view.setVisible(!view.isVisible());
+                    lastToggle = now;
+                }
+            }
+        };
+
+        blink.start();
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        pause.setOnFinished(e -> {
+            invincible = false;
+            view.setVisible(true);
+            blink.stop();
+        });
+        pause.play();
     }
 
     public State getState() {

@@ -2,19 +2,19 @@ package hoyocon.bomberman;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.texture.AnimationChannel;
 import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.Map.Map1;
 import hoyocon.bomberman.Object.EnemyGroup.*;
 import hoyocon.bomberman.Object.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import hoyocon.bomberman.Object.Player;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -30,6 +30,7 @@ import hoyocon.bomberman.Buff.Speed;
 import hoyocon.bomberman.Object.BuffEntity;
 import hoyocon.bomberman.Buff.BuffGeneric;
 import hoyocon.bomberman.Map.GMap;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,10 @@ public class GameSceneBuilder {
 
     // Quản lí buff.
     private static List<BuffEntity> buffEntities = new ArrayList<>();
-    
+
+    /** Danh sách quản lý các Pane explosion để kiểm tra va chạm */
+    public static List<Pane> explosionEntities = new ArrayList<>();
+
     // Thay thế các danh sách riêng biệt bằng một Map để quản lý tất cả các loại kẻ địch
     private static Map<Class<? extends Enemy>, List<Entity>> enemyEntities = new HashMap<>();
 
@@ -61,8 +65,10 @@ public class GameSceneBuilder {
     }
     
     // Method chung để spawn bất kỳ loại kẻ địch nào
-    private static <T extends Enemy> void spawnEnemy(Pane gamePane, GMap gameGMap, int row, int col,
-            Class<T> enemyClass, EnemyFactory<T> factory) {
+    private static <T extends Enemy> void spawnEnemy(
+            Pane gamePane, Group gameWorld, GMap gameGMap,
+            int row, int col, Class<T> enemyClass,
+            EnemyFactory<T> factory) {
         try {
             double x = col * GMap.TILE_SIZE;
             double y = row * GMap.TILE_SIZE;
@@ -79,7 +85,7 @@ public class GameSceneBuilder {
 
             if (enemyEntity.getViewComponent() != null &&
                 enemyEntity.getViewComponent().getParent() != null) {
-                gamePane.getChildren().add(enemyEntity.getViewComponent().getParent());
+                gameWorld.getChildren().add(enemyEntity.getViewComponent().getParent());
                 System.out.println(enemyClass.getSimpleName() + " added to scene at x=" + x + ", y=" + y);
             } else {
                 System.err.println("Warning: " + enemyClass.getSimpleName() + " view component is null");
@@ -110,6 +116,7 @@ public class GameSceneBuilder {
     private static Scene buildGameScene(double startX, double startY) {
         // Container chính cho toàn bộ scene
         Pane gamePane = new Pane();
+        GameSceneBuilder.explosionEntities.clear();
 
         gamePane.setStyle("-fx-background-color: black;");
 
@@ -135,33 +142,33 @@ public class GameSceneBuilder {
             System.out.println("Found " + balloonPositions.size() + " balloon positions in map");
 
             for (int[] position : balloonPositions) {
-                spawnEnemy(gamePane, gameGMap, position[0], position[1], Balloon.class, Balloon::new);
+                spawnEnemy(gamePane, gameWorld, gameGMap, position[0], position[1], Balloon.class, Balloon::new);
             }
 
             // Spawn passes
             List<int[]> passPositions = gameGMap.getESpawnPositions(GMap.PASS);
             System.out.println("Found " + passPositions.size() + " pass positions in map");
             for (int[] position : passPositions) {
-                spawnEnemy(gamePane, gameGMap, position[0], position[1], Pass.class, Pass::new);
+                spawnEnemy(gamePane,gameWorld, gameGMap, position[0], position[1], Pass.class, Pass::new);
             }
 
             // Spawn oneals (nếu có)
             List<int[]> onealPositions = gameGMap.getESpawnPositions(GMap.ONEAL);
             System.out.println("Found " + onealPositions.size() + " oneal positions in map");
             for (int[] position : onealPositions) {
-                spawnEnemy(gamePane, gameGMap, position[0], position[1], Oneal.class, Oneal::new);
+                spawnEnemy(gamePane, gameWorld, gameGMap, position[0], position[1], Oneal.class, Oneal::new);
             }
 
             List<int[]> dahlPositions = gameGMap.getESpawnPositions(GMap.DAHL);
             System.out.println("Found " + onealPositions.size() + " oneal positions in map");
             for (int[] position : dahlPositions) {
-                spawnEnemy(gamePane, gameGMap, position[0], position[1], Dahl.class, Dahl::new);
+                spawnEnemy(gamePane, gameWorld, gameGMap, position[0], position[1], Dahl.class, Dahl::new);
             }
 
             List<int[]> doriaPositions = gameGMap.getESpawnPositions(GMap.DORIA);
             System.out.println("Found " + doriaPositions.size() + " oneal positions in map");
             for (int[] position : doriaPositions) {
-                spawnEnemy(gamePane, gameGMap, position[0], position[1], Doria.class, Doria::new);
+                spawnEnemy(gamePane, gameWorld, gameGMap, position[0], position[1], Doria.class, Doria::new);
             }
 
             // Có thể dễ dàng thêm các loại kẻ địch mới ở đây
@@ -174,7 +181,7 @@ public class GameSceneBuilder {
 
         // Tạo entity và thêm Player component
         Entity playerEntity = new Entity();
-        Player playerComponent = new Player();
+        final Player playerComponent = new Player();
         playerEntity.addComponent(playerComponent);
 
         // Set the game map for collision detection
@@ -246,24 +253,103 @@ public class GameSceneBuilder {
                     moved = playerComponent.moveRight(0.016);
                 }
 
-                if(!moved){
+                if (!moved) {
                     playerComponent.stop();
                 }
 
                 playerComponent.onUpdate(1.0 / 60.0);
 
-                // Use player's method to check buff collisions
+                // Buff collision
                 playerComponent.checkBuffCollision(buffEntities, gamePane);
 
-                // Update tất cả các loại kẻ địch với một vòng lặp duy nhất
-                double deltaTime = 1.0 / 60.0;
+                // Bounds of player
+                Bounds playerBounds = playerEntity.getViewComponent().getParent().getBoundsInParent();
 
-                // Duyệt qua tất cả các loại kẻ địch
+                // Player vs Flame
+                for (Pane flamePane : explosionEntities) {
+                    if (flamePane.getBoundsInParent().intersects(playerBounds)) {
+                        if (!playerComponent.isInvincible()) {
+                            if (playerComponent.hit()) {
+                                System.out.println("Player died by explosion!");
+                                stop(); // Dừng game loop
+                                try {
+                                    Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
+                                    Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
+                                    Stage stage = (Stage) gamePane.getScene().getWindow();
+                                    stage.setScene(gameOverScene);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                playerComponent.triggerInvincibility();
+                            }
+                        }
+                    }
+                }
+
+                // Flame vs Enemy (với animation chết)
+                for (Pane flamePane : explosionEntities) {
+                    Bounds flameBounds = flamePane.getBoundsInParent();
+                    for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
+                        List<Entity> list = entry.getValue();
+                        Iterator<Entity> it = list.iterator();
+                        while (it.hasNext()) {
+                            Entity enemyEntity = it.next();
+                            Bounds enemyBounds = enemyEntity.getViewComponent().getParent().getBoundsInParent();
+                            if (flameBounds.intersects(enemyBounds)) {
+                                Enemy enemyComp = enemyEntity.getComponent(entry.getKey());
+
+                                if (!enemyComp.isDead()) {
+                                    enemyComp.die(); // play death animation
+                                    Entity e = enemyEntity;
+                                    List<Entity> refList = list;
+                                    // Hẹn xóa khi animation 'dead' đã hoàn thành (1.5s)
+                                    FXGL.getGameTimer().runOnceAfter(() -> {
+                                        Platform.runLater(() -> {
+                                            refList.remove(e);
+                                            gameWorld.getChildren().remove(e.getViewComponent().getParent());
+                                            e.removeFromWorld();
+                                        });
+                                    }, Duration.seconds(1.5));
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Enemy vs Player
+                for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
+                    for (Entity enemyEntity : entry.getValue()) {
+                        Enemy enemyComp = enemyEntity.getComponent(entry.getKey());
+                        if (enemyComp.isDead())
+                            continue;   // bỏ qua enemy đã chết
+                        Bounds enemyBounds = enemyEntity.getViewComponent().getParent().getBoundsInParent();
+                        if (enemyBounds.intersects(playerBounds)) {
+                            if (!playerComponent.isInvincible()) {
+                                if (playerComponent.hit()) {
+                                    System.out.println("Player died by enemy collision!");
+                                    stop(); // Dừng game loop
+                                    try {
+                                        Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
+                                        Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
+                                        Stage stage = (Stage) gamePane.getScene().getWindow();
+                                        stage.setScene(gameOverScene);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    playerComponent.triggerInvincibility();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Update tất cả enemy
+                double deltaTime = 1.0 / 60.0;
                 for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
                     Class<? extends Enemy> enemyClass = entry.getKey();
-                    List<Entity> entities = entry.getValue();
-
-                    for (Entity enemy : new ArrayList<>(entities)) {
+                    for (Entity enemy : new ArrayList<>(entry.getValue())) {
                         if (enemy.getComponentOptional(enemyClass).isPresent()) {
                             Enemy enemyComponent = enemy.getComponent(enemyClass);
                             enemyComponent.onUpdate(deltaTime);
