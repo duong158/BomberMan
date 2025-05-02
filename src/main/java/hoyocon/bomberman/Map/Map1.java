@@ -1,5 +1,7 @@
 package hoyocon.bomberman.Map;
 
+import hoyocon.bomberman.Object.Player;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +21,7 @@ public class Map1 {
     public static final int DAHL = 8;
     public static final int DORIA = 9;
 
-    public static final int MOBNUMS = 10;
+    public static int MOBNUMS = 5;
     
     // Tỷ lệ phần trăm của từng loại quái
     private static final double BALLOON_PERCENT = 0.3;
@@ -46,8 +48,8 @@ public class Map1 {
         }
 
         //Thêm BRICK
-        for (int y = 4; y < height-1; y++) {
-            for (int x = 4; x < width-1; x++) {
+        for (int y = 1; y < height-1; y++) {
+            for (int x = 1; x < width-1; x++) {
                 if (map[y][x] == EMPTY && rand.nextFloat() < obstacleDensity) {
                     map[y][x] = BRICK;
                 }
@@ -64,16 +66,14 @@ public class Map1 {
 
         // Trộn danh sách vị trí trống để đảm bảo ngẫu nhiên
         Collections.shuffle(emptyPositions);
-
-        // Spawn balloon
+        if(MOBNUMS < emptyPositions.size()) MOBNUMS += Player.getLevel();
         int balloonCount = (int) Math.round(MOBNUMS * BALLOON_PERCENT);
         int passCount = (int) Math.round(MOBNUMS * PASS_PERCENT);
         int onealCount = (int) Math.round(MOBNUMS * ONEAL_PERCENT);
         int dahlCount = (int) Math.round(MOBNUMS * DAHL_PERCENT);
         int doriaCount = (int) Math.round(MOBNUMS * DORIA_PERCENT);
 
-        // Đảm bảo tổng chính xác
-        
+
         // Mảng chứa thông tin về các loại quái và số lượng
         int[] mobTypes = {BALLOON, PASS, ONEAL, DAHL, DORIA};
         int[] mobCounts = {balloonCount, passCount, onealCount, dahlCount, doriaCount};
@@ -92,18 +92,20 @@ public class Map1 {
                         break;
                     }
                 }
-                
+
                 // Spawn quái vật hiện tại
                 map[pos[0]][pos[1]] = mobTypes[mobTypeIndex];
                 currentTypeCount++;
                 mobsAdded++;
-                
+
                 // Nếu đã spawn đủ tổng số quái vật, thoát khỏi vòng lặp
                 if (mobsAdded >= MOBNUMS) {
                     break;
                 }
             }
         }
+
+        new Map1().placeEntranceAndExit(map);
 
         return map;
   
@@ -114,19 +116,18 @@ public class Map1 {
         int width = map[0].length;
 
         // Đặt Entrance và Exit
-        map[height-2][1] = ENTRANCE;
-        map[1][width-2] = EXIT;
+        map[1][1] = ENTRANCE;
+        map[height-2][width-2] = EXIT;
 
         // Tạo ô an toàn quanh Entrance và Exit
-        createSafeArea(map, 1, height-2);
-        createSafeArea(map, width-2, 1);
+        createSafeArea(map, 1, 1);
+        createSafeArea(map, width-2, height-2);
     }
 
     private void createSafeArea(int[][] map, int x, int y) {
         int[] dx = {-1, 0, 1, 0};
         int[] dy = {0, -1, 0, 1};
 
-        map[y][x] = EMPTY;
 
         for (int i = 0; i < 4; i++) {
             int nx = x + dx[i];
