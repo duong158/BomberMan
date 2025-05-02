@@ -6,6 +6,8 @@ import com.almasb.fxgl.texture.AnimatedTexture;
 import com.almasb.fxgl.texture.AnimationChannel;
 import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.Map.GMap;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.util.Duration;
 
 import javafx.scene.image.Image;
@@ -19,6 +21,8 @@ public class Enemy extends Component {
     protected static final int SCREEN_WIDTH = 1920;
     protected static final int SCREEN_HEIGHT = 1080;
     protected static final int DIRECTION_CHANGE_INTERVAL = 3000;
+    // Animation dead chạy trong 1.5 giây
+    public static final double DEATH_DURATION = 1.5;
 
     protected int x,y;
     protected State state;
@@ -43,7 +47,7 @@ public class Enemy extends Component {
         walkup = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(1), 6, 8);
         walkleft = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(1), 3, 5);
 
-        dead = new AnimationChannel(enemyimg, 6, FRAME_SIZE, FRAME_SIZE, Duration.seconds(2.4), 0, 5);
+        dead = new AnimationChannel(enemyimg, 6, FRAME_SIZE, FRAME_SIZE, Duration.seconds(1.5), 0, 5);
 
         texture = new AnimatedTexture(walkleft);
         texture.loop();
@@ -71,8 +75,10 @@ public class Enemy extends Component {
         if (texture != null) {
             texture.onUpdate(tpf);
         }
-        
-        if (isDead) return;
+
+        if (isDead) {
+            return;   // Không update animation/move nữa
+        }
 
         // Di chuyển theo hướng hiện tại
         move(tpf);

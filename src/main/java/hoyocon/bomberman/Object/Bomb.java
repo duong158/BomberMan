@@ -6,21 +6,32 @@ import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.AnimatedTexture;
 import com.almasb.fxgl.texture.AnimationChannel;
 import hoyocon.bomberman.EntitiesState.EntityType;
+import hoyocon.bomberman.GameSceneBuilder;
 import javafx.animation.AnimationTimer;
+import javafx.animation.PauseTransition;
 import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
+import javafx.scene.media.AudioClip;
 import javafx.util.Duration;
 
 public class Bomb extends Component {
     private Player owner;
+    private final Pane gamePane;
+
     private AnimatedTexture texture;
     private AnimationChannel bombAnimation;
+    private static final double TILE_SIZE = 48;
 
-    public Bomb(Player owner) {
+    public Bomb(Player owner, Pane gamePane) {
         this.owner = owner;
+        this.gamePane = gamePane;
 
+        // Tạo animation cho quả bom
         Image bombImage = new Image(getClass().getResourceAsStream("/assets/textures/bomb.png"));
-        bombAnimation = new AnimationChannel(bombImage, 3, 48, 48, Duration.seconds(2), 0, 2);
+        bombAnimation = new AnimationChannel(bombImage,
+                3, (int)TILE_SIZE, (int)TILE_SIZE,
+                Duration.seconds(2), 0, 2);
         texture = new AnimatedTexture(bombAnimation);
     }
 
@@ -30,13 +41,22 @@ public class Bomb extends Component {
 
     @Override
     public void onAdded() {
+        // Thêm hình ảnh bom và bắt đầu animation
         entity.getViewComponent().addChild(texture);
         texture.loop();
-        FXGL.runOnce(this::explode, Duration.seconds(2)); // hẹn giờ nổ sau 2s
+
+        // Phát sound đặt bom
+        AudioClip placeSfx = new AudioClip(getClass().getResource("/assets/sounds/place_bomb.wav").toString());
+        placeSfx.play();
+
+        // Hẹn nổ sau 2s
+        PauseTransition delay = new PauseTransition(Duration.seconds(2));
+        delay.setOnFinished(e -> explode());
+        delay.play();
     }
 
     public Entity createEntity(double x, double y, Player owner) {
-        Bomb bombComponent = new Bomb(owner);
+        Bomb bombComponent = new Bomb(owner, gamePane);
         Entity bombEntity = new Entity();
         bombEntity.setType(EntityType.BOMB); // Đặt loại entity
         bombEntity.addComponent(bombComponent);
@@ -49,53 +69,47 @@ public class Bomb extends Component {
         texture.onUpdate(tpf); // Cập nhật Animation
     }
 
-    public void explode() {
-        // Phát âm thanh nổ bom
-        FXGL.play("place_bomb.wav");
+    /** Gây nổ bom: tạo hiệu ứng flame xung quanh và play sound */
+    private void explode() {
+        // Phát âm thanh nổ
+        AudioClip explodeSfx = new AudioClip(getClass().getResource("/assets/sounds/explosion.wav").toString());
+        explodeSfx.play();
 
-        double tileSize = 48;
-        createExplosion(entity.getX(), entity.getY(), "/assets/textures/central_flame.png"); // Vụ nổ ở giữa
-        createExplosion(entity.getX(), entity.getY() - tileSize, "/assets/textures/top_up_flame.png"); // Vụ nổ phía trên
-        createExplosion(entity.getX(), entity.getY() + tileSize, "/assets/textures/top_down_flame.png"); // Vụ nổ phía dưới
-        createExplosion(entity.getX() - tileSize, entity.getY(), "/assets/textures/top_left_flame.png"); // Vụ nổ bên trái
-        createExplosion(entity.getX() + tileSize, entity.getY(), "/assets/textures/top_right_flame.png"); // Vụ nổ bên phải
+        double x = entity.getX();
+        double y = entity.getY();
 
-        entity.removeFromWorld(); // Xóa bom khỏi thế giới
-        if (owner != null) {
-            owner.bombExploded();
-        }
+        // Tạo vụ nổ trung tâm và 4 hướng xung quanh
+        createExplosion(x, y, "/assets/textures/central_flame.png");
+        createExplosion(x, y - TILE_SIZE, "/assets/textures/top_up_flame.png");
+        createExplosion(x, y + TILE_SIZE, "/assets/textures/top_down_flame.png");
+        createExplosion(x - TILE_SIZE, y, "/assets/textures/top_left_flame.png");
+        createExplosion(x + TILE_SIZE, y, "/assets/textures/top_right_flame.png");
+
+        // Xóa bom khỏi world và cập nhật owner
+        entity.removeFromWorld();
+        owner.bombExploded();
     }
 
     private void createExplosion(double x, double y, String texturePath) {
-        Image explosionImage = new Image(getClass().getResourceAsStream(texturePath));
-        AnimationChannel explosionAnimation = new AnimationChannel(explosionImage,
-                3, 48, 48, Duration.seconds(1), 0, 2);
-        AnimatedTexture explosionTexture = new AnimatedTexture(explosionAnimation);
+        Image img = new Image(getClass().getResourceAsStream(texturePath));
+        AnimationChannel channel = new AnimationChannel(img, 3, 48, 48, Duration.seconds(1), 0, 2);
+        AnimatedTexture explosionTexture = new AnimatedTexture(channel);
+        explosionTexture.loop();
 
-        Entity explosionEntity = new Entity();
-        explosionEntity.setType(EntityType.EXPLOSION); // Đặt loại entity cho vụ nổ
-        explosionEntity.setPosition(x, y);
-        explosionEntity.getViewComponent().addChild(explosionTexture);
-        FXGL.getGameWorld().addEntity(explosionEntity);
+        Pane flamePane = new Pane(explosionTexture);
+        flamePane.setPrefSize(48, 48);
+        flamePane.setLayoutX(x);
+        flamePane.setLayoutY(y);
 
-        // Thêm hiệu ứng phát sáng nhẹ
-        explosionTexture.setEffect(new Glow(0.5));
+        gamePane.getChildren().add(flamePane);
+        GameSceneBuilder.explosionEntities.add(flamePane); // ← phải là Pane!
 
-        explosionTexture.play();
-
-        // Tạo loop cập nhật animation
-        AnimationTimer animLoop = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                explosionTexture.onUpdate(1.0 / 60.0);
-            }
-        };
-        animLoop.start();
-
-        // Dừng và xóa entity khi kết thúc animation
-        FXGL.runOnce(() -> {
-            animLoop.stop();
-            explosionEntity.removeFromWorld();
-        }, Duration.seconds(1));
+        // Hẹn xóa
+        PauseTransition delay = new PauseTransition(Duration.seconds(1));
+        delay.setOnFinished(e -> {
+            gamePane.getChildren().remove(flamePane);
+            GameSceneBuilder.explosionEntities.remove(flamePane);
+        });
+        delay.play();
     }
 }

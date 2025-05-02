@@ -51,6 +51,10 @@ public class Oneal extends Enemy {
             texture.onUpdate(tpf);
         }
 
+        if (texture != null) {
+            texture.onUpdate(tpf);
+        }
+
         if (isDead) return;
 
         if (player == null || gameMap == null) {
