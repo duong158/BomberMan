@@ -25,7 +25,6 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         try {
             mainStage = stage;
-
             // Load FXML với đường dẫn chính xác
             Parent root = FXMLLoader.load(Objects.requireNonNull(
                     getClass().getResource("/hoyocon/bomberman/Start-view.fxml")

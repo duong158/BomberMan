@@ -58,6 +58,8 @@ public class Player extends Component {
     private AnimationChannel walkleft;
     private AnimationChannel walkright;
 
+    private AnimationChannel deadAni;
+
     private AnimationChannel idledown;
 
     // Buff logic
@@ -133,12 +135,15 @@ public class Player extends Component {
         Image leftImage = new Image(getClass().getResourceAsStream("/assets/textures/player_left.png"));
         Image rightImage = new Image(getClass().getResourceAsStream("/assets/textures/player_right.png"));
         Image idleImage = new Image(getClass().getResourceAsStream("/assets/textures/player_down.png"));
+        Image deadIma = new Image(getClass().getResourceAsStream("/assets/textures/player_die.png"));
 
         walkup = new AnimationChannel(upImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
         walkdown = new AnimationChannel(downImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
         walkleft = new AnimationChannel(leftImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
         walkright = new AnimationChannel(rightImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(0.5), 0, 2);
         idledown = new AnimationChannel(idleImage, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(1), 0, 0);
+
+        deadAni = new AnimationChannel(deadIma, NUMFRAME, FRAMESIZE, FRAMESIZE, Duration.seconds(1), 0, 2);
 
         texture = new AnimatedTexture(idledown);
     }
@@ -179,6 +184,9 @@ public class Player extends Component {
             case LEFT:
                 texture.loopNoOverride(walkleft);
                 break;
+            case DEAD:
+                texture.loopNoOverride(deadAni);
+                break;
             case IDLE:
                 texture.loopNoOverride(idledown);
                 break;
@@ -201,76 +209,84 @@ public class Player extends Component {
     }
 
     public boolean moveUp(double tpf) {
-        double newX = entity.getX();
-        double newY = entity.getY() - speed * tpf;
+        if(state != State.DEAD) {
+            double newX = entity.getX();
+            double newY = entity.getY() - speed * tpf;
 
-        if (canMoveTo(newX, newY)) {
-            setState(State.UP);
-            entity.translateY(-speed * tpf);
-            return true;
-        } else {
-            setState(State.UP);
-            double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 0, -1, speed * tpf);
-            if (safeDistance > 0) {
-                entity.translateY(-safeDistance);
+            if (canMoveTo(newX, newY)) {
+                setState(State.UP);
+                entity.translateY(-speed * tpf);
                 return true;
+            } else {
+                setState(State.UP);
+                double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 0, -1, speed * tpf);
+                if (safeDistance > 0) {
+                    entity.translateY(-safeDistance);
+                    return true;
+                }
             }
         }
         return false;
     }
 
     public boolean moveDown(double tpf) {
-        double newX = entity.getX();
-        double newY = entity.getY() + speed * tpf;
+        if(state != State.DEAD) {
+            double newX = entity.getX();
+            double newY = entity.getY() + speed * tpf;
 
-        if (canMoveTo(newX, newY)) {
-            setState(State.DOWN);
-            entity.translateY(speed * tpf);
-            return true;
-        } else {
-            setState(State.DOWN);
-            double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 0, 1, speed * tpf);
-            if (safeDistance > 0) {
-                entity.translateY(safeDistance);
+            if (canMoveTo(newX, newY)) {
+                setState(State.DOWN);
+                entity.translateY(speed * tpf);
                 return true;
+            } else {
+                setState(State.DOWN);
+                double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 0, 1, speed * tpf);
+                if (safeDistance > 0) {
+                    entity.translateY(safeDistance);
+                    return true;
+                }
             }
         }
         return false;
     }
 
     public boolean moveLeft(double tpf) {
-        double newX = entity.getX() - speed * tpf;
-        double newY = entity.getY();
+        if(state != State.DEAD) {
+            double newX = entity.getX() - speed * tpf;
+            double newY = entity.getY();
 
-        if (canMoveTo(newX, newY)) {
-            setState(State.LEFT);
-            entity.translateX(-speed * tpf);
-            return true;
-        } else {
-            setState(State.LEFT);
-            double safeDistance = findSafeDistance(entity.getX(), entity.getY(), -1, 0, speed * tpf);
-            if (safeDistance > 0) {
-                entity.translateX(-safeDistance);
+            if (canMoveTo(newX, newY)) {
+                setState(State.LEFT);
+                entity.translateX(-speed * tpf);
                 return true;
+            } else {
+                setState(State.LEFT);
+                double safeDistance = findSafeDistance(entity.getX(), entity.getY(), -1, 0, speed * tpf);
+                if (safeDistance > 0) {
+                    entity.translateX(-safeDistance);
+                    return true;
+                }
             }
         }
         return false;
     }
 
     public boolean moveRight(double tpf) {
-        double newX = entity.getX() + speed * tpf;
-        double newY = entity.getY();
+        if(state != State.DEAD) {
+            double newX = entity.getX() + speed * tpf;
+            double newY = entity.getY();
 
-        if (canMoveTo(newX, newY)) {
-            setState(State.RIGHT);
-            entity.translateX(speed * tpf);
-            return true;
-        } else {
-            setState(State.RIGHT);
-            double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 1, 0, speed * tpf);
-            if (safeDistance > 0) {
-                entity.translateX(safeDistance);
+            if (canMoveTo(newX, newY)) {
+                setState(State.RIGHT);
+                entity.translateX(speed * tpf);
                 return true;
+            } else {
+                setState(State.RIGHT);
+                double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 1, 0, speed * tpf);
+                if (safeDistance > 0) {
+                    entity.translateX(safeDistance);
+                    return true;
+                }
             }
         }
         return false;
@@ -493,7 +509,15 @@ public class Player extends Component {
     }
 
     public boolean hit() {
+        // If already taking damage, prevent additional hits
+        if (invincible) return false;
+
         lives--;
+        System.out.println("Player hit! Lives remaining: " + lives);
+
+        // Make player immediately invincible
+        triggerInvincibility();
+
         return lives <= 0;
     }
 
