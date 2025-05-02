@@ -13,7 +13,7 @@ import java.util.*;
 public class Oneal extends Enemy {
     protected static final double ONEAL_NORMAL_SPEED = 80;
     protected static final double ONEAL_CHASE_SPEED = 100;
-    protected static final int DETECTION_RANGE = 5;
+    protected static final int DETECTION_RANGE = 100;
     private static final double STUCK_THRESHOLD = 0.3;
     private static final double MOVE_EPSILON = 1.0;
 
@@ -47,9 +47,6 @@ public class Oneal extends Enemy {
     public void onUpdate(double tpf) {
         this.x = (int) entity.getX();
         this.y = (int) entity.getY();
-        if (texture != null) {
-            texture.onUpdate(tpf);
-        }
 
         if (texture != null) {
             texture.onUpdate(tpf);
@@ -210,6 +207,8 @@ public class Oneal extends Enemy {
     private void prepareAlignToTileCenter() {
         targetAlignX = GMap.tileToPixel(GMap.pixelToTile(entity.getX()));
         targetAlignY = GMap.tileToPixel(GMap.pixelToTile(entity.getY()));
+//        targetAlignX = tileCenterX - FRAME_SIZE / 2.0;
+//        targetAlignY = tileCenterY - FRAME_SIZE / 2.0;
         isAligning = true;
     }
 

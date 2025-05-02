@@ -42,10 +42,10 @@ public class Enemy extends Component {
         this.state = State.LEFT;
         Image enemyimg = new Image(getClass().getResourceAsStream(assetName));
 
-        walkdown = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(1), 3, 5);
-        walkright = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(1), 6, 8);
-        walkup = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(1), 6, 8);
-        walkleft = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(1), 3, 5);
+        walkdown = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 3, 5);
+        walkright = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 6, 8);
+        walkup = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 6, 8);
+        walkleft = new AnimationChannel(enemyimg, 3, FRAME_SIZE, FRAME_SIZE, Duration.seconds(0.5), 3, 5);
 
         dead = new AnimationChannel(enemyimg, 6, FRAME_SIZE, FRAME_SIZE, Duration.seconds(1.5), 0, 5);
 
@@ -211,35 +211,35 @@ public class Enemy extends Component {
     public void moveLeft() {
         state = State.LEFT;
         if (texture != null) {
-            texture.loopNoOverride(walkleft);
+            texture.playAnimationChannel(walkleft);
         }
     }
 
     public void moveRight() {
         state = State.RIGHT;
         if (texture != null) {
-            texture.loopNoOverride(walkright);
+            texture.playAnimationChannel(walkright);
         }
     }
 
     public void moveUp() {
         state = State.UP;
         if (texture != null) {
-            texture.loopNoOverride(walkup);
+            texture.playAnimationChannel(walkup);
         }
     }
 
     public void moveDown() {
         state = State.DOWN;
         if (texture != null) {
-            texture.loopNoOverride(walkdown);
+            texture.playAnimationChannel(walkdown);
         }
     }
 
     public void die() {
         if (!isDead) {
             isDead = true;
-            texture.loopNoOverride(dead);
+            texture.playAnimationChannel(dead);
         }
     }
     
