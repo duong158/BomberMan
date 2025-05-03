@@ -13,7 +13,7 @@ import java.util.*;
 public class Oneal extends Enemy {
     protected static final double ONEAL_NORMAL_SPEED = 80;
     protected static final double ONEAL_CHASE_SPEED = 100;
-    protected static final int DETECTION_RANGE = 5;
+    protected static final int DETECTION_RANGE = 3;
     private static final double STUCK_THRESHOLD = 0.3;
     private static final double MOVE_EPSILON = 1.0;
 
@@ -22,7 +22,7 @@ public class Oneal extends Enemy {
     private double lastX, lastY;
 
     private Player player;
-    protected boolean isChasing = false;
+    public boolean isChasing = false;
     private boolean isAligning = false;
     private double targetAlignX, targetAlignY;
 

@@ -21,7 +21,7 @@ public class Map1 {
     public static final int DAHL = 8;
     public static final int DORIA = 9;
 
-    public static int MOBNUMS = 5;
+    public static double MOBNUMS = 5;
     
     // Tỷ lệ phần trăm của từng loại quái
     private static final double BALLOON_PERCENT = 0.3;
@@ -141,9 +141,9 @@ public class Map1 {
     }
 
     public void printMapToConsole(int[][] map) {
-        for (int y = 0; y < map.length; y++) {
+        for (int[] ints : map) {
             for (int x = 0; x < map[0].length; x++) {
-                System.out.print(map[y][x] + " ");
+                System.out.print(ints[x] + " ");
             }
             System.out.println();
         }
