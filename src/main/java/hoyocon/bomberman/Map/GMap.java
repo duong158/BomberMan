@@ -298,4 +298,7 @@ public class GMap {
             }
         }
     }
+    public int[][] getMapDataArray() {
+        return this.mapData;
+    }
 }

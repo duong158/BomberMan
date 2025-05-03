@@ -2,6 +2,7 @@ package hoyocon.bomberman;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.texture.AnimatedTexture;
 import com.almasb.fxgl.texture.AnimationChannel;
 import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.Map.GMap;
@@ -9,11 +10,13 @@ import hoyocon.bomberman.Map.Map1;
 import hoyocon.bomberman.Object.EnemyGroup.*;
 import hoyocon.bomberman.Object.Player;
 import hoyocon.bomberman.AI.PlayerAIController;
+import hoyocon.bomberman.Object.Bomb;
 
-
+import java.io.IOException;
 import java.util.*;
 
 import hoyocon.bomberman.Object.Player;
+import hoyocon.bomberman.Save.*;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -28,7 +31,6 @@ import javafx.stage.Stage;
 import javafx.scene.Group;
 import hoyocon.bomberman.Camera.Camera;
 
-import hoyocon.bomberman.Buff.Bomb;
 import hoyocon.bomberman.Buff.Flame;
 import hoyocon.bomberman.Buff.Speed;
 import hoyocon.bomberman.Object.BuffEntity;
@@ -120,7 +122,11 @@ public class GameSceneBuilder {
     }
 
     public static Scene buildContinueScene() {
-        return buildGameScene(savedX, savedY);
+        GameState savedState = SaveManager.load();
+        if (savedState == null) {
+            return buildNewGameScene();
+        }
+        return buildGameSceneWithState(savedState);
     }
 
     private static Scene buildGameScene(double startX, double startY) {
@@ -440,10 +446,53 @@ public class GameSceneBuilder {
 
             // Always allow ESC key regardless of player state
             if (event.getCode() == KeyCode.ESCAPE) {
-                // Lưu vị trí hiện tại
-                savedX = playerEntity.getX();
-                savedY = playerEntity.getY();
+                // 1. Thu thập GameState
+                GameState state = new GameState();
+                // Player
+                state.playerX = playerEntity.getX();
+                state.playerY = playerEntity.getY();
+                state.lives    = playerComponent.getLives();
+                state.speed    = playerComponent.getSpeed();
+                state.bombCount= playerComponent.getBombCount();
+                state.maxBombs = playerComponent.getMaxBombs();
+                state.flameRange = playerComponent.getFlameRange();
+                state.activeBuffs = playerComponent.getActiveBuffs();
 
+                // Enemies
+                state.enemies = new ArrayList<>();
+                for (Enemy e : allEnemyEntities) {
+                    EnemyState es = new EnemyState();
+                    es.type = e.getClass().getSimpleName();
+                    es.x    = e.getEntity().getX();
+                    es.y    = e.getEntity().getY();
+                    state.enemies.add(es);
+                }
+
+                // Map
+                state.mapData = gameGMap.getMapDataArray();
+
+                // Buffs trên bản đồ
+                state.buffs = new ArrayList<>();
+                for (BuffEntity be : buffEntities) {
+                    BuffState bs = new BuffState();
+                    bs.buffType = be.getBuff().getType();
+                    bs.x = be.getImageView().getX();
+                    bs.y = be.getImageView().getY();
+                    state.buffs.add(bs);
+                }
+
+                // Bombs đang đặt (theo player)
+                state.bombs = new ArrayList<>();
+                for (Pane bp : playerComponent.getBombPanes()) {
+                    BombState bms = new BombState();
+                    bms.x = bp.getLayoutX(); bms.y = bp.getLayoutY();
+                    state.bombs.add(bms);
+                }
+
+                // 2. Lưu state ra file
+                SaveManager.save(state);
+
+                // 3. Dừng gameLoop + về menu
                 try {
                     // Dừng game loop khi thoát
                     gameLoop.stop();
@@ -481,5 +530,349 @@ public class GameSceneBuilder {
 
         return scene;
     }
+
+    public static Scene buildGameSceneWithState(GameState state) {
+        // 1) Tạo pane và world
+        Pane gamePane = new Pane();
+        explosionEntities.clear();
+        gamePane.setStyle("-fx-background-color: black;");
+        Group gameWorld = new Group();
+        gamePane.getChildren().add(gameWorld);
+        gamePane.setFocusTraversable(true);
+
+        // 2) Map từ state.mapData
+        GMap gameGMap = new GMap(state.mapData);
+        gameGMap.render();
+        gameWorld.getChildren().add(gameGMap.getCanvas());
+
+        // 3) Chuẩn bị ánh xạ name→Class và Class→factory
+        Map<String, Class<? extends Enemy>> nameToClass = Map.of(
+                "Balloon", Balloon.class,
+                "Pass",    Pass.class,
+                "Oneal",   Oneal.class,
+                "Dahl",    Dahl.class,
+                "Doria",   Doria.class
+        );
+        Map<Class<? extends Enemy>, EnemyFactory<? extends Enemy>> factories = new HashMap<>();
+        factories.put(Balloon.class, Balloon::new);
+        factories.put(Pass.class,    Pass::new);
+        factories.put(Oneal.class,   (c, r) -> new Oneal(r, c));
+        factories.put(Dahl.class,    Dahl::new);
+        factories.put(Doria.class,   Doria::new);
+
+        // 4) Spawn lại enemies
+        for (EnemyState es : state.enemies) {
+            int col = (int)(es.x / GMap.TILE_SIZE);
+            int row = (int)(es.y / GMap.TILE_SIZE);
+            Class<? extends Enemy> rawCls = nameToClass.get(es.type);
+            EnemyFactory<? extends Enemy> rawFac = factories.get(rawCls);
+            if (rawCls != null && rawFac != null) {
+                @SuppressWarnings("unchecked")
+                Class<Enemy> clsT = (Class<Enemy>) rawCls;
+                @SuppressWarnings("unchecked")
+                EnemyFactory<Enemy> facT = (EnemyFactory<Enemy>) rawFac;
+
+                spawnEnemy(gamePane, gameWorld, gameGMap, row, col, clsT, facT);
+            }
+        }
+
+        // 5) Tạo Player và set trạng thái
+        Entity playerEntity = new Entity();
+        Player playerComp = new Player();
+        playerComp.setGameMap(gameGMap);
+        playerComp.setLives(state.lives);
+        playerComp.setSpeed(state.speed);
+        playerComp.setMaxBombs(state.maxBombs);
+        playerComp.setFlameRange(state.flameRange);
+        playerComp.setActiveBuffs(state.activeBuffs);
+        playerEntity.addComponent(playerComp);
+        playerEntity.setPosition(state.playerX, state.playerY);
+        gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
+
+        // 6) Thêm buff tồn
+        for (BuffState bs : state.buffs) {
+            BuffGeneric buff;
+            switch (bs.buffType) {
+                case "speed":      buff = new Speed();      break;
+                case "flameRange": buff = new Flame();      break;
+                default:           continue;
+            }
+            BuffEntity be = new BuffEntity(buff, bs.x, bs.y);
+            buffEntities.add(be);
+            gamePane.getChildren().add(be.getImageView());
+        }
+
+        // 7) Thêm bombs chưa nổ
+        long now = System.currentTimeMillis();
+        for (BombState bs : state.bombs) {
+            long elapsed = now - bs.timePlaced;
+            long remaining = bs.timeRemaining - elapsed;
+            if (remaining <= 0) continue;
+
+            // Tạo bom và texture
+            Bomb bombComp = new Bomb(playerComp, gamePane);
+            AnimatedTexture tex = bombComp.getTexture();
+            tex.loop();
+
+            Pane bombPane = new Pane(tex);
+            bombPane.setPrefSize(GMap.TILE_SIZE, GMap.TILE_SIZE);
+            bombPane.setLayoutX(bs.x);
+            bombPane.setLayoutY(bs.y);
+            gamePane.getChildren().add(bombPane);
+
+            // Lên lịch nổ
+            PauseTransition delay = new PauseTransition(Duration.millis(remaining));
+            delay.setOnFinished(e -> {
+                bombComp.explode();
+                gamePane.getChildren().remove(bombPane);
+            });
+            delay.play();
+        }
+
+        // 8) Tạo Scene và return
+        Scene scene = new Scene(gamePane, screenWidth, screenHeight);
+        scene.setCursor(Cursor.NONE);
+        scene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case W -> isUpPressed = true;
+                case S -> isDownPressed = true;
+                case A -> isLeftPressed = true;
+                case D -> isRightPressed = true;
+                case SPACE -> playerComp.placeBomb(gamePane);
+                case ESCAPE -> {
+                    // Thu thập bom
+                    state.bombs = playerComp.getBombPanes().stream().map(bp -> {
+                        BombState b = new BombState();
+                        b.x = bp.getLayoutX();
+                        b.y = bp.getLayoutY();
+                        b.timePlaced = bp.getTimePlaced();
+                        b.timeRemaining = 2000;
+                        return b;
+                    }).toList();
+                    // Cập nhật player pos & trạng thái nếu cần
+                    state.playerX = playerEntity.getX();
+                    state.playerY = playerEntity.getY();
+                    state.lives   = playerComp.getLives();
+
+                    SaveManager.save(state);
+                    gameLoop.stop();
+                    try {
+                        Parent menuRoot = FXMLLoader.load(
+                                GameSceneBuilder.class.getResource("/hoyocon/bomberman/Menu-view.fxml")
+                        );
+                        ((Stage) scene.getWindow()).setScene(new Scene(menuRoot, screenWidth, screenHeight));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        // --- 1) Tạo và start gameLoop lại ---
+        gameLoop = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                boolean moved = false;
+
+                if (playerComp.getState() != State.DEAD) {
+                    if (isUpPressed) {
+                        moved = playerComp.moveUp(0.016);
+                    }
+                    if (isDownPressed) {
+                        moved = playerComp.moveDown(0.016);
+                    }
+                    if (isLeftPressed) {
+                        moved = playerComp.moveLeft(0.016);
+                    }
+                    if (isRightPressed) {
+                        moved = playerComp.moveRight(0.016);
+                    }
+
+                    if (!moved) {
+                        playerComp.stop();
+                    }
+                }
+                //Muốn dùng AI thì bỏ comment
+//                playerAI.update(now);
+                playerComp.onUpdate(1.0 / 60.0);
+
+                // Buff collision
+                playerComp.checkBuffCollision(buffEntities, gamePane);
+
+                // Bounds of player
+                Bounds playerBounds = playerEntity.getViewComponent().getParent().getBoundsInParent();
+
+                // Player vs Flame
+                for (Pane flamePane : explosionEntities) {
+                    if (flamePane.getBoundsInParent().intersects(playerBounds)) {
+                        if (!playerComp.isInvincible()&& playerComp.getState() != State.DEAD) {
+                            if (playerComp.hit()) {
+                                System.out.println("Player died by explosion!");
+                                stop(); // Dừng game loop
+                                try {
+                                    Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
+                                    Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
+
+                                    // Add null check before accessing window/stage
+                                    if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
+                                        Stage stage = (Stage) gamePane.getScene().getWindow();
+                                        stage.setScene(gameOverScene);
+                                    } else {
+                                        System.err.println("Cannot show game over screen: Scene or Window is null");
+                                        // Consider an alternative method to end the game
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                // Chạy animation chết và hồi sinh
+                                playerComp.setState(State.DEAD);
+
+                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
+                                deathDelay.setOnFinished(event -> {
+                                    // Khôi phục vị trí ban đầu
+                                    playerEntity.setPosition(48, 48);
+
+                                    // Trigger invincibility sau khi hồi sinh
+                                    playerComp.triggerInvincibility();
+
+                                    // Đặt lại trạng thái
+                                    playerComp.setState(State.IDLE);
+
+                                });
+                                deathDelay.play();
+                            }
+                        }
+                    }
+                }
+
+                // Flame vs Enemy (với animation chết)
+                for (Pane flamePane : explosionEntities) {
+                    Bounds flameBounds = flamePane.getBoundsInParent();
+                    for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
+                        List<Entity> list = entry.getValue();
+                        Iterator<Entity> it = list.iterator();
+                        while (it.hasNext()) {
+                            Entity enemyEntity = it.next();
+                            Bounds enemyBounds = enemyEntity.getViewComponent().getParent().getBoundsInParent();
+                            if (flameBounds.intersects(enemyBounds)) {
+                                Enemy enemyComp = enemyEntity.getComponent(entry.getKey());
+
+                                if (!enemyComp.isDead()) {
+                                    enemyComp.die(); // play death animation
+                                    Entity e = enemyEntity;
+                                    List<Entity> refList = list;
+                                    // Hẹn xóa khi animation 'dead' đã hoàn thành (1.5s)
+                                    PauseTransition delay = new PauseTransition(Duration.seconds(1.5));
+                                    delay.setOnFinished(event -> {
+                                        Platform.runLater(() -> {
+                                            refList.remove(e);
+                                            gameWorld.getChildren().remove(e.getViewComponent().getParent());
+                                            e.removeFromWorld();
+                                        });
+                                    });
+                                    delay.play();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Enemy vs Player
+                for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
+                    for (Entity enemyEntity : entry.getValue()) {
+                        Enemy enemyComp = enemyEntity.getComponent(entry.getKey());
+                        if (enemyComp.isDead())
+                            continue;   // bỏ qua enemy đã chết
+                        Bounds enemyBounds = enemyEntity.getViewComponent().getParent().getBoundsInParent();
+                        if (enemyBounds.intersects(playerBounds)) {
+                            if (!playerComp.isInvincible() && playerComp.getState() != State.DEAD) {
+                                if (playerComp.hit()) {
+                                    System.out.println("Player died by enemy collision!");
+                                    stop(); // Dừng game loop
+                                    try {
+                                        Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
+                                        Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
+
+                                        // Add null check before accessing window/stage
+                                        if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
+                                            Stage stage = (Stage) gamePane.getScene().getWindow();
+                                            stage.setScene(gameOverScene);
+                                        } else {
+                                            System.err.println("Cannot show game over screen: Scene or Window is null");
+                                            // Consider an alternative method to end the game
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    // Chạy animation chết và hồi sinh
+                                    playerComp.setState(State.DEAD);
+
+                                    PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
+                                    deathDelay.setOnFinished(event -> {
+                                        // Khôi phục vị trí ban đầu
+                                        playerEntity.setPosition(48, 48);
+
+                                        // Trigger invincibility sau khi hồi sinh
+                                        playerComp.triggerInvincibility();
+
+                                        // Đặt lại trạng thái
+                                        playerComp.setState(State.IDLE);
+
+                                    });
+                                    deathDelay.play();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Update tất cả enemy
+                double deltaTime = 1.0 / 60.0;
+                for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
+                    Class<? extends Enemy> enemyClass = entry.getKey();
+                    for (Entity enemy : new ArrayList<>(entry.getValue())) {
+                        if (enemy.getComponentOptional(enemyClass).isPresent()) {
+                            Enemy enemyComponent = enemy.getComponent(enemyClass);
+                            enemyComponent.onUpdate(deltaTime);
+                        }
+                    }
+                }
+            }
+        };
+        gameLoop.start();
+
+        // --- 2) Đăng ký key handlers lại ---
+        gamePane.setOnKeyPressed(event -> {
+            if (playerComp.getState() != State.DEAD) {
+                if (event.getCode() == KeyCode.W)       isUpPressed = true;
+                else if (event.getCode() == KeyCode.S)  isDownPressed = true;
+                else if (event.getCode() == KeyCode.A)  isLeftPressed = true;
+                else if (event.getCode() == KeyCode.D)  isRightPressed = true;
+                else if (event.getCode() == KeyCode.SPACE) {
+                    playerComp.placeBomb(gamePane);
+                }
+            }
+            if (event.getCode() == KeyCode.ESCAPE) {
+                // (copy nguyên logic ESC: thu thập state, SaveManager.save, stop loop, về menu)
+            }
+        });
+
+        gamePane.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.W)      isUpPressed = false;
+            else if (event.getCode() == KeyCode.S) isDownPressed = false;
+            else if (event.getCode() == KeyCode.A) isLeftPressed = false;
+            else if (event.getCode() == KeyCode.D) isRightPressed = false;
+            if (!isUpPressed && !isDownPressed && !isLeftPressed && !isRightPressed) {
+                playerComp.stop();
+            }
+        });
+
+        // --- 3) Đảm bảo focus để nhận phím ---
+        gamePane.requestFocus();
+        // ... copy nguyên phần thiết lập camera, key handlers, gameLoop từ buildGameScene()
+        return scene;
+    }
+
 
 }

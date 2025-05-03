@@ -9,4 +9,7 @@ public interface BuffGeneric {
     int getDuration(); // Đơn vị: seconds
     String getName();
     Image getIcon();
+    default String getType() {
+        return getName();
+    }
 }

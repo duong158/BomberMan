@@ -88,7 +88,21 @@ public class Player extends Component {
     private static final int PLAYER_HEIGHT = 45;
     private static final int HITBOX_MARGIN = 0; // Margin to make hitbox slightly smaller than sprite
 
-    private List<Pane> bombs = new ArrayList<>();
+    private List<BombPane> bombs = new ArrayList<>();
+
+    public static class BombPane extends Pane {
+        private long timePlaced;
+        public BombPane(AnimatedTexture tex, double x, double y) {
+            super(tex);
+            setPrefSize(GMap.TILE_SIZE, GMap.TILE_SIZE);
+            setLayoutX(x);
+            setLayoutY(y);
+            this.timePlaced = System.currentTimeMillis();
+        }
+        public long getTimePlaced() {
+            return timePlaced;
+        }
+    }
 
     // Get hitbox with margins for better collision detection
     private double[][] getHitboxPoints(double x, double y) {
@@ -349,10 +363,9 @@ public class Player extends Component {
         bombCount++;
         Bomb bombComponent = new Bomb(this, gamePane);
         AnimatedTexture bombTexture = bombComponent.getTexture();
-        Pane bombPane = new Pane(bombTexture);
-        bombPane.setPrefSize(tileSize, tileSize);
-        bombPane.setLayoutX(snappedX);
-        bombPane.setLayoutY(snappedY);
+
+        // ---- DÙNG BOMB PANE ----
+        BombPane bombPane = new BombPane(bombTexture, snappedX, snappedY);
         gamePane.getChildren().add(bombPane);
         bombs.add(bombPane);
 
@@ -650,4 +663,20 @@ public class Player extends Component {
     public void setLevel(int level) {
         this.level = level;
     }
+    // Trả về số bom đang đặt
+    public int getBombCount() {
+        return this.bombCount;
+    }
+
+    // Trả về map các buff đang kích hoạt (tên → thời điểm kích hoạt)
+    public Map<String, Long> getActiveBuffs() {
+        return this.activeBuffs;
+    }
+
+    // Trả về danh sách Pane bom đang đặt
+    public List<BombPane> getBombPanes() {
+        return this.bombs;
+    }
+    public void setFlameRange(int r) { this.flameRange = r; }
+    public void setActiveBuffs(Map<String, Long> b) { this.activeBuffs = b; }
 }

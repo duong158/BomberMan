@@ -70,7 +70,7 @@ public class Bomb extends Component {
     }
 
     /** Gây nổ bom: tạo hiệu ứng flame xung quanh và play sound */
-    private void explode() {
+    public void explode() {
         // Phát âm thanh nổ
         AudioClip explodeSfx = new AudioClip(getClass().getResource("/assets/sounds/explosion.wav").toString());
         explodeSfx.play();
