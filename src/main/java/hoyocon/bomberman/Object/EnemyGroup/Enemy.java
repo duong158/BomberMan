@@ -5,9 +5,11 @@ import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.AnimatedTexture;
 import com.almasb.fxgl.texture.AnimationChannel;
 import hoyocon.bomberman.EntitiesState.State;
+import hoyocon.bomberman.GameSceneBuilder;
 import hoyocon.bomberman.Map.GMap;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
+import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
 import javafx.scene.image.Image;
@@ -162,7 +164,22 @@ public class Enemy extends Component {
 
         // Kiểm tra va chạm với tường hoặc gạch
         return gameMap.checkCollisionWithWall(x, y, width, height) ||
-                gameMap.checkCollisionWithBrick(x, y, width, height);
+                gameMap.checkCollisionWithBrick(x, y, width, height) ||
+                checkCollisionWithBomb(x,y,width,height);
+    }
+    protected boolean checkCollisionWithBomb(double x, double y, double width, double height) {
+        for (Pane bombPane : GameSceneBuilder.bombEntities) {
+            double bx = bombPane.getLayoutX();
+            double by = bombPane.getLayoutY();
+            double bw = bombPane.getPrefWidth();
+            double bh = bombPane.getPrefHeight();
+
+            if (x < bx + bw && x + width > bx &&
+                    y < by + bh && y + height > by) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

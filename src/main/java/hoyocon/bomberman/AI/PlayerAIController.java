@@ -16,6 +16,7 @@ public class PlayerAIController {
     private GMap map;
     private List<Enemy> enemies;
     private Pane gamePane;
+    private Position lastPlayerPosition = null;
 
     // AI States
     private enum AIState {
@@ -29,13 +30,15 @@ public class PlayerAIController {
     
     private AIState currentState = AIState.IDLE;
     private final boolean DEBUG = true;
-    
+    private boolean bombPlaced = false;
+
+
     // Path finding
     private List<Node> currentPath;
     private Node targetExit;
     
     // Bomb logic
-    private static final long BOMB_DELAY_NS = 2_000_000_000L; // 2 seconds
+    private static final long BOMB_DELAY_NS = 3_500_000_000L; // 2 seconds
     private static final int TILE_SIZE = 48;
     private long bombPlacedTime;
     private int bombRow, bombCol;
@@ -43,8 +46,8 @@ public class PlayerAIController {
     private List<Node> escapePath;
     
     // Decision making
-    private static final int ENEMY_DANGER_DISTANCE = 3;
-    private static final int ENEMY_AWARE_DISTANCE = 5;
+    private static final int ENEMY_DANGER_DISTANCE = 2;
+    private static final int ENEMY_AWARE_DISTANCE = 7;
     private static final int MAX_PATH_FINDING_ATTEMPTS = 3;
     
     /**
@@ -189,10 +192,11 @@ public class PlayerAIController {
 
         // Chỉ trả về ô nếu player nằm trọn trong một ô duy nhất
         if (leftCol == rightCol && topRow == bottomRow) {
-            return new Position(topRow, leftCol);
+            lastPlayerPosition = new Position(topRow, leftCol);
+            return lastPlayerPosition;
         }
-        // Nếu chưa nằm trọn trong một ô nào, trả về null hoặc một giá trị đặc biệt
-        return null;
+        // Nếu chưa nằm trọn trong một ô nào, trả về vị trí ô trước đó
+        return lastPlayerPosition;
     }
     
     /**
@@ -214,6 +218,12 @@ public class PlayerAIController {
      * Find a new path to a target
      */
     private void findNewPath(Position playerPos) {
+        if (playerPos == null) {
+            log("Player position is null, cannot find path. Waiting for next frame.");
+            player.stop();
+            currentState = AIState.IDLE;
+            return;
+        }
         log("Finding new path from " + playerPos);
         
         // First priority: Find path to exit
@@ -287,7 +297,7 @@ public class PlayerAIController {
      */
     private void placeBombAndPrepareEscape(Position playerPos, long now) {
         // Place the bomb
-        boolean bombPlaced = player.placeBomb(gamePane);
+        bombPlaced = player.placeBomb(gamePane);
         
         if (bombPlaced) {
             log("Bomb placed at " + playerPos);
@@ -323,7 +333,13 @@ public class PlayerAIController {
         if (System.nanoTime() - bombPlacedTime >= BOMB_DELAY_NS) {
             log("Bomb should have exploded, returning to path finding");
             dangerZones.clear();
+            bombPlaced = false;
             currentState = AIState.IDLE;
+            return;
+        }
+        if (!dangerZones.contains(keyFromPosition(playerPos.row, playerPos.col)) && isEnemyInDangerZone(playerPos)) {
+            log("Safe from bomb but enemy nearby, switching to AVOIDING_ENEMIES");
+            currentState = AIState.AVOIDING_ENEMIES;
             return;
         }
         
@@ -350,6 +366,30 @@ public class PlayerAIController {
      * Avoid nearby enemies
      */
     private void avoidEnemies(Position playerPos) {
+        if (!isEnemyInDangerZone(playerPos)) {
+            log("No enemy nearby, switching back to FINDING_PATH");
+            currentState = AIState.FINDING_PATH;
+            return;
+        }
+        if (bombPlaced && !isEnemyInDangerZone(playerPos) && dangerZones.contains(keyFromPosition(playerPos.row, playerPos.col))) {
+            log("No enemy nearby, bomb placed and still in danger zone, switching back to ESCAPING");
+            currentState = AIState.ESCAPING;
+            return;
+        }
+
+        if (isEnemyNearAndChasing(playerPos)) {
+            log("Enemy chasing! Placing bomb to block");
+            boolean bombPlaced = player.placeBomb(gamePane);
+            if (bombPlaced) {
+                bombRow = playerPos.row;
+                bombCol = playerPos.col;
+                bombPlacedTime = System.nanoTime();
+                calculateBombDangerZones();
+                escapePath = findEscapePath(playerPos);
+                currentState = AIState.ESCAPING;
+                return;
+            }
+        }
         // Find a safe spot away from enemies
         List<Node> safetyPath = findSafetyPath(playerPos);
         
@@ -375,7 +415,21 @@ public class PlayerAIController {
             }
         }
     }
-    
+
+    private boolean isEnemyNearAndChasing(Position pos) {
+        for (Enemy enemy : enemies) {
+            if (enemy.isDead()) continue;
+            if (enemy instanceof Oneal && ((Oneal) enemy).isChasing) {
+                int er = GMap.pixelToTile(enemy.getEntity().getY());
+                int ec = GMap.pixelToTile(enemy.getEntity().getX());
+                if (manhattanDistance(pos.row, pos.col, er, ec) <= ENEMY_DANGER_DISTANCE + 1) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Check if player is cornered with no escape routes
      */
@@ -399,30 +453,34 @@ public class PlayerAIController {
      * Find a path to safety, away from enemies
      */
     private List<Node> findSafetyPath(Position start) {
-        // Create a heat map of danger from enemies
         int[][] dangerMap = createEnemyDangerMap();
-        
-        // Find the safest reachable tile
+
         Node safestNode = null;
         int lowestDanger = Integer.MAX_VALUE;
-        
+
         for (int r = 0; r < map.height; r++) {
             for (int c = 0; c < map.width; c++) {
-                if (map.isWalkable(r, c) && dangerMap[r][c] < lowestDanger) {
+                String key = keyFromPosition(r, c);
+                // Không chọn ô nằm trong vùng nổ bomb
+                if (!map.isWalkable(r, c)) continue;
+                if (bombPlaced && dangerZones.contains(key)) continue;
+
+                if (dangerMap[r][c] < lowestDanger) {
                     Node targetNode = new Node(r, c);
                     List<Node> path = findPathAStar(start, targetNode);
-                    if (path != null && !path.isEmpty()) {
+                    // Đảm bảo đường đi cũng không cắt qua vùng nổ bomb
+                    if (path != null && !path.isEmpty() && path.stream().noneMatch(n -> dangerZones.contains(keyFromPosition(n.row, n.col)))) {
                         lowestDanger = dangerMap[r][c];
                         safestNode = targetNode;
                     }
                 }
             }
         }
-        
+
         if (safestNode != null) {
             return findPathAStar(start, safestNode);
         }
-        
+
         return null;
     }
     
@@ -472,7 +530,7 @@ public class PlayerAIController {
      */
     private void calculateBombDangerZones() {
         dangerZones.clear();
-        int range = player.getFlameRange();
+        int range = player.getFlameRange()+1;
         
         // Center of explosion
         dangerZones.add(keyFromPosition(bombRow, bombCol));
@@ -743,13 +801,15 @@ public class PlayerAIController {
             
             int er = GMap.pixelToTile(enemy.getEntity().getY());
             int ec = GMap.pixelToTile(enemy.getEntity().getX());
+
             
             int distance = manhattanDistance(pos.row, pos.col, er, ec);
-            
+
             // Different enemies have different danger zones
             int dangerDistance = ENEMY_DANGER_DISTANCE;
-            if (enemy instanceof Oneal) dangerDistance = 4; 
-            if (enemy instanceof Doria) dangerDistance = 5;
+
+            if (enemy instanceof Oneal && ((Oneal) enemy).isChasing) dangerDistance = 4;
+            if (enemy instanceof Doria) dangerDistance = 6;
             
             if (distance <= dangerDistance) {
                 return true;
@@ -823,5 +883,15 @@ public class PlayerAIController {
         if (DEBUG) {
             System.out.println("[AI] " + message);
         }
+    }
+    public void resetAIState() {
+        currentState = AIState.FINDING_PATH;
+        escapePath = null;
+        dangerZones.clear();
+        currentPath = null;
+        bombPlacedTime = 0;
+        bombRow = -1;
+        bombCol = -1;
+        log("AI state reset after respawn");
     }
 }

@@ -122,7 +122,7 @@ public class Player extends Component {
     }
 
     public Player() {
-        this.lives = 3;
+        this.lives = 1000;
         this.speed = baseSpeed;
         this.bombCount = 0;
         this.maxBombs = 1;
@@ -215,7 +215,13 @@ public class Player extends Component {
 
             if (canMoveTo(newX, newY)) {
                 setState(State.UP);
-                entity.translateY(-speed * tpf);
+                // Làm tròn nếu gần sát vị trí nguyên
+                double snappedY = Math.round(newY);
+                if (Math.abs(snappedY - newY) < 0.001) {
+                    entity.setY(snappedY);
+                } else {
+                    entity.translateY(-speed * tpf);
+                }
                 return true;
             } else {
                 setState(State.UP);
@@ -263,7 +269,13 @@ public class Player extends Component {
 
             if (canMoveTo(newX, newY)) {
                 setState(State.LEFT);
-                entity.translateX(-speed * tpf);
+                // Làm tròn nếu gần sát vị trí nguyên (hoặc tile)
+                double snappedX = Math.round(newX);
+                if (Math.abs(snappedX - newX) < 0.001) {
+                    entity.setX(snappedX);
+                } else {
+                    entity.translateX(-speed * tpf);
+                }
                 return true;
             } else {
                 setState(State.LEFT);
@@ -367,6 +379,7 @@ public class Player extends Component {
         bombPane.setLayoutY(snappedY);
         gamePane.getChildren().add(bombPane);
         bombs.add(bombPane);
+        GameSceneBuilder.bombEntities.add(bombPane);
 
         // Âm thanh và animation đặt bom
         new AudioClip(getClass().getResource("/assets/sounds/place_bomb.wav").toString()).play();
@@ -387,6 +400,7 @@ public class Player extends Component {
             bombAnimLoop.stop();
             gamePane.getChildren().remove(bombPane);
             bombs.remove(bombPane);
+            GameSceneBuilder.bombEntities.remove(bombPane);
             bombCount--;
 
             // Âm thanh nổ
