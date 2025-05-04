@@ -571,7 +571,7 @@ public class GameSceneBuilder {
         );
         Map<Class<? extends Enemy>, EnemyFactory<? extends Enemy>> factories = new HashMap<>();
         factories.put(Balloon.class, Balloon::new);
-        factories.put(Pass.class,    Pass::new);
+        factories.put(Pass.class, (col, row) -> new Pass(row, col, gameGMap, gamePane, gameWorld));
         factories.put(Oneal.class,   (c, r) -> new Oneal(r, c));
         factories.put(Dahl.class,    Dahl::new);
         factories.put(Doria.class,   Doria::new);
