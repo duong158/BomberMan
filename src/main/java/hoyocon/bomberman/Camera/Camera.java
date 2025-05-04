@@ -1,6 +1,7 @@
 package hoyocon.bomberman.Camera;
 
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 
@@ -38,19 +39,21 @@ public class Camera {
     }
 
     private void update() {
-        double centerX = target.getTranslateX() + target.getBoundsInParent().getWidth() / 2;
-        double centerY = target.getTranslateY() + target.getBoundsInParent().getHeight() / 2;
+        Bounds b = target.getBoundsInParent();  // gồm cả layoutX/Y và translateX/Y
+        double centerX = b.getMinX() + b.getWidth()  / 2.0;
+        double centerY = b.getMinY() + b.getHeight() / 2.0;
 
         double targetX = screenWidth / 2 - centerX;
         double targetY = screenHeight / 2 - centerY;
 
-        // Giới hạn world không đi quá biên
-        targetX = Math.min(0, Math.max(screenWidth - worldWidth, targetX));
+        // Giới hạn không vượt ra ngoài biên
+        targetX = Math.min(0, Math.max(screenWidth  - worldWidth,  targetX));
         targetY = Math.min(0, Math.max(screenHeight - worldHeight, targetY));
 
         world.setTranslateX(lerp(world.getTranslateX(), targetX, lerpFactor));
         world.setTranslateY(lerp(world.getTranslateY(), targetY, lerpFactor));
     }
+
 
     private double lerp(double a, double b, double t) {
         return a + (b - a) * t;
