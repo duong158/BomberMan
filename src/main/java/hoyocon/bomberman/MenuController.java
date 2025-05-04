@@ -1,5 +1,7 @@
 package hoyocon.bomberman;
 
+import hoyocon.bomberman.Save.GameState;
+import hoyocon.bomberman.Save.SaveManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.application.Platform;
@@ -18,7 +20,16 @@ public class MenuController {
 
     @FXML
     private void onContinueClicked(ActionEvent event) {
-        // Chuyển sang màn chơi và tiếp tục từ vị trí đã lưu
+        GameState savedState = SaveManager.load();
+        if (savedState == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Save Found");
+            alert.setHeaderText("No saved game found!");
+            alert.setContentText("Please start a new game.");
+            alert.showAndWait();
+            return;
+        }
+
         Scene gameScene = GameSceneBuilder.buildContinueScene();
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(gameScene);

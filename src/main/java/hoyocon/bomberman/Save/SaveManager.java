@@ -16,11 +16,12 @@ public class SaveManager {
     }
 
     public static GameState load() {
-        File f = new File(SAVE_FILE);
-        if (!f.exists()) return null;
-        try (ObjectInputStream ois = new ObjectInputStream(
-                new FileInputStream(f)))
-        {
+        File file = new File(SAVE_FILE);
+        if (!file.exists()) {
+            System.err.println("Save file not found: " + SAVE_FILE);
+            return null;
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             return (GameState) ois.readObject();
         } catch (Exception e) {
             e.printStackTrace();

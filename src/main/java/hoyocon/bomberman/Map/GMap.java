@@ -172,13 +172,14 @@ public class GMap {
 
     public int getTileType(int row, int col) {
         if (row < 0 || row >= height || col < 0 || col >= width) {
-            return WALL; // Coi như ngoài map là tường
+            return -1; // Giá trị không hợp lệ
         }
         return mapData[row][col];
     }
 
     public boolean isWalkable(int row, int col) {
-        return getTileType(row, col) == EMPTY || getTileType(row, col) == EXIT || getTileType(row, col) == ENTRANCE;
+        int tileType = getTileType(row, col);
+        return tileType != WALL && tileType != BRICK;
     }
 
     public static int pixelToTile(double pixel) {

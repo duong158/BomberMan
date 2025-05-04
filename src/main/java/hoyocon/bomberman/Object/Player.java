@@ -33,7 +33,7 @@ public class Player extends Component {
     // Vị trí người chơi
     private int x, y;
 
-    private static int level = 1;
+    public static int level = 1;
     private boolean hasExited = false;
 
     // Thuộc tính người chơi
@@ -640,6 +640,15 @@ public class Player extends Component {
             blink.stop();
         });
         pause.play();
+    }
+
+    public void setPosition(double x, double y) {
+        this.x = (int) x;
+        this.y = (int) y;
+        // Đẩy tọa độ xuống FXGL Entity để hiển thị
+        if (entity != null) {
+            entity.setPosition(x, y);
+        }
     }
 
     public State getState() {
