@@ -21,6 +21,7 @@ import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
@@ -299,49 +300,57 @@ public class GameSceneBuilder {
                 Bounds playerBounds = playerEntity.getViewComponent().getParent().getBoundsInParent();
 
                 // Player vs Flame
-//                for (Pane flamePane : explosionEntities) {
-//                    if (flamePane.getBoundsInParent().intersects(playerBounds)) {
-//                        if (!playerComponent.isInvincible()&& playerComponent.getState() != State.DEAD) {
-//                            playerComponent.setState(State.DEAD);
-//                            if (playerComponent.hit()) {
-//                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
-//                                deathDelay.setOnFinished(event -> {
-//                                    stop(); // Stop game loop after animation completes
-//
-//                                    try {
-//                                        Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
-//                                        Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
-//
-//                                        // Add null check before accessing window/stage
-//                                        if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
-//                                            Stage stage = (Stage) gamePane.getScene().getWindow();
-//                                            stage.setScene(gameOverScene);
-//                                        } else {
-//                                            System.err.println("Cannot show game over screen: Scene or Window is null");
-//                                        }
-//                                    } catch (Exception e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                });
-//                                deathDelay.play();
-//                            } else {
-//                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
-//                                deathDelay.setOnFinished(event -> {
-//                                    // Khôi phục vị trí ban đầu
-//                                    playerEntity.setPosition(48, 48);
-//
-//                                    // Trigger invincibility sau khi hồi sinh
-//                                    playerComponent.triggerInvincibility();
-//
-//                                    // Đặt lại trạng thái
-//                                    playerComponent.setState(State.IDLE);
-//
-//                                });
-//                                deathDelay.play();
-//                            }
-//                        }
-//                    }
-//                }
+                for (Pane flamePane : explosionEntities) {
+                    Bounds flameBounds = flamePane.getBoundsInParent();
+                    double shrink = 2; // số pixel muốn thu nhỏ mỗi cạnh
+                    Bounds customFlameBounds = new BoundingBox(
+                            flameBounds.getMinX() + shrink,
+                            flameBounds.getMinY() + shrink,
+                            Math.max(0, flameBounds.getWidth() - 2 * shrink),
+                            Math.max(0, flameBounds.getHeight() - 2 * shrink)
+                    );
+                    if (customFlameBounds.intersects(playerBounds)) {
+                        if (!playerComponent.isInvincible()&& playerComponent.getState() != State.DEAD) {
+                            playerComponent.setState(State.DEAD);
+                            if (playerComponent.hit()) {
+                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
+                                deathDelay.setOnFinished(event -> {
+                                    stop(); // Stop game loop after animation completes
+
+                                    try {
+                                        Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
+                                        Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
+
+                                        // Add null check before accessing window/stage
+                                        if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
+                                            Stage stage = (Stage) gamePane.getScene().getWindow();
+                                            stage.setScene(gameOverScene);
+                                        } else {
+                                            System.err.println("Cannot show game over screen: Scene or Window is null");
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+                                deathDelay.play();
+                            } else {
+                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
+                                deathDelay.setOnFinished(event -> {
+                                    // Khôi phục vị trí ban đầu
+                                    playerEntity.setPosition(48, 48);
+
+                                    // Trigger invincibility sau khi hồi sinh
+                                    playerComponent.triggerInvincibility();
+
+                                    // Đặt lại trạng thái
+                                    playerComponent.setState(State.IDLE);
+
+                                });
+                                deathDelay.play();
+                            }
+                        }
+                    }
+                }
 
                 // Flame vs Enemy (với animation chết)
                 for (Pane flamePane : explosionEntities) {
@@ -382,7 +391,15 @@ public class GameSceneBuilder {
                         if (enemyComp.isDead())
                             continue;   // bỏ qua enemy đã chết
                         Bounds enemyBounds = enemyEntity.getViewComponent().getParent().getBoundsInParent();
-                        if (enemyBounds.intersects(playerBounds)) {
+                        double shrink = 2; // số pixel muốn thu nhỏ mỗi cạnh (ví dụ 8)
+                        Bounds customEnemyBounds = new BoundingBox(
+                                enemyBounds.getMinX() + shrink,
+                                enemyBounds.getMinY() + shrink,
+                                Math.max(0, enemyBounds.getWidth() - 2 * shrink),
+                                Math.max(0, enemyBounds.getHeight() - 2 * shrink)
+                        );
+
+                        if (customEnemyBounds.intersects(playerBounds)) {
                             if (!playerComponent.isInvincible() && playerComponent.getState() != State.DEAD) {
                                 playerComponent.setState(State.DEAD);
                                 if (playerComponent.hit()) {

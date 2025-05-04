@@ -46,8 +46,8 @@ public class PlayerAIController {
     private List<Node> escapePath;
     
     // Decision making
-    private static final int ENEMY_DANGER_DISTANCE = 2;
-    private static final int ENEMY_AWARE_DISTANCE = 7;
+    private static final int ENEMY_DANGER_DISTANCE = 1;
+    private static final int ENEMY_AWARE_DISTANCE = 4;
     private static final int MAX_PATH_FINDING_ATTEMPTS = 3;
     
     /**
@@ -186,9 +186,9 @@ public class PlayerAIController {
         double bottom = top + 45; // hitbox height
 
         int leftCol = GMap.pixelToTile(left);
-        int rightCol = GMap.pixelToTile(right);
+        int rightCol = GMap.pixelToTile(right+1);
         int topRow = GMap.pixelToTile(top);
-        int bottomRow = GMap.pixelToTile(bottom);
+        int bottomRow = GMap.pixelToTile(bottom+1);
 
         // Chỉ trả về ô nếu player nằm trọn trong một ô duy nhất
         if (leftCol == rightCol && topRow == bottomRow) {
@@ -337,11 +337,6 @@ public class PlayerAIController {
             currentState = AIState.IDLE;
             return;
         }
-        if (!dangerZones.contains(keyFromPosition(playerPos.row, playerPos.col)) && isEnemyInDangerZone(playerPos)) {
-            log("Safe from bomb but enemy nearby, switching to AVOIDING_ENEMIES");
-            currentState = AIState.AVOIDING_ENEMIES;
-            return;
-        }
         
         if (escapePath == null || escapePath.isEmpty()) {
             log("No escape path to follow, staying put and hoping");
@@ -356,8 +351,13 @@ public class PlayerAIController {
         if (arePositionsEqual(playerPos, new Position(safeSpot.row, safeSpot.col))) {
             escapePath.remove(0);
             if (escapePath.isEmpty()) {
-                log("Reached safe position, waiting for explosion");
-                player.stop();
+                if (isEnemyInDangerZone(playerPos)){
+                    log("Safe from bomb but enemy nearby, switching to AVOIDING_ENEMIES");
+                    currentState = AIState.AVOIDING_ENEMIES;
+                } else {
+                    log("Reached safe position, waiting for explosion");
+                    player.stop();
+                }
             }
         }
     }
@@ -457,14 +457,13 @@ public class PlayerAIController {
 
         Node safestNode = null;
         int lowestDanger = Integer.MAX_VALUE;
+        if(bombPlaced) calculateBombDangerZones();
 
         for (int r = 0; r < map.height; r++) {
             for (int c = 0; c < map.width; c++) {
                 String key = keyFromPosition(r, c);
                 // Không chọn ô nằm trong vùng nổ bomb
                 if (!map.isWalkable(r, c)) continue;
-                if (bombPlaced && dangerZones.contains(key)) continue;
-
                 if (dangerMap[r][c] < lowestDanger) {
                     Node targetNode = new Node(r, c);
                     List<Node> path = findPathAStar(start, targetNode);

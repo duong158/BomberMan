@@ -84,7 +84,18 @@ public class Map1 {
         
         // Spawn quái vật trong một vòng lặp duy nhất
         for (int[] pos : emptyPositions) {
+            int y = pos[0];
+            int x = pos[1];
             if (map[pos[0]][pos[1]] == EMPTY && pos[0] > MOBKC && pos[1] > MOBKC) {
+                boolean surroundedByWall =
+                        map[y-1][x] == BRICK || map[y-1][x] == WALL &&
+                                map[y+1][x] == BRICK || map[y+1][x] == WALL &&
+                                map[y][x-1] == BRICK || map[y][x-1] == WALL &&
+                                map[y][x+1] == BRICK || map[y][x+1] == WALL;
+
+                if (surroundedByWall) {
+                    continue; // bỏ qua vị trí này
+                }
                 if (currentTypeCount >= mobCounts[mobTypeIndex]) {
                     mobTypeIndex++;
                     currentTypeCount = 0;
