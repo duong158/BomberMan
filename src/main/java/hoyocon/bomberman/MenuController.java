@@ -17,6 +17,33 @@ import java.util.*;
 public class MenuController {
     private static final String SCORE_FILE = "scores.txt";
 
+    @FXML
+    private javafx.scene.control.Button autoPlayButton;
+
+    @FXML
+    public void initialize() {
+        autoPlayButton.setText("Auto Play: OFF");
+    }
+
+    @FXML
+    private void onAutoPlayClicked(ActionEvent event) {
+        // Đảo trạng thái auto‑play
+        GameSceneBuilder.toggleAutoPlay();
+
+        // Cập nhật nhãn theo trạng thái mới
+        boolean enabled = getAutoPlayState();
+        autoPlayButton.setText(enabled ? "Auto Play: ON" : "Auto Play: OFF");
+    }
+
+    private boolean getAutoPlayState() {
+        try {
+            java.lang.reflect.Field f = GameSceneBuilder.class.getDeclaredField("autoPlayEnabled");
+            f.setAccessible(true);
+            return f.getBoolean(null);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     @FXML
     private void onContinueClicked(ActionEvent event) {

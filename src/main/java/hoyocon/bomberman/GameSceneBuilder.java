@@ -40,6 +40,7 @@ import hoyocon.bomberman.Map.GMap;
 import javafx.util.Duration;
 
 public class GameSceneBuilder {
+    private static boolean autoPlayEnabled = false;
     private static Player lastPlayer;
     private static double savedX = 195;
     private static double savedY = 70;
@@ -380,7 +381,9 @@ public class GameSceneBuilder {
                     }
                 }
                 //Muốn dùng AI thì bỏ comment
-                playerAI.update(now);
+                if (autoPlayEnabled) {
+                    playerAI.update(now);
+                }
                 playerComponent.onUpdate(1.0 / 60.0);
 
                 // Buff collision
@@ -564,6 +567,9 @@ public class GameSceneBuilder {
                 } else if (event.getCode() == KeyCode.SPACE) {
                     playerComponent.placeBomb(gamePane);
                     System.out.println("Key pressed: " + event.getCode());
+                } if (event.getCode() == KeyCode.F1) {
+                    toggleAutoPlay();
+                    return;  // ngăn xử lý tiếp
                 }
             }
 
@@ -743,6 +749,21 @@ public class GameSceneBuilder {
                 System.err.println("Unknown buff type: " + buffType);
                 return null;
         }
+    }
+
+    /**
+     * Bật hoặc tắt AI auto‑play.
+     */
+    public static void setAutoPlay(boolean enabled) {
+        autoPlayEnabled = enabled;
+        System.out.println("AutoPlay " + (enabled ? "ENABLED" : "DISABLED"));
+    }
+
+    /**
+     * Đảo trạng thái auto‑play.
+     */
+    public static void toggleAutoPlay() {
+        setAutoPlay(!autoPlayEnabled);
     }
 
 
