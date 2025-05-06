@@ -52,6 +52,8 @@ public class Player extends Component {
     private State state;
     private State lastAni;
     private boolean invincible = false;
+    private boolean flamePassActive = false;
+
 
     // Hình ảnh và animation
     private AnimatedTexture texture;
@@ -219,6 +221,8 @@ public class Player extends Component {
                     case "speed" -> speed = baseSpeed;
                     case "flameRange" -> flameRange = 1;      // reset về 1 khi flame buff hết
                     case "bomb" -> maxBombs = Math.max(1, maxBombs - 1); // nếu bạn dùng bomb buff có thời hạn
+                    case "flamePass"->
+                            removeFlamePass();
                 }
             }
             return expired;
@@ -727,4 +731,14 @@ public class Player extends Component {
     }
     public void setFlameRange(int r) { this.flameRange = r; }
     public void setActiveBuffs(Map<String, Long> b) { this.activeBuffs = b; }
+    public boolean isFlamePassActive() {
+        return flamePassActive;
+    }
+
+    public void setFlamePassActive(boolean active) {
+        this.flamePassActive = active;
+    }
+    private void removeFlamePass() {
+        flamePassActive = false;
+    }
 }

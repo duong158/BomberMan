@@ -1,6 +1,7 @@
 package hoyocon.bomberman;
 
 import hoyocon.bomberman.Object.Player;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -163,6 +164,11 @@ public class StartController {
             mediaPlayer.stop();
             mediaPlayer.dispose();
         }
+    }
+
+    @FXML
+    private void onExitClicked(ActionEvent event) {
+        Platform.exit();
     }
 }
 // Thêm phương thức để clean up MediaPlayer khi không cần thiết
