@@ -1,6 +1,7 @@
 package hoyocon.bomberman;
 
 import hoyocon.bomberman.Object.Player;
+import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -17,12 +18,13 @@ public class StatusBar extends VBox {
     public StatusBar(Player player) {
         if (player == null) {
             System.err.println("Error: Player is null in StatusBar constructor");
-            this.player = new Player(); // Fallback to a default Player to avoid null issues
+            this.player = new Player();
         } else {
             this.player = player;
         }
         this.setSpacing(10);
         this.setStyle("-fx-padding: 10; -fx-background-color: rgba(0, 0, 0, 0.5);");
+        this.setAlignment(Pos.TOP_RIGHT);
 
         // Heart Container for HP
         heartContainer = new HBox(5); // Spacing between hearts
@@ -52,17 +54,30 @@ public class StatusBar extends VBox {
     }
 
     private void updateHearts() {
-        heartContainer.getChildren().clear();
-        int lives = player.getLives();
+        int maxLives = 5;
         Image heartImage = getHeartImage();
-        if (heartImage != null) {
-            for (int i = 0; i < lives; i++) {
-                ImageView heartIcon = new ImageView(heartImage);
-                heartIcon.setFitWidth(30);
-                heartIcon.setFitHeight(30);
-                heartContainer.getChildren().add(heartIcon);
+
+        while (heartContainer.getChildren().size() < maxLives) {
+            ImageView heartIcon = new ImageView(heartImage);
+            heartIcon.setFitWidth(30);
+            heartIcon.setFitHeight(30);
+            heartContainer.getChildren().add(heartIcon);
+        }
+
+        int lives = player.getLives();
+        for (int i = 0; i < maxLives; i++) {
+            if (i < heartContainer.getChildren().size()) {
+                ImageView heartIcon = (ImageView) heartContainer.getChildren().get(i);
+                if (i < lives) {
+                    heartIcon.setVisible(true);
+                } else {
+                    heartIcon.setVisible(false);
+                }
             }
-        } else {
+        }
+
+        if (heartImage == null) {
+            heartContainer.getChildren().clear();
             Text hpText = new Text("HP: " + player.getLives());
             hpText.setStyle("-fx-font-size: 20; -fx-fill: white;");
             heartContainer.getChildren().add(hpText);
