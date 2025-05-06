@@ -6,10 +6,7 @@ import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.physics.PhysicsComponent;
 import com.almasb.fxgl.physics.BoundingShape;
-import hoyocon.bomberman.Buff.Bomb;
-import hoyocon.bomberman.Buff.BuffGeneric;
-import hoyocon.bomberman.Buff.Flame;
-import hoyocon.bomberman.Buff.Speed;
+import hoyocon.bomberman.Buff.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -77,7 +74,7 @@ public class GMap {
             }
         }
         Collections.shuffle(bricks);
-        BuffGeneric[] types = { new Bomb(), new Speed(), new Flame() };
+        BuffGeneric[] types = { new Bomb(), new Speed(), new Flame(), new FlamePass(), new Heal()};
         Random rnd = new Random();
         for (int i = 0; i < count && i < bricks.size(); i++) {
             int[] p = bricks.get(i);
