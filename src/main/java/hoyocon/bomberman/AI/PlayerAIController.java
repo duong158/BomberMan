@@ -46,7 +46,7 @@ public class PlayerAIController {
     private List<Node> escapePath;
     
     // Decision making
-    private static final int ENEMY_DANGER_DISTANCE = 1;
+    private static final int ENEMY_DANGER_DISTANCE = 2;
     private static final int ENEMY_AWARE_DISTANCE = 4;
     private static final int MAX_PATH_FINDING_ATTEMPTS = 3;
     
@@ -196,6 +196,7 @@ public class PlayerAIController {
             return lastPlayerPosition;
         }
         // Nếu chưa nằm trọn trong một ô nào, trả về vị trí ô trước đó
+        if(lastPlayerPosition == null) return new Position(topRow, leftCol);
         return lastPlayerPosition;
     }
     
