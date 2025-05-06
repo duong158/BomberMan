@@ -37,6 +37,7 @@ import hoyocon.bomberman.Buff.Speed;
 import hoyocon.bomberman.Object.BuffEntity;
 import hoyocon.bomberman.Buff.BuffGeneric;
 import hoyocon.bomberman.Map.GMap;
+import hoyocon.bomberman.StatusBar; // Thêm import cho StatusBar
 import javafx.util.Duration;
 
 public class GameSceneBuilder {
@@ -61,10 +62,7 @@ public class GameSceneBuilder {
 
     public static AnimationTimer gameLoop; // Lưu tham chiếu đến game loop
 
-
-
-
-    // Quản lí buff.
+    // Quản lý buff.
     public static List<BuffEntity> buffEntities = new ArrayList<>();
 
     /** Danh sách quản lý các Pane explosion để kiểm tra va chạm */
@@ -160,7 +158,6 @@ public class GameSceneBuilder {
         return scene;
     }
 
-
     public static Scene buildContinueScene() {
         GameState state = SaveManager.load();
         if (state == null) {
@@ -178,7 +175,10 @@ public class GameSceneBuilder {
         // 2. Tạo map từ dữ liệu đã lưu
         Pane gamePane = new Pane();
         Group gameWorld = new Group();
-        gamePane.getChildren().add(gameWorld);
+        Pane uiPane = new Pane(); // UI layer for StatusBar
+        gamePane.getChildren().clear(); // Xóa để thêm lại đúng thứ tự
+        gamePane.getChildren().addAll(gameWorld, uiPane);
+        uiPane.setStyle("-fx-background-color: transparent;");
         GMap gameGMap = new GMap(state.mapData);
         gameGMap.render();
         gameWorld.getChildren().add(gameGMap.getCanvas());
@@ -198,6 +198,13 @@ public class GameSceneBuilder {
         player.setActiveBuffs(state.activeBuffs);
         playerEntity.addComponent(player);
         gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
+
+        // Add StatusBar to UI layer
+        StatusBar statusBar = new StatusBar(player);
+        statusBar.setTranslateX(10);
+        statusBar.setTranslateY(10);
+        uiPane.getChildren().add(statusBar);
+        System.out.println("StatusBar added to uiPane in buildContinueScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
 
         // 5. Khôi phục Enemies
         for (EnemyState es : state.enemies) {
@@ -245,11 +252,12 @@ public class GameSceneBuilder {
 
         gamePane.setStyle("-fx-background-color: black;");
 
-
-        gamePane.getChildren().add(gameWorld);
+        // Thêm gameWorld và uiPane vào gamePane
+        Pane uiPane = new Pane(); // UI layer for StatusBar
+        gamePane.getChildren().addAll(gameWorld, uiPane);
+        uiPane.setStyle("-fx-background-color: transparent;");
 
         gamePane.setFocusTraversable(true);
-
 
         // Tạo và hiển thị map
         GMap gameGMap = new GMap(Map1.getMapData(60, 40, 0.3f));
@@ -292,13 +300,13 @@ public class GameSceneBuilder {
             }
 
             List<int[]> dahlPositions = gameGMap.getESpawnPositions(GMap.DAHL);
-            System.out.println("Found " + onealPositions.size() + " oneal positions in map");
+            System.out.println("Found " + dahlPositions.size() + " dahl positions in map");
             for (int[] position : dahlPositions) {
                 spawnEnemy(gamePane, gameWorld, gameGMap, position[0], position[1], Dahl.class, Dahl::new);
             }
 
             List<int[]> doriaPositions = gameGMap.getESpawnPositions(GMap.DORIA);
-            System.out.println("Found " + doriaPositions.size() + " oneal positions in map");
+            System.out.println("Found " + doriaPositions.size() + " doria positions in map");
             for (int[] position : doriaPositions) {
                 spawnEnemy(gamePane, gameWorld, gameGMap, position[0], position[1], Doria.class, Doria::new);
             }
@@ -309,7 +317,6 @@ public class GameSceneBuilder {
             System.err.println("Error setting up enemies: " + e.getMessage());
             e.printStackTrace();
         }
-
 
         // Tạo entity và thêm Player component
         Entity playerEntity = new Entity();
@@ -327,6 +334,14 @@ public class GameSceneBuilder {
         // Thêm playerEntity vào gameWorld thay vì gamePane
         gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
         lastPlayer = playerComponent;
+
+        // Add StatusBar to UI layer
+        StatusBar statusBar = new StatusBar(playerComponent);
+        statusBar.setTranslateX(10);
+        statusBar.setTranslateY(10);
+        uiPane.getChildren().add(statusBar);
+        System.out.println("StatusBar added to uiPane in buildGameScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
+
         for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
             Class<? extends Enemy> enemyClass = entry.getKey();
             List<Entity> entities = entry.getValue();
@@ -345,7 +360,6 @@ public class GameSceneBuilder {
             }
         }
         PlayerAIController playerAI = new PlayerAIController(playerComponent, gameGMap, allEnemyEntities, gamePane);
-
 
         // Tính kích thước thế giới game
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
@@ -681,6 +695,10 @@ public class GameSceneBuilder {
         Pane gamePane = new Pane();
         Scene scene = new Scene(gamePane, GAME_WIDTH, GAME_HEIGHT);
 
+        Pane uiPane = new Pane(); // UI layer for StatusBar
+        gamePane.getChildren().addAll(uiPane);
+        uiPane.setStyle("-fx-background-color: transparent;");
+
         // Khôi phục người chơi
         Player player = new Player();
         player.setPosition(state.playerX, state.playerY); // Đảm bảo Player có phương thức setPosition
@@ -689,6 +707,12 @@ public class GameSceneBuilder {
         player.setMaxBombs(state.maxBombs);
         player.setFlameRange(state.flameRange);
         gamePane.getChildren().add(player.getEntity().getViewComponent().getParent()); // Sửa lại để lấy ViewComponent từ Entity
+
+        StatusBar statusBar = new StatusBar(player);
+        statusBar.setTranslateX(10);
+        statusBar.setTranslateY(10);
+        uiPane.getChildren().add(statusBar);
+        System.out.println("StatusBar added to uiPane in buildGameSceneWithState at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
 
         // Khôi phục danh sách kẻ địch
         for (EnemyState es : state.enemies) {
@@ -781,6 +805,4 @@ public class GameSceneBuilder {
     public static void toggleAutoPlay() {
         setAutoPlay(!autoPlayEnabled);
     }
-
-
 }
