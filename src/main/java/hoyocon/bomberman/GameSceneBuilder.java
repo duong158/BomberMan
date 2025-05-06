@@ -434,7 +434,7 @@ public class GameSceneBuilder {
                             Math.max(0, flameBounds.getHeight() - 2 * shrink)
                     );
                     if (customFlameBounds.intersects(playerBounds)) {
-                        if (!playerComponent.isInvincible()&& playerComponent.getState() != State.DEAD) {
+                        if (!playerComponent.isInvincible()&& !playerComponent.isFlamePassActive() && playerComponent.getState() != State.DEAD) {
                             playerComponent.setState(State.DEAD);
                             if (playerComponent.hit()) {
                                 PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
