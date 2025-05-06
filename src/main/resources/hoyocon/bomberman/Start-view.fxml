@@ -13,9 +13,9 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" stylesheets="@style1.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoyocon.bomberman.StartController">
    <children>
       <!-- Background Image -->
-      <ImageView fitHeight="1080.0" fitWidth="1920.0" layoutY="2.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="1080.0" fitWidth="1920.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@b0cf517597fd9ae3948d3181b1db2736.jpg" />
+            <Image url="@Image.jpg" />
          </image>
       </ImageView>
 
@@ -27,28 +27,31 @@
       </ImageView>
 
       <!-- Start Button -->
-      <Button layoutX="899.0" layoutY="420.0" mnemonicParsing="false" onAction="#onStartClicked" text="Start">
-         <font><Font size="36.0" /></font>
+      <Button layoutX="909.0" layoutY="410.0" mnemonicParsing="false" onAction="#onStartClicked" prefHeight="60.0" prefWidth="119.0" text="Start" textAlignment="CENTER" textFill="WHITE" underline="true">
+         <font><Font name="System Bold" size="48.0" /></font>
          <stylesheets>
             <URL value="@style1.css" />
-            <URL value="@Cartoon_UI.css" />
+            <URL value="@style2.css" />
          </stylesheets>
          <styleClass>
             <String fx:value="zoom-effect" />
-            <String fx:value="button-cartoon" />
+            <String fx:value="invisible-button" />
          </styleClass>
       </Button>
 
       <!-- How To Play Button -->
-      <Button layoutX="866.0" layoutY="518.0" mnemonicParsing="false" onAction="#onHowToPlayClicked" text="How To Play">
+      <Button layoutX="827.0" layoutY="520.0" mnemonicParsing="false" onAction="#onHowToPlayClicked" text="How To Play" textFill="WHITE" underline="true">
          <stylesheets>
-            <URL value="@style1.css" />
             <URL value="@Cartoon_UI.css" />
+            <URL value="@style2.css" />
          </stylesheets>
          <styleClass>
-            <String fx:value="button-cartoon" />
             <String fx:value="zoom-effect" />
+            <String fx:value="invisible-button" />
          </styleClass>
+         <font>
+            <Font name="System Bold" size="48.0" />
+         </font>
       </Button>
 
       <!-- Title Label -->
@@ -59,7 +62,7 @@
       </Label>
 
       <!-- Music Button Group -->
-      <StackPane layoutX="1470" layoutY="758">
+      <StackPane layoutX="1503.0" layoutY="861.0">
          <Button fx:id="musicOnButton" mnemonicParsing="false" onAction="#handleMusicOff" text="🎵">
             <font><Font size="24" /></font>
             <stylesheets>
@@ -89,7 +92,7 @@
       </StackPane>
 
       <!-- SFX Button Group -->
-      <StackPane layoutX="1563" layoutY="758">
+      <StackPane layoutX="1601.0" layoutY="861.0">
          <Button fx:id="sfxOnButton" mnemonicParsing="false" onAction="#handleSfxOff" prefHeight="60.0" prefWidth="74.0" text="🔊">
             <font><Font size="24" /></font>
             <stylesheets>
@@ -117,5 +120,18 @@
             </styleClass>
          </Button>
       </StackPane>
+      <Button fx:id="onExitClicked" layoutX="896.0" layoutY="612.0" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="60.0" prefWidth="147.0" text="Quit" textFill="WHITE" underline="true">
+         <stylesheets>
+            <URL value="@style2.css" />
+            <URL value="@style1.css" />
+         </stylesheets>
+         <styleClass>
+            <String fx:value="zoom-effect" />
+            <String fx:value="invisible-button" />
+         </styleClass>
+         <font>
+            <Font name="System Bold" size="48.0" />
+         </font>
+      </Button>
    </children>
 </AnchorPane>
