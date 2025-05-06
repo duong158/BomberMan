@@ -1,5 +1,7 @@
 package hoyocon.bomberman;
 
+import hoyocon.bomberman.Save.GameState;
+import hoyocon.bomberman.Save.SaveManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.application.Platform;
@@ -15,10 +17,46 @@ import java.util.*;
 public class MenuController {
     private static final String SCORE_FILE = "scores.txt";
 
+    @FXML
+    private javafx.scene.control.Button autoPlayButton;
+
+    @FXML
+    public void initialize() {
+        autoPlayButton.setText("Auto Play: OFF");
+    }
+
+    @FXML
+    private void onAutoPlayClicked(ActionEvent event) {
+        // Đảo trạng thái auto‑play
+        GameSceneBuilder.toggleAutoPlay();
+
+        // Cập nhật nhãn theo trạng thái mới
+        boolean enabled = getAutoPlayState();
+        autoPlayButton.setText(enabled ? "Auto Play: ON" : "Auto Play: OFF");
+    }
+
+    private boolean getAutoPlayState() {
+        try {
+            java.lang.reflect.Field f = GameSceneBuilder.class.getDeclaredField("autoPlayEnabled");
+            f.setAccessible(true);
+            return f.getBoolean(null);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     @FXML
     private void onContinueClicked(ActionEvent event) {
-        // Chuyển sang màn chơi và tiếp tục từ vị trí đã lưu
+        GameState savedState = SaveManager.load();
+        if (savedState == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("No Save Found");
+            alert.setHeaderText("No saved game found!");
+            alert.setContentText("Please start a new game.");
+            alert.showAndWait();
+            return;
+        }
+
         Scene gameScene = GameSceneBuilder.buildContinueScene();
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(gameScene);
