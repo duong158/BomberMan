@@ -46,7 +46,7 @@ public class PlayerAIController {
     private List<Node> escapePath;
     
     // Decision making
-    private static final int ENEMY_DANGER_DISTANCE = 1;
+    private static final int ENEMY_DANGER_DISTANCE = 2;
     private static final int ENEMY_AWARE_DISTANCE = 4;
     private static final int MAX_PATH_FINDING_ATTEMPTS = 3;
     
@@ -198,6 +198,7 @@ public class PlayerAIController {
         if(lastPlayerPosition == null) lastPlayerPosition = new Position(topRow, leftCol);
 
         // Nếu chưa nằm trọn trong một ô nào, trả về vị trí ô trước đó
+        if(lastPlayerPosition == null) return new Position(topRow, leftCol);
         return lastPlayerPosition;
     }
     
@@ -359,6 +360,10 @@ public class PlayerAIController {
                 } else {
                     log("Reached safe position, waiting for explosion");
                     player.stop();
+                    if (isEnemyInDangerZone(playerPos)) {
+                        log("Safe from bomb but enemy nearby, switching to AVOIDING_ENEMIES");
+                        currentState = AIState.AVOIDING_ENEMIES;
+                    }
                 }
             }
         }
@@ -531,7 +536,7 @@ public class PlayerAIController {
      */
     private void calculateBombDangerZones() {
         dangerZones.clear();
-        int range = player.getFlameRange()+1;
+        int range = player.getFlameRange();
         
         // Center of explosion
         dangerZones.add(keyFromPosition(bombRow, bombCol));

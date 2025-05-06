@@ -89,7 +89,7 @@ public class Player extends Component {
     // Hitbox constants
     private static final int PLAYER_WIDTH = 45;
     private static final int PLAYER_HEIGHT = 45;
-    private static final int HITBOX_MARGIN = 0; // Margin to make hitbox slightly smaller than sprite
+    private static final int HITBOX_MARGIN = 1; // Margin to make hitbox slightly smaller than sprite
 
     private List<BombPane> bombs = new ArrayList<>();
 
@@ -602,7 +602,6 @@ public class Player extends Component {
     }
     private void onExit(){
         level++; // Tăng level
-
         // Dừng game loop hiện tại
         if (GameSceneBuilder.gameLoop != null) {
             GameSceneBuilder.gameLoop.stop();

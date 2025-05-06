@@ -66,12 +66,12 @@ public class Map1 {
 
         // Trộn danh sách vị trí trống để đảm bảo ngẫu nhiên
         Collections.shuffle(emptyPositions);
-        if(MOBNUMS < emptyPositions.size()) MOBNUMS += Player.getLevel();
+        if(MOBNUMS < emptyPositions.size()) MOBNUMS += Player.getLevel()*5;
         int balloonCount = (int) Math.round(MOBNUMS * BALLOON_PERCENT);
         int passCount = (int) Math.round(MOBNUMS * PASS_PERCENT);
-        int onealCount = (int) Math.round(MOBNUMS * ONEAL_PERCENT);
+        int onealCount = Player.getLevel() >= 3 ?  (int) Math.round(MOBNUMS * ONEAL_PERCENT) : 0;
         int dahlCount = (int) Math.round(MOBNUMS * DAHL_PERCENT);
-        int doriaCount = (int) Math.round(MOBNUMS * DORIA_PERCENT);
+        int doriaCount = (Player.getLevel() >= 5) ? (int) Math.round(MOBNUMS * DORIA_PERCENT) : 0;
 
 
         // Mảng chứa thông tin về các loại quái và số lượng
@@ -97,6 +97,7 @@ public class Map1 {
                     continue; // bỏ qua vị trí này
                 }
                 if (currentTypeCount >= mobCounts[mobTypeIndex]) {
+                    if(mobCounts[mobTypeIndex] == 0) break;
                     mobTypeIndex++;
                     currentTypeCount = 0;
                     if (mobTypeIndex >= mobTypes.length) {
