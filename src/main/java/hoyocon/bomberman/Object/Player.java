@@ -29,6 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static hoyocon.bomberman.GameSceneBuilder.camera;
+import static hoyocon.bomberman.GameSceneBuilder.gameWorld;
+
 public class Player extends Component {
     // Vị trí người chơi
     private int x, y;
@@ -391,6 +394,7 @@ public class Player extends Component {
         // ---- DÙNG BOMB PANE ----
         BombPane bombPane = new BombPane(bombTexture, snappedX, snappedY);
         gamePane.getChildren().add(bombPane);
+        gameWorld.getChildren().add(bombPane);
         bombs.add(bombPane);
         GameSceneBuilder.bombEntities.add(bombPane);
 
@@ -412,12 +416,17 @@ public class Player extends Component {
             // Dừng animation bom và xoá bom khỏi scene
             bombAnimLoop.stop();
             gamePane.getChildren().remove(bombPane);
+            gameWorld.getChildren().remove(bombPane);
             bombs.remove(bombPane);
             GameSceneBuilder.bombEntities.remove(bombPane);
             bombCount--;
 
             // Âm thanh nổ
             new AudioClip(getClass().getResource("/assets/sounds/explosion.wav").toString()).play();
+
+            if (camera != null) {
+                camera.startShake(100, 3);
+            }
 
             // Logic nổ với kiểm tra Wall/Brick
             int bombCellX = (int)(snappedX / tileSize);
@@ -464,6 +473,7 @@ public class Player extends Component {
                     flamePane.setLayoutX(fx);
                     flamePane.setLayoutY(fy);
                     gamePane.getChildren().add(flamePane);
+                    gameWorld.getChildren().add(flamePane);
                     GameSceneBuilder.explosionEntities.add(flamePane);
 
                     AnimationTimer flameLoop = new AnimationTimer() {
@@ -479,6 +489,7 @@ public class Player extends Component {
                     t.setOnFinished(e2 -> {
                         flameLoop.stop();
                         gamePane.getChildren().remove(flamePane);
+                        gameWorld.getChildren().remove(flamePane);
                         GameSceneBuilder.explosionEntities.remove(flamePane);
                     });
                     t.play();
@@ -501,6 +512,7 @@ public class Player extends Component {
                         breakPane.setLayoutX(cellX * tileSize);
                         breakPane.setLayoutY(cellY * tileSize);
                         gamePane.getChildren().add(breakPane);
+                        gameWorld.getChildren().add(breakPane);
 
                         AnimationTimer breakLoop = new AnimationTimer() {
                             @Override
@@ -514,6 +526,7 @@ public class Player extends Component {
                         pb.setOnFinished(ev3 -> {
                             breakLoop.stop();
                             gamePane.getChildren().remove(breakPane);
+                            gameWorld.getChildren().remove(breakPane);
 
                             gameGMap.removeBrick(cellY, cellX);
                             BuffGeneric hidden = gameGMap.getHiddenBuff(cellY, cellX);

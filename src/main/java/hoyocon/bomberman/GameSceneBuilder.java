@@ -55,6 +55,9 @@ public class GameSceneBuilder {
     private static boolean isLeftPressed = false;
     private static boolean isRightPressed = false;
 
+    public static Group gameWorld = new Group();
+
+    public static Camera camera;
 
     public static AnimationTimer gameLoop; // Lưu tham chiếu đến game loop
 
@@ -77,6 +80,7 @@ public class GameSceneBuilder {
         BuffEntity buffEntity = new BuffEntity(buff, x, y);
         buffEntities.add(buffEntity); // Lưu buff vào danh sách
         gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
+        gameWorld.getChildren().add(buffEntity.getImageView());
     }
     public static void spawnBalloonAt(int row, int col, GMap gameGMap, Pane gamePane, Group gameWorld) {
         spawnEnemy(gamePane, gameWorld, gameGMap, row, col, Balloon.class, Balloon::new);
@@ -206,6 +210,7 @@ public class GameSceneBuilder {
                 BuffEntity be = new BuffEntity(buff, bs.x, bs.y);
                 buffEntities.add(be);
                 gamePane.getChildren().add(be.getImageView());
+                gameWorld.getChildren().add(be.getImageView());
             }
         }
 
@@ -217,6 +222,7 @@ public class GameSceneBuilder {
             bombEntities.add(bp);
             player.getBombPanes().add(bp);
             gamePane.getChildren().add(bp);
+            gameWorld.getChildren().add(bp);
         }
 
         // 8. Thiết lập focus và trả về
@@ -231,15 +237,14 @@ public class GameSceneBuilder {
 
         gamePane.setStyle("-fx-background-color: black;");
 
-        // Tạo một Group để chứa thế giới game (camera sẽ di chuyển group này)
-        Group gameWorld = new Group();
+
         gamePane.getChildren().add(gameWorld);
 
         gamePane.setFocusTraversable(true);
 
 
         // Tạo và hiển thị map
-        GMap gameGMap = new GMap(Map1.getMapData(30, 23, 0.3f));
+        GMap gameGMap = new GMap(Map1.getMapData(60, 40, 0.3f));
         gameGMap.render();
         gameWorld.getChildren().add(gameGMap.getCanvas());  // Thêm vào gameWorld thay vì gamePane
 
@@ -339,7 +344,7 @@ public class GameSceneBuilder {
         int worldHeight = gameGMap.height * (int)GMap.TILE_SIZE;
 
         // Tạo camera theo dõi người chơi
-        Camera camera = new Camera(
+        camera = new Camera(
                 gameWorld,
                 playerEntity.getViewComponent().getParent(),
                 (int)screenWidth,
@@ -682,7 +687,8 @@ public class GameSceneBuilder {
             Enemy enemy = createEnemy(es.type, es.x, es.y); // Sử dụng phương thức createEnemy để tạo kẻ địch
             if (enemy != null) {
                 allEnemyEntities.add(enemy); // Thêm vào danh sách kẻ địch
-                gamePane.getChildren().add(enemy.getEntity().getViewComponent().getParent()); // Sửa lại để lấy ViewComponent từ Entity
+                gamePane.getChildren().add(enemy.getEntity().getViewComponent().getParent());// Sửa lại để lấy ViewComponent từ Entity
+                gameWorld.getChildren().add(enemy.getEntity().getViewComponent().getParent());
             }
         }
 
@@ -693,6 +699,7 @@ public class GameSceneBuilder {
                 BuffEntity buffEntity = new BuffEntity(buff, bs.x, bs.y);
                 buffEntities.add(buffEntity); // Thêm vào danh sách buff
                 gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
+                gameWorld.getChildren().add(buffEntity.getImageView());
             }
         }
 
@@ -705,6 +712,7 @@ public class GameSceneBuilder {
             Player.BombPane bombPane = new Player.BombPane(tex, bs.x, bs.y);
             // Thêm vào scene và danh sách Pane
             gamePane.getChildren().add(bombPane);
+            gameWorld.getChildren().add(bombPane);
             bombEntities.add(bombPane);
             // Đồng thời thêm vào bộ đếm bom của player nếu cần
             player.getBombPanes().add(bombPane);
