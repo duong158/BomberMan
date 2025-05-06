@@ -105,6 +105,14 @@ public class Camera {
             return (screenHeight - worldHeight) / 2;
         }
     }
+    public void reset() {
+        update();
+
+        isShaking = false;
+        shakeIntensity = 0;
+        shakeDuration = 0;
+        currentShakeTime = 0;
+    }
 
     private double lerp(double a, double b, double t) {
         return a + (b - a) * t;

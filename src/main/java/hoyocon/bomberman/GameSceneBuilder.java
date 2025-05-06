@@ -138,8 +138,11 @@ public class GameSceneBuilder {
         Player.level = 1;      // nếu level là biến public static
         Map1.MOBNUMS = 5;      // về số quái khởi tạo
 
-        // 3. Xây dựng scene mới từ vị trí start
+        // 3. Xây dựng scene va camera mới từ vị trí start
         Scene scene = buildGameScene(GMap.TILE_SIZE, GMap.TILE_SIZE);
+        if (camera != null) {
+            camera.reset();
+        }
 
         // 4. Thiết lập thuộc tính cho player vừa được thêm vào scene
         lastPlayer.setLives(3);
