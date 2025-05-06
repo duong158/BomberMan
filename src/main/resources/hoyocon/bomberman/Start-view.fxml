@@ -40,7 +40,7 @@
       </Button>
 
       <!-- How To Play Button -->
-      <Button layoutX="866.0" layoutY="518.0" mnemonicParsing="false" text="How To Play">
+      <Button layoutX="866.0" layoutY="518.0" mnemonicParsing="false" onAction="#onHowToPlayClicked" text="How To Play">
          <stylesheets>
             <URL value="@style1.css" />
             <URL value="@Cartoon_UI.css" />
