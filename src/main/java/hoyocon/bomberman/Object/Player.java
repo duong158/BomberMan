@@ -602,7 +602,6 @@ public class Player extends Component {
     }
     private void onExit(){
         level++; // Tăng level
-
         // Dừng game loop hiện tại
         if (GameSceneBuilder.gameLoop != null) {
             GameSceneBuilder.gameLoop.stop();

@@ -113,14 +113,14 @@ public class StatusBar extends VBox {
         String imagePath;
         switch (buffType.toLowerCase()) {
             case "speed":
-                imagePath = "/assets/textures/speed_buff.png";
+                imagePath = "/assets/textures/powerup_speed.png";
                 break;
             case "flame":
             case "flameRange":
-                imagePath = "/assets/textures/flame_buff.png";
+                imagePath = "/assets/textures/powerup_flames.png";
                 break;
             case "bomb":
-                imagePath = "/assets/textures/bomb_buff.png";
+                imagePath = "/assets/textures/powerup_bombs.png";
                 break;
             default:
                 System.err.println("Unknown buff type: " + buffType);

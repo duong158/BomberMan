@@ -1,5 +1,6 @@
 package hoyocon.bomberman;
 
+import hoyocon.bomberman.Object.Player;
 import hoyocon.bomberman.Save.GameState;
 import hoyocon.bomberman.Save.SaveManager;
 import javafx.event.ActionEvent;
@@ -97,6 +98,7 @@ public class MenuController {
     private void onStartClicked(ActionEvent event) {
         // Tạo và hiển thị màn hình game
         Scene gameScene = GameSceneBuilder.buildNewGameScene();
+        Player.level = 1;
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(gameScene);
         stage.setTitle("Bomberman Game");

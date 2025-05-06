@@ -360,6 +360,10 @@ public class PlayerAIController {
                 } else {
                     log("Reached safe position, waiting for explosion");
                     player.stop();
+                    if (isEnemyInDangerZone(playerPos)) {
+                        log("Safe from bomb but enemy nearby, switching to AVOIDING_ENEMIES");
+                        currentState = AIState.AVOIDING_ENEMIES;
+                    }
                 }
             }
         }
@@ -532,7 +536,7 @@ public class PlayerAIController {
      */
     private void calculateBombDangerZones() {
         dangerZones.clear();
-        int range = player.getFlameRange()+1;
+        int range = player.getFlameRange();
         
         // Center of explosion
         dangerZones.add(keyFromPosition(bombRow, bombCol));

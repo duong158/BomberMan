@@ -138,7 +138,7 @@ public class GameSceneBuilder {
         gameWorld.setTranslateY(0);
 
         // 2. Reset biến tĩnh về giá trị ban đầu
-        Player.level = 1;      // nếu level là biến public static
+//        Player.level = 1;      // nếu level là biến public static
         Map1.MOBNUMS = 5;      // về số quái khởi tạo
 
         // 3. Xây dựng scene va camera mới từ vị trí start
@@ -464,6 +464,7 @@ public class GameSceneBuilder {
 
                                     // Đặt lại trạng thái
                                     playerComponent.setState(State.IDLE);
+                                    playerAI.resetAIState();
 
                                 });
                                 deathDelay.play();

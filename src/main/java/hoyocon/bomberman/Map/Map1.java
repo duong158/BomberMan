@@ -66,7 +66,7 @@ public class Map1 {
 
         // Trộn danh sách vị trí trống để đảm bảo ngẫu nhiên
         Collections.shuffle(emptyPositions);
-        if(MOBNUMS < emptyPositions.size()) MOBNUMS += Player.getLevel();
+        if(MOBNUMS < emptyPositions.size()) MOBNUMS += Player.getLevel()*5;
         int balloonCount = (int) Math.round(MOBNUMS * BALLOON_PERCENT);
         int passCount = (int) Math.round(MOBNUMS * PASS_PERCENT);
         int onealCount = Player.getLevel() >= 3 ?  (int) Math.round(MOBNUMS * ONEAL_PERCENT) : 0;
