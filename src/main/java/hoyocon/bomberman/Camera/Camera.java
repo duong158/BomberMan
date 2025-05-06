@@ -106,12 +106,32 @@ public class Camera {
         }
     }
     public void reset() {
-        update();
+        /*update();
 
         isShaking = false;
         shakeIntensity = 0;
         shakeDuration = 0;
+        currentShakeTime = 0;*/
+        // --- Trong Camera.java ---
+        // Hủy shake
+        isShaking = false;
+        shakeIntensity = 0;
+        shakeDuration = 0;
         currentShakeTime = 0;
+
+        // Tính center của target
+        Bounds b = target.getBoundsInParent();
+        double centerX = b.getMinX() + b.getWidth() / 2.0;
+        double centerY = b.getMinY() + b.getHeight() / 2.0;
+
+        // Tính vị trí dịch chuyển ngay lập tức
+        double tx = calculateTargetX(centerX);
+        double ty = calculateTargetY(centerY);
+
+        // Gán thẳng, không qua lerp
+        world.setTranslateX(tx);
+        world.setTranslateY(ty);
+
     }
 
     private double lerp(double a, double b, double t) {

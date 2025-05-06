@@ -134,6 +134,11 @@ public class GameSceneBuilder {
         bombEntities.clear();
         explosionEntities.clear();
 
+        // → Reset translate cũ của gameWorld
+        gameWorld = new Group();
+        gameWorld.setTranslateX(0);
+        gameWorld.setTranslateY(0);
+
         // 2. Reset biến tĩnh về giá trị ban đầu
         Player.level = 1;      // nếu level là biến public static
         Map1.MOBNUMS = 5;      // về số quái khởi tạo
