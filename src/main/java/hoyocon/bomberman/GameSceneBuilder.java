@@ -37,6 +37,7 @@ import hoyocon.bomberman.Buff.Speed;
 import hoyocon.bomberman.Object.BuffEntity;
 import hoyocon.bomberman.Buff.BuffGeneric;
 import hoyocon.bomberman.Map.GMap;
+import hoyocon.bomberman.StatusBar; // Thêm import cho StatusBar
 import javafx.util.Duration;
 
 public class GameSceneBuilder {
@@ -55,13 +56,13 @@ public class GameSceneBuilder {
     private static boolean isLeftPressed = false;
     private static boolean isRightPressed = false;
 
+    public static Group gameWorld = new Group();
+
+    public static Camera camera;
 
     public static AnimationTimer gameLoop; // Lưu tham chiếu đến game loop
 
-
-
-
-    // Quản lí buff.
+    // Quản lý buff.
     public static List<BuffEntity> buffEntities = new ArrayList<>();
 
     /** Danh sách quản lý các Pane explosion để kiểm tra va chạm */
@@ -77,6 +78,7 @@ public class GameSceneBuilder {
         BuffEntity buffEntity = new BuffEntity(buff, x, y);
         buffEntities.add(buffEntity); // Lưu buff vào danh sách
         gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
+        gameWorld.getChildren().add(buffEntity.getImageView());
     }
     public static void spawnBalloonAt(int row, int col, GMap gameGMap, Pane gamePane, Group gameWorld) {
         spawnEnemy(gamePane, gameWorld, gameGMap, row, col, Balloon.class, Balloon::new);
@@ -130,12 +132,20 @@ public class GameSceneBuilder {
         bombEntities.clear();
         explosionEntities.clear();
 
+        // → Reset translate cũ của gameWorld
+        gameWorld = new Group();
+        gameWorld.setTranslateX(0);
+        gameWorld.setTranslateY(0);
+
         // 2. Reset biến tĩnh về giá trị ban đầu
         Player.level = 1;      // nếu level là biến public static
         Map1.MOBNUMS = 5;      // về số quái khởi tạo
 
-        // 3. Xây dựng scene mới từ vị trí start
+        // 3. Xây dựng scene va camera mới từ vị trí start
         Scene scene = buildGameScene(GMap.TILE_SIZE, GMap.TILE_SIZE);
+        if (camera != null) {
+            camera.reset();
+        }
 
         // 4. Thiết lập thuộc tính cho player vừa được thêm vào scene
         lastPlayer.setLives(3);
@@ -147,7 +157,6 @@ public class GameSceneBuilder {
         ((Pane)scene.getRoot()).requestFocus();
         return scene;
     }
-
 
     public static Scene buildContinueScene() {
         GameState state = SaveManager.load();
@@ -166,7 +175,10 @@ public class GameSceneBuilder {
         // 2. Tạo map từ dữ liệu đã lưu
         Pane gamePane = new Pane();
         Group gameWorld = new Group();
-        gamePane.getChildren().add(gameWorld);
+        Pane uiPane = new Pane(); // UI layer for StatusBar
+        gamePane.getChildren().clear(); // Xóa để thêm lại đúng thứ tự
+        gamePane.getChildren().addAll(gameWorld, uiPane);
+        uiPane.setStyle("-fx-background-color: transparent;");
         GMap gameGMap = new GMap(state.mapData);
         gameGMap.render();
         gameWorld.getChildren().add(gameGMap.getCanvas());
@@ -187,6 +199,13 @@ public class GameSceneBuilder {
         playerEntity.addComponent(player);
         gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
 
+        // Add StatusBar to UI layer
+        StatusBar statusBar = new StatusBar(player);
+        statusBar.setTranslateX(10);
+        statusBar.setTranslateY(10);
+        uiPane.getChildren().add(statusBar);
+        System.out.println("StatusBar added to uiPane in buildContinueScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
+
         // 5. Khôi phục Enemies
         for (EnemyState es : state.enemies) {
             Enemy e = createEnemy(es.type, es.x, es.y);
@@ -206,6 +225,7 @@ public class GameSceneBuilder {
                 BuffEntity be = new BuffEntity(buff, bs.x, bs.y);
                 buffEntities.add(be);
                 gamePane.getChildren().add(be.getImageView());
+                gameWorld.getChildren().add(be.getImageView());
             }
         }
 
@@ -217,6 +237,7 @@ public class GameSceneBuilder {
             bombEntities.add(bp);
             player.getBombPanes().add(bp);
             gamePane.getChildren().add(bp);
+            gameWorld.getChildren().add(bp);
         }
 
         // 8. Thiết lập focus và trả về
@@ -231,15 +252,15 @@ public class GameSceneBuilder {
 
         gamePane.setStyle("-fx-background-color: black;");
 
-        // Tạo một Group để chứa thế giới game (camera sẽ di chuyển group này)
-        Group gameWorld = new Group();
-        gamePane.getChildren().add(gameWorld);
+        // Thêm gameWorld và uiPane vào gamePane
+        Pane uiPane = new Pane(); // UI layer for StatusBar
+        gamePane.getChildren().addAll(gameWorld, uiPane);
+        uiPane.setStyle("-fx-background-color: transparent;");
 
         gamePane.setFocusTraversable(true);
 
-
         // Tạo và hiển thị map
-        GMap gameGMap = new GMap(Map1.getMapData(30, 23, 0.3f));
+        GMap gameGMap = new GMap(Map1.getMapData(60, 40, 0.3f));
         gameGMap.render();
         gameWorld.getChildren().add(gameGMap.getCanvas());  // Thêm vào gameWorld thay vì gamePane
 
@@ -279,13 +300,13 @@ public class GameSceneBuilder {
             }
 
             List<int[]> dahlPositions = gameGMap.getESpawnPositions(GMap.DAHL);
-            System.out.println("Found " + onealPositions.size() + " oneal positions in map");
+            System.out.println("Found " + dahlPositions.size() + " dahl positions in map");
             for (int[] position : dahlPositions) {
                 spawnEnemy(gamePane, gameWorld, gameGMap, position[0], position[1], Dahl.class, Dahl::new);
             }
 
             List<int[]> doriaPositions = gameGMap.getESpawnPositions(GMap.DORIA);
-            System.out.println("Found " + doriaPositions.size() + " oneal positions in map");
+            System.out.println("Found " + doriaPositions.size() + " doria positions in map");
             for (int[] position : doriaPositions) {
                 spawnEnemy(gamePane, gameWorld, gameGMap, position[0], position[1], Doria.class, Doria::new);
             }
@@ -296,7 +317,6 @@ public class GameSceneBuilder {
             System.err.println("Error setting up enemies: " + e.getMessage());
             e.printStackTrace();
         }
-
 
         // Tạo entity và thêm Player component
         Entity playerEntity = new Entity();
@@ -314,6 +334,14 @@ public class GameSceneBuilder {
         // Thêm playerEntity vào gameWorld thay vì gamePane
         gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
         lastPlayer = playerComponent;
+
+        // Add StatusBar to UI layer
+        StatusBar statusBar = new StatusBar(playerComponent);
+        statusBar.setTranslateX(10);
+        statusBar.setTranslateY(10);
+        uiPane.getChildren().add(statusBar);
+        System.out.println("StatusBar added to uiPane in buildGameScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
+
         for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
             Class<? extends Enemy> enemyClass = entry.getKey();
             List<Entity> entities = entry.getValue();
@@ -333,13 +361,12 @@ public class GameSceneBuilder {
         }
         PlayerAIController playerAI = new PlayerAIController(playerComponent, gameGMap, allEnemyEntities, gamePane);
 
-
         // Tính kích thước thế giới game
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
         int worldHeight = gameGMap.height * (int)GMap.TILE_SIZE;
 
         // Tạo camera theo dõi người chơi
-        Camera camera = new Camera(
+        camera = new Camera(
                 gameWorld,
                 playerEntity.getViewComponent().getParent(),
                 (int)screenWidth,
@@ -668,6 +695,10 @@ public class GameSceneBuilder {
         Pane gamePane = new Pane();
         Scene scene = new Scene(gamePane, GAME_WIDTH, GAME_HEIGHT);
 
+        Pane uiPane = new Pane(); // UI layer for StatusBar
+        gamePane.getChildren().addAll(uiPane);
+        uiPane.setStyle("-fx-background-color: transparent;");
+
         // Khôi phục người chơi
         Player player = new Player();
         player.setPosition(state.playerX, state.playerY); // Đảm bảo Player có phương thức setPosition
@@ -677,12 +708,19 @@ public class GameSceneBuilder {
         player.setFlameRange(state.flameRange);
         gamePane.getChildren().add(player.getEntity().getViewComponent().getParent()); // Sửa lại để lấy ViewComponent từ Entity
 
+        StatusBar statusBar = new StatusBar(player);
+        statusBar.setTranslateX(10);
+        statusBar.setTranslateY(10);
+        uiPane.getChildren().add(statusBar);
+        System.out.println("StatusBar added to uiPane in buildGameSceneWithState at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
+
         // Khôi phục danh sách kẻ địch
         for (EnemyState es : state.enemies) {
             Enemy enemy = createEnemy(es.type, es.x, es.y); // Sử dụng phương thức createEnemy để tạo kẻ địch
             if (enemy != null) {
                 allEnemyEntities.add(enemy); // Thêm vào danh sách kẻ địch
-                gamePane.getChildren().add(enemy.getEntity().getViewComponent().getParent()); // Sửa lại để lấy ViewComponent từ Entity
+                gamePane.getChildren().add(enemy.getEntity().getViewComponent().getParent());// Sửa lại để lấy ViewComponent từ Entity
+                gameWorld.getChildren().add(enemy.getEntity().getViewComponent().getParent());
             }
         }
 
@@ -693,6 +731,7 @@ public class GameSceneBuilder {
                 BuffEntity buffEntity = new BuffEntity(buff, bs.x, bs.y);
                 buffEntities.add(buffEntity); // Thêm vào danh sách buff
                 gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
+                gameWorld.getChildren().add(buffEntity.getImageView());
             }
         }
 
@@ -705,6 +744,7 @@ public class GameSceneBuilder {
             Player.BombPane bombPane = new Player.BombPane(tex, bs.x, bs.y);
             // Thêm vào scene và danh sách Pane
             gamePane.getChildren().add(bombPane);
+            gameWorld.getChildren().add(bombPane);
             bombEntities.add(bombPane);
             // Đồng thời thêm vào bộ đếm bom của player nếu cần
             player.getBombPanes().add(bombPane);
@@ -765,6 +805,4 @@ public class GameSceneBuilder {
     public static void toggleAutoPlay() {
         setAutoPlay(!autoPlayEnabled);
     }
-
-
 }
