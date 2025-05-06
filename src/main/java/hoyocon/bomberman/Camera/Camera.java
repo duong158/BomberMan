@@ -1,6 +1,7 @@
 package hoyocon.bomberman.Camera;
 
 import javafx.animation.AnimationTimer;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 
@@ -13,6 +14,12 @@ public class Camera {
     private final int screenHeight;
     private final int worldWidth;
     private final int worldHeight;
+
+    private boolean isShaking = false;
+    private double shakeIntensity = 0;
+    private double shakeDuration = 0;
+    private double currentShakeTime = 0;
+    private double originalX, originalY;
 
     private final double lerpFactor = 0.1; // độ mượt camera
 
@@ -37,19 +44,66 @@ public class Camera {
         timer.start();
     }
 
-    private void update() {
-        double centerX = target.getTranslateX() + target.getBoundsInParent().getWidth() / 2;
-        double centerY = target.getTranslateY() + target.getBoundsInParent().getHeight() / 2;
+    public void startShake(double intensity, double duration) {
+        this.isShaking = true;
+        this.shakeIntensity = intensity;
+        this.shakeDuration = duration;
+        this.currentShakeTime = 0;
+        this.originalX = world.getTranslateX();
+        this.originalY = world.getTranslateY();
+    }
 
-        double targetX = screenWidth / 2 - centerX;
-        double targetY = screenHeight / 2 - centerY;
+    public void update() {
+        Bounds b = target.getBoundsInParent();
+        if (target == null || !target.isVisible()) return;
 
-        // Giới hạn world không đi quá biên
-        targetX = Math.min(0, Math.max(screenWidth - worldWidth, targetX));
-        targetY = Math.min(0, Math.max(screenHeight - worldHeight, targetY));
+        double centerX = b.getMinX() + b.getWidth() / 2.0;
+        double centerY = b.getMinY() + b.getHeight() / 2.0;
+
+        double targetX = calculateTargetX(centerX);
+        double targetY = calculateTargetY(centerY);
+
+        if (isShaking) {
+            currentShakeTime += 1.0/60.0;
+
+            if (currentShakeTime < shakeDuration) {
+                // Tính toán độ rung
+                double shakeOffsetX = (Math.random() * 2 - 1) * shakeIntensity;
+                double shakeOffsetY = (Math.random() * 2 - 1) * shakeIntensity;
+
+                targetX += shakeOffsetX;
+                targetY += shakeOffsetY;
+
+
+                shakeIntensity *= 0.9;
+            } else {
+
+                isShaking = false;
+            }
+        }
 
         world.setTranslateX(lerp(world.getTranslateX(), targetX, lerpFactor));
         world.setTranslateY(lerp(world.getTranslateY(), targetY, lerpFactor));
+    }
+
+    private double calculateTargetX(double centerX) {
+        double targetX = screenWidth / 2 - centerX;
+
+        if (worldWidth > screenWidth) {
+            return Math.max(Math.min(0, targetX), screenWidth - worldWidth);
+        } else {
+            return (screenWidth - worldWidth) / 2;
+        }
+    }
+
+    private double calculateTargetY(double centerY) {
+        double targetY = screenHeight / 2 - centerY;
+
+        if (worldHeight > screenHeight) {
+            return Math.max(Math.min(0, targetY), screenHeight - worldHeight);
+        } else {
+            return (screenHeight - worldHeight) / 2;
+        }
     }
 
     private double lerp(double a, double b, double t) {
