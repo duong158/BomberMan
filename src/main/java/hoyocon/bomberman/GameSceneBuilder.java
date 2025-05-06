@@ -23,6 +23,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -148,7 +149,7 @@ public class GameSceneBuilder {
         }
 
         // 4. Thiết lập thuộc tính cho player vừa được thêm vào scene
-        lastPlayer.setLives(3);
+        lastPlayer.setLives(Player.lives);
         lastPlayer.setSpeed(200);
         lastPlayer.setMaxBombs(1);
         lastPlayer.setFlameRange(1);
@@ -175,10 +176,13 @@ public class GameSceneBuilder {
         // 2. Tạo map từ dữ liệu đã lưu
         Pane gamePane = new Pane();
         Group gameWorld = new Group();
-        Pane uiPane = new Pane(); // UI layer for StatusBar
-        gamePane.getChildren().clear(); // Xóa để thêm lại đúng thứ tự
+        Pane uiPane = new Pane();
+        uiPane.setPrefWidth(screenWidth);
+        uiPane.setPrefHeight(screenHeight);
+        gamePane.getChildren().clear();
         gamePane.getChildren().addAll(gameWorld, uiPane);
         uiPane.setStyle("-fx-background-color: transparent;");
+        gamePane.getChildren().addAll(gameWorld, uiPane);
         GMap gameGMap = new GMap(state.mapData);
         gameGMap.render();
         gameWorld.getChildren().add(gameGMap.getCanvas());
@@ -199,9 +203,9 @@ public class GameSceneBuilder {
         playerEntity.addComponent(player);
         gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
 
-        // Add StatusBar to UI layer
+        // them thanh mau
         StatusBar statusBar = new StatusBar(player);
-        statusBar.setTranslateX(10);
+        statusBar.setTranslateX(screenWidth - 150);
         statusBar.setTranslateY(10);
         uiPane.getChildren().add(statusBar);
         System.out.println("StatusBar added to uiPane in buildContinueScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
@@ -335,9 +339,9 @@ public class GameSceneBuilder {
         gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
         lastPlayer = playerComponent;
 
-        // Add StatusBar to UI layer
+        //them thanh mau
         StatusBar statusBar = new StatusBar(playerComponent);
-        statusBar.setTranslateX(10);
+        statusBar.setTranslateX(screenWidth - 150);
         statusBar.setTranslateY(10);
         uiPane.getChildren().add(statusBar);
         System.out.println("StatusBar added to uiPane in buildGameScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
@@ -708,8 +712,11 @@ public class GameSceneBuilder {
         player.setFlameRange(state.flameRange);
         gamePane.getChildren().add(player.getEntity().getViewComponent().getParent()); // Sửa lại để lấy ViewComponent từ Entity
 
+        //them thanh mau
+        uiPane.setPrefWidth(screenWidth);
+        uiPane.setPrefHeight(screenHeight);
         StatusBar statusBar = new StatusBar(player);
-        statusBar.setTranslateX(10);
+        statusBar.setTranslateX(screenWidth - 150);
         statusBar.setTranslateY(10);
         uiPane.getChildren().add(statusBar);
         System.out.println("StatusBar added to uiPane in buildGameSceneWithState at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
