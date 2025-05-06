@@ -195,6 +195,8 @@ public class PlayerAIController {
             lastPlayerPosition = new Position(topRow, leftCol);
             return lastPlayerPosition;
         }
+        if(lastPlayerPosition == null) lastPlayerPosition = new Position(topRow, leftCol);
+
         // Nếu chưa nằm trọn trong một ô nào, trả về vị trí ô trước đó
         return lastPlayerPosition;
     }
