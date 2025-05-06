@@ -363,6 +363,7 @@ public class Player extends Component {
                 buffEntity.getBuff().apply(this);
                 collectedBuffs.add(buffEntity);
                 gamePane.getChildren().remove(buffEntity.getImageView());
+                gameWorld.getChildren().remove(buffEntity.getImageView());
             }
         }
 
