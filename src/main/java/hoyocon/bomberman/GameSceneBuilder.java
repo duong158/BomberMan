@@ -28,7 +28,9 @@ import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.Group;
 import hoyocon.bomberman.Camera.Camera;
@@ -56,6 +58,9 @@ public class GameSceneBuilder {
     private static boolean isDownPressed = false;
     private static boolean isLeftPressed = false;
     private static boolean isRightPressed = false;
+
+    // Thêm biến static cho pause menu
+    private static Pane pauseMenu = null;
 
     public static Group gameWorld = new Group();
 
@@ -149,12 +154,11 @@ public class GameSceneBuilder {
         }
 
         // 4. Thiết lập thuộc tính cho player vừa được thêm vào scene
-        lastPlayer.setLives(Player.lives);
-        lastPlayer.setSpeed(200);
-        lastPlayer.setMaxBombs(1);
-        lastPlayer.setFlameRange(1);
+        lastPlayer.setLives(Player.getLives());
+        lastPlayer.setSpeed(Player.getSpeed());
+        lastPlayer.setMaxBombs(Player.getMaxBombs());
+        lastPlayer.setFlameRange(Player.getFlameRange());
 
-        // 5. Request focus và trả về
         ((Pane)scene.getRoot()).requestFocus();
         return scene;
     }
@@ -180,7 +184,6 @@ public class GameSceneBuilder {
         uiPane.setPrefWidth(screenWidth);
         uiPane.setPrefHeight(screenHeight);
         gamePane.getChildren().clear();
-        gamePane.getChildren().addAll(gameWorld, uiPane);
         uiPane.setStyle("-fx-background-color: transparent;");
         gamePane.getChildren().addAll(gameWorld, uiPane);
         GMap gameGMap = new GMap(state.mapData);
@@ -382,7 +385,7 @@ public class GameSceneBuilder {
         Scene scene = new Scene(gamePane, screenWidth, screenHeight);
 
         // Ẩn con trỏ chuột khi vào game
-        scene.setCursor(Cursor.NONE);
+//        scene.setCursor(Cursor.NONE);
 
         // Focus
         gamePane.setOnMouseClicked(e -> gamePane.requestFocus());
@@ -600,6 +603,7 @@ public class GameSceneBuilder {
                     playerComponent.placeBomb(gamePane);
                     System.out.println("Key pressed: " + event.getCode());
                 } if (event.getCode() == KeyCode.F1) {
+                    playerAI.resetAIState();
                     toggleAutoPlay();
                     return;  // ngăn xử lý tiếp
                 }
@@ -607,68 +611,8 @@ public class GameSceneBuilder {
 
             // Always allow ESC key regardless of player state
             if (event.getCode() == KeyCode.ESCAPE) {
-                // 1. Thu thập GameState
-                GameState state = new GameState();
-                // Player
-                state.playerX = playerEntity.getX();
-                state.playerY = playerEntity.getY();
-                state.lives    = playerComponent.getLives();
-                state.speed    = playerComponent.getSpeed();
-                state.bombCount= playerComponent.getBombCount();
-                state.maxBombs = playerComponent.getMaxBombs();
-                state.flameRange = playerComponent.getFlameRange();
-                state.activeBuffs = playerComponent.getActiveBuffs();
-
-                // Enemies
-                state.enemies = new ArrayList<>();
-                for (Enemy e : allEnemyEntities) {
-                    EnemyState es = new EnemyState();
-                    es.type = e.getClass().getSimpleName();
-                    es.x    = e.getEntity().getX();
-                    es.y    = e.getEntity().getY();
-                    state.enemies.add(es);
-                }
-
-                // Map
-                state.mapData = gameGMap.getMapDataArray();
-
-                // Buffs trên bản đồ
-                state.buffs = new ArrayList<>();
-                for (BuffEntity be : buffEntities) {
-                    BuffState bs = new BuffState();
-                    bs.buffType = be.getBuff().getType();
-                    bs.x = be.getImageView().getX();
-                    bs.y = be.getImageView().getY();
-                    state.buffs.add(bs);
-                }
-
-                // Bombs đang đặt (theo player)
-                state.bombs = new ArrayList<>();
-                for (Pane bp : playerComponent.getBombPanes()) {
-                    BombState bms = new BombState();
-                    bms.x = bp.getLayoutX(); bms.y = bp.getLayoutY();
-                    state.bombs.add(bms);
-                }
-
-                // 2. Lưu state ra file
-                SaveManager.save(state);
-
-                // 3. Dừng gameLoop + về menu
-                try {
-                    // Dừng game loop khi thoát
-                    gameLoop.stop();
-
-                    Parent menuRoot = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/Menu-view.fxml"));
-                    Scene menuScene = new Scene(menuRoot, screenWidth, screenHeight);
-
-                    // Hiện lại chuột khi quay về menu
-                    menuScene.setCursor(Cursor.DEFAULT);
-
-                    Stage stage = (Stage) scene.getWindow();
-                    stage.setScene(menuScene);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                if (gameLoop != null) gameLoop.stop();
+                showPauseMenu(uiPane);
             }
         });
 
@@ -812,5 +756,53 @@ public class GameSceneBuilder {
      */
     public static void toggleAutoPlay() {
         setAutoPlay(!autoPlayEnabled);
+    }
+
+    private static void showPauseMenu(Pane uiPane) {
+        if (pauseMenu != null) return;
+        Font.loadFont(
+                GameSceneBuilder.class
+                        .getResource("/fonts/PressStart2P-Regular.ttf")
+                        .toExternalForm(),
+                10
+        );
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    GameSceneBuilder.class.getResource("/hoyocon/bomberman/pause_menu.fxml"));
+
+            AnchorPane menuPane = loader.load();
+            PauseMenuController ctrl = loader.getController();
+            ctrl.setUiPane(uiPane);
+
+            // 2. Tạo overlay mờ full‐screen
+            Pane overlay = new Pane();
+            overlay.setPrefSize(screenWidth, screenHeight);
+            overlay.setStyle("-fx-background-color: rgba(0,0,0,0.5);");
+
+            // 3. Wrap overlay + menuPane
+            pauseMenu = new Pane();
+            pauseMenu.setPrefSize(screenWidth, screenHeight);
+            pauseMenu.getChildren().setAll(overlay, menuPane);
+
+            // 4. Center menuPane
+            double mx = (screenWidth - menuPane.getPrefWidth()) / 2;
+            double my = (screenHeight - menuPane.getPrefHeight()) / 2;
+            menuPane.setLayoutX(mx);
+            menuPane.setLayoutY(my);
+
+            // 5. Add vào UI layer
+            uiPane.getChildren().add(pauseMenu);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void hidePauseMenu(Pane uiPane) {
+        if (pauseMenu != null) {
+            uiPane.getChildren().remove(pauseMenu);
+            pauseMenu = null;
+        }
     }
 }

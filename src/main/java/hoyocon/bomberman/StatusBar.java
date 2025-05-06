@@ -42,7 +42,7 @@ public class StatusBar extends VBox {
             @Override
             public void handle(long now) {
                 updateStatus();
-                System.out.println("StatusBar updated with " + player.getLives() + " hearts");
+//                System.out.println("StatusBar updated with " + player.getLives() + " hearts");
             }
         };
         statusUpdater.start();
