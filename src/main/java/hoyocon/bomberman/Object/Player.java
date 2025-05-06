@@ -40,7 +40,7 @@ public class Player extends Component {
     private boolean hasExited = false;
 
     // Thuộc tính người chơi
-    private int lives;
+    public static int lives;
     private double speed;
     private int bombCount;
     private int maxBombs;
@@ -581,7 +581,7 @@ public class Player extends Component {
     }
 
     public void increaseSpeed(int delta) {
-        speed = baseSpeed + delta * 50;
+        speed = baseSpeed + delta * 100;
         activeBuffs.put("speed", System.currentTimeMillis());
     }
 
