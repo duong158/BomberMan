@@ -40,10 +40,10 @@ public class Player extends Component {
     private boolean hasExited = false;
 
     // Thuộc tính người chơi
-    public static int lives;
-    private double speed;
+    private static int lives;
+    private static double speed;
     private int bombCount;
-    private int maxBombs;
+    private static int maxBombs;
     private boolean canPlaceBomb;
     private final int FRAMESIZE = 45;
     private final int NUMFRAME = 3;
@@ -66,9 +66,9 @@ public class Player extends Component {
     private AnimationChannel idledown;
 
     // Buff logic
-    private int flameRange = 1;
+    private static int flameRange = 1;
 
-    public int getFlameRange() {
+    public static int getFlameRange() {
         return flameRange;
     }
 
@@ -89,7 +89,7 @@ public class Player extends Component {
     // Hitbox constants
     private static final int PLAYER_WIDTH = 45;
     private static final int PLAYER_HEIGHT = 45;
-    private static final int HITBOX_MARGIN = 1; // Margin to make hitbox slightly smaller than sprite
+    private static final int HITBOX_MARGIN = 0; // Margin to make hitbox slightly smaller than sprite
 
     private List<BombPane> bombs = new ArrayList<>();
 
@@ -672,7 +672,7 @@ public class Player extends Component {
         this.state = state;
     }
 
-    public double getSpeed() {
+    public static double getSpeed() {
         return speed;
     }
 
@@ -680,20 +680,20 @@ public class Player extends Component {
         this.speed = speed;
     }
 
-    public int getLives() {
+    public static int getLives() {
         return lives;
     }
 
     public void setLives(int lives) {
-        this.lives = lives;
+        Player.lives = lives;
     }
 
-    public int getMaxBombs() {
+    public static int getMaxBombs() {
         return maxBombs;
     }
 
     public void setMaxBombs(int maxBombs) {
-        this.maxBombs = maxBombs;
+        Player.maxBombs = maxBombs;
     }
 
     public boolean isCanPlaceBomb() {
@@ -709,7 +709,7 @@ public class Player extends Component {
     }
 
     public void setLevel(int level) {
-        this.level = level;
+        Player.level = level;
     }
     // Trả về số bom đang đặt
     public int getBombCount() {

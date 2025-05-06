@@ -198,7 +198,7 @@ public class PlayerAIController {
         if(lastPlayerPosition == null) lastPlayerPosition = new Position(topRow, leftCol);
 
         // Nếu chưa nằm trọn trong một ô nào, trả về vị trí ô trước đó
-        if(lastPlayerPosition == null) return new Position(topRow, leftCol);
+        if(lastPlayerPosition == null) return new Position((topRow + bottomRow)/2, (leftCol+rightCol)/2);
         return lastPlayerPosition;
     }
     
@@ -891,6 +891,7 @@ public class PlayerAIController {
         }
     }
     public void resetAIState() {
+        lastPlayerPosition = null;
         currentState = AIState.FINDING_PATH;
         escapePath = null;
         dangerZones.clear();
