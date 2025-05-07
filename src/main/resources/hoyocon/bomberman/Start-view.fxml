@@ -27,31 +27,35 @@
       </ImageView>
 
       <!-- Start Button -->
-      <Button layoutX="909.0" layoutY="410.0" mnemonicParsing="false" onAction="#onStartClicked" prefHeight="60.0" prefWidth="119.0" text="Start" textAlignment="CENTER" textFill="WHITE" underline="true">
+      <Button layoutX="805.0" layoutY="418.0" mnemonicParsing="false" onAction="#onStartClicked" prefHeight="86.0" prefWidth="311.0" text="Start" textAlignment="CENTER" textFill="WHITE" underline="true">
          <font><Font name="System Bold" size="48.0" /></font>
          <stylesheets>
-            <URL value="@style1.css" />
             <URL value="@style2.css" />
+            <URL value="@style1.css" />
+            <URL value="@../../CSS/ColorChange.css" />
          </stylesheets>
          <styleClass>
-            <String fx:value="zoom-effect" />
             <String fx:value="invisible-button" />
+            <String fx:value="zoom-effect" />
+            <String fx:value="color-change" />
          </styleClass>
       </Button>
 
       <!-- How To Play Button -->
-      <Button layoutX="827.0" layoutY="520.0" mnemonicParsing="false" onAction="#onHowToPlayClicked" text="How To Play" textFill="WHITE" underline="true">
-         <stylesheets>
-            <URL value="@Cartoon_UI.css" />
-            <URL value="@style2.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="zoom-effect" />
-            <String fx:value="invisible-button" />
-         </styleClass>
+      <Button layoutX="817.0" layoutY="521.0" mnemonicParsing="false" onAction="#onHowToPlayClicked" text="How To Play" textFill="WHITE" underline="true">
          <font>
             <Font name="System Bold" size="48.0" />
          </font>
+         <stylesheets>
+            <URL value="@style1.css" />
+            <URL value="@style2.css" />
+            <URL value="@../../CSS/ColorChange.css" />
+         </stylesheets>
+         <styleClass>
+            <String fx:value="invisible-button" />
+            <String fx:value="zoom-effect" />
+            <String fx:value="color-change" />
+         </styleClass>
       </Button>
 
       <!-- Title Label -->
@@ -63,7 +67,7 @@
 
       <!-- Music Button Group -->
       <StackPane layoutX="1503.0" layoutY="861.0">
-         <Button fx:id="musicOnButton" mnemonicParsing="false" onAction="#handleMusicOff" text="🎵">
+         <Button fx:id="musicOnButton" mnemonicParsing="false" onAction="#handleMusicOff" text="🎵" textFill="WHITE">
             <font><Font size="24" /></font>
             <stylesheets>
                <URL value="@style1.css" />
@@ -93,7 +97,7 @@
 
       <!-- SFX Button Group -->
       <StackPane layoutX="1601.0" layoutY="861.0">
-         <Button fx:id="sfxOnButton" mnemonicParsing="false" onAction="#handleSfxOff" prefHeight="60.0" prefWidth="74.0" text="🔊">
+         <Button fx:id="sfxOnButton" mnemonicParsing="false" onAction="#handleSfxOff" prefHeight="60.0" prefWidth="74.0" text="🔊" textFill="WHITE">
             <font><Font size="24" /></font>
             <stylesheets>
                <URL value="@style1.css" />
@@ -120,18 +124,20 @@
             </styleClass>
          </Button>
       </StackPane>
-      <Button fx:id="onExitClicked" layoutX="896.0" layoutY="612.0" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="60.0" prefWidth="147.0" text="Quit" textFill="WHITE" underline="true">
-         <stylesheets>
-            <URL value="@style2.css" />
-            <URL value="@style1.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="zoom-effect" />
-            <String fx:value="invisible-button" />
-         </styleClass>
+      <Button fx:id="onExitClicked" layoutX="837.0" layoutY="615.0" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="86.0" prefWidth="262.0" text="Quit" textFill="WHITE" underline="true">
          <font>
             <Font name="System Bold" size="48.0" />
          </font>
+         <stylesheets>
+            <URL value="@style2.css" />
+            <URL value="@style1.css" />
+            <URL value="@../../CSS/ColorChange.css" />
+         </stylesheets>
+         <styleClass>
+            <String fx:value="invisible-button" />
+            <String fx:value="zoom-effect" />
+            <String fx:value="color-change" />
+         </styleClass>
       </Button>
    </children>
 </AnchorPane>

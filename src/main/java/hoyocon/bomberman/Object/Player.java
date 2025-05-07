@@ -403,17 +403,22 @@ public class Player extends Component {
 
         // Hẹn 2s để nổ
         PauseTransition delay = new PauseTransition(Duration.seconds(2));
+        GameSceneBuilder.registerPauseTransition(delay);
+
         AnimationTimer bombAnimLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 bombTexture.onUpdate(1.0 / 60.0);
             }
         };
+        GameSceneBuilder.registerAnimationTimer(bombAnimLoop);
         bombAnimLoop.start();
 
         delay.setOnFinished(evt -> {
+            GameSceneBuilder.unregisterTransition(delay);
             // Dừng animation bom và xoá bom khỏi scene
             bombAnimLoop.stop();
+            GameSceneBuilder.unregisterTimer(bombAnimLoop);
             gamePane.getChildren().remove(bombPane);
             gameWorld.getChildren().remove(bombPane);
             bombs.remove(bombPane);
@@ -481,10 +486,12 @@ public class Player extends Component {
                             flameTex.onUpdate(1.0 / 60.0);
                         }
                     };
+                    GameSceneBuilder.registerAnimationTimer(flameLoop);
                     flameLoop.start();
 
                     // Xóa flame sau 1s
                     PauseTransition t = new PauseTransition(Duration.seconds(1));
+                    GameSceneBuilder.registerPauseTransition(t);
                     t.setOnFinished(e2 -> {
                         flameLoop.stop();
                         gamePane.getChildren().remove(flamePane);
@@ -522,6 +529,7 @@ public class Player extends Component {
                         breakLoop.start();
 
                         PauseTransition pb = new PauseTransition(Duration.seconds(0.8));
+                        GameSceneBuilder.registerPauseTransition(pb);
                         pb.setOnFinished(ev3 -> {
                             breakLoop.stop();
                             gamePane.getChildren().remove(breakPane);
@@ -642,10 +650,11 @@ public class Player extends Component {
                 }
             }
         };
-
+        GameSceneBuilder.registerAnimationTimer(blink);
         blink.start();
 
         PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        GameSceneBuilder.registerPauseTransition(pause);
         pause.setOnFinished(e -> {
             invincible = false;
             view.setVisible(true);

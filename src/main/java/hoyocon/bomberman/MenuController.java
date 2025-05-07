@@ -16,6 +16,7 @@ import java.nio.file.*;
 import java.util.*;
 
 public class MenuController {
+    private Scene pausedScene;
     private static final String SCORE_FILE = "scores.txt";
 
     @FXML
@@ -23,7 +24,7 @@ public class MenuController {
 
     @FXML
     public void initialize() {
-        autoPlayButton.setText("Auto Play: OFF");
+        autoPlayButton.setText("Auto Play");
     }
 
     @FXML
@@ -48,21 +49,20 @@ public class MenuController {
 
     @FXML
     private void onContinueClicked(ActionEvent event) {
-        GameState savedState = SaveManager.load();
-        if (savedState == null) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("No Save Found");
-            alert.setHeaderText("No saved game found!");
-            alert.setContentText("Please start a new game.");
-            alert.showAndWait();
-            return;
-        }
+        if (pausedScene != null) {
+            // Resume trực tiếp mà không load save
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(pausedScene);
+            // Reset AI timer trước khi start loop
+            if (GameSceneBuilder.playerAI != null) {
+                GameSceneBuilder.playerAI.resetTimer();
+            }
 
-        Scene gameScene = GameSceneBuilder.buildContinueScene();
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(gameScene);
-        stage.setTitle("Bomberman Game - Continue");
-        gameScene.getRoot().requestFocus();
+            if (GameSceneBuilder.gameLoop != null) {
+                GameSceneBuilder.gameLoop.start();
+            }
+            pausedScene.getRoot().requestFocus();
+        }
     }
 
     /**
@@ -134,4 +134,7 @@ public class MenuController {
         return max;
     }
 
+    public void setPausedScene(Scene scene) {
+        this.pausedScene = scene;
+    }
 }
