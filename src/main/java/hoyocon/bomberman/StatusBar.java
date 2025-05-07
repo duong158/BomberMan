@@ -130,8 +130,10 @@ public class StatusBar extends VBox {
             case "speed":
                 imagePath = "/assets/textures/powerup_speed.png";
                 break;
-            case "flame":
-            case "flameRange":
+            case "flamepass":
+                imagePath = "/assets/textures/powerup_flamepass.png";
+                break;
+            case "flamerange":
                 imagePath = "/assets/textures/powerup_flames.png";
                 break;
             case "bomb":
