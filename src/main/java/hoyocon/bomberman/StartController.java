@@ -20,6 +20,28 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public class StartController {
+    @FXML
+    private javafx.scene.control.Button autoPlayButton;
+
+    @FXML
+    private void onAutoPlayClicked(ActionEvent event) {
+        // Đảo trạng thái auto‑play
+        GameSceneBuilder.toggleAutoPlay();
+
+        // Cập nhật nhãn theo trạng thái mới
+        boolean enabled = getAutoPlayState();
+        autoPlayButton.setText(enabled ? "Auto Play: ON" : "Auto Play: OFF");
+    }
+
+    private boolean getAutoPlayState() {
+        try {
+            java.lang.reflect.Field f = GameSceneBuilder.class.getDeclaredField("autoPlayEnabled");
+            f.setAccessible(true);
+            return f.getBoolean(null);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     @FXML
     private Button sfxOnButton;
@@ -36,6 +58,7 @@ public class StartController {
 
     @FXML
     private void initialize() {
+        autoPlayButton.setText("Auto Play");
         // Khởi tạo MediaPlayer với nhạc nền từ đường dẫn mới
         try {
             // Sử dụng đường dẫn tương đối trong thư mục resources
@@ -104,7 +127,7 @@ public class StartController {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
         }
-        Parent menuView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Menu-view.fxml"));
+        Parent menuView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Start-view.fxml"));
         Scene scene = new Scene(menuView, 1920, 1080);
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(scene);

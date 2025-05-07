@@ -48,20 +48,16 @@ public class PauseMenuController {
         }
         GameSceneBuilder.hidePauseMenu(uiPane);
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/hoyocon/bomberman/Menu-view.fxml"));
-            Parent menuRoot = loader.load();
-
-            MenuController menuCtrl = loader.getController();
-            menuCtrl.setPausedScene(uiPane.getScene());
+            // Load the main Start view
+            Parent startView = FXMLLoader.load(
+                    getClass().getResource("/hoyocon/bomberman/Start-view.fxml")
+            );
+            Scene startScene = new Scene(startView, 1920, 1080);
 
             Stage stage = (Stage) uiPane.getScene().getWindow();
-
-            stage.setScene(new Scene(menuRoot));
-            stage.getScene().getStylesheets().add(
-                    getClass().getResource("/hoyocon/bomberman/style1.css").toExternalForm()
-            );
-
+            stage.setScene(startScene);
+            stage.setTitle("Bomberman Menu");
+            startScene.getRoot().requestFocus();
         } catch (IOException e) {
             e.printStackTrace();
         }
