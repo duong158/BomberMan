@@ -46,6 +46,7 @@ public class PauseMenuController {
         if (GameSceneBuilder.gameLoop != null) {
             GameSceneBuilder.gameLoop.stop();
         }
+        GameSceneBuilder.pauseAll();
         GameSceneBuilder.hidePauseMenu(uiPane);
         try {
             // Load the main Start view
