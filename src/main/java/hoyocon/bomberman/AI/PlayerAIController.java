@@ -46,8 +46,8 @@ public class PlayerAIController {
     private List<Node> escapePath;
     
     // Decision making
-    private static final int ENEMY_DANGER_DISTANCE = 2;
-    private static final int ENEMY_AWARE_DISTANCE = 4;
+    private static final int ENEMY_DANGER_DISTANCE = 1;
+    private static final int ENEMY_AWARE_DISTANCE = 5;
     private static final int MAX_PATH_FINDING_ATTEMPTS = 3;
     
     /**

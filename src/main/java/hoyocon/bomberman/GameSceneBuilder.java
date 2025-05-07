@@ -30,6 +30,8 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.Group;
@@ -58,6 +60,10 @@ public class GameSceneBuilder {
     private static boolean isDownPressed = false;
     private static boolean isLeftPressed = false;
     private static boolean isRightPressed = false;
+
+    private static MediaPlayer backgroundMusicPlayer;
+    private static MediaPlayer gameOverMusicPlayer;
+    private static boolean musicEnabled = true;
 
     // Thêm biến static cho pause menu
     private static Pane pauseMenu = null;
@@ -137,6 +143,10 @@ public class GameSceneBuilder {
         allEnemyEntities.clear();
         bombEntities.clear();
         explosionEntities.clear();
+        resetMusic();
+
+        initializeMusic();
+        initializeGameOverMusic();
 
         // → Reset translate cũ của gameWorld
         gameWorld = new Group();
@@ -440,6 +450,8 @@ public class GameSceneBuilder {
                         if (!playerComponent.isInvincible()&& !playerComponent.isFlamePassActive() && playerComponent.getState() != State.DEAD) {
                             playerComponent.setState(State.DEAD);
                             if (playerComponent.hit()) {
+                                pauseBackgroundMusic();
+                                playGameOverMusic();
                                 PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
                                 deathDelay.setOnFinished(event -> {
                                     stop(); // Stop game loop after animation completes
@@ -531,6 +543,8 @@ public class GameSceneBuilder {
                             if (!playerComponent.isInvincible() && playerComponent.getState() != State.DEAD) {
                                 playerComponent.setState(State.DEAD);
                                 if (playerComponent.hit()) {
+                                    pauseBackgroundMusic();
+                                    playGameOverMusic();
                                     PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
                                     deathDelay.setOnFinished(event -> {
                                         stop(); // Stop game loop after animation completes
@@ -766,6 +780,7 @@ public class GameSceneBuilder {
                         .toExternalForm(),
                 10
         );
+//        pauseBackgroundMusic();
 
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -794,6 +809,7 @@ public class GameSceneBuilder {
             // 5. Add vào UI layer
             uiPane.getChildren().add(pauseMenu);
 
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -803,6 +819,121 @@ public class GameSceneBuilder {
         if (pauseMenu != null) {
             uiPane.getChildren().remove(pauseMenu);
             pauseMenu = null;
+        }
+//        if (musicEnabled) {
+//            playBackgroundMusic();
+//        }
+
+    }
+    public static void initializeMusic() {
+        try {
+            String musicFile = "/assets/music/battle-theme.mp3"; // Path to music file in resources folder
+            Media backgroundMusic = new Media(GameSceneBuilder.class.getResource(musicFile).toExternalForm());
+            backgroundMusicPlayer = new MediaPlayer(backgroundMusic);
+            backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop indefinitely
+            backgroundMusicPlayer.setVolume(0.5); // Set to 50% volume
+
+            if (musicEnabled) {
+                backgroundMusicPlayer.play();
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading background music: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void initializeGameOverMusic() {
+        try {
+            String musicFile = "/assets/sounds/player_die.wav"; // Path to game over music
+            Media gameOverMusic = new Media(GameSceneBuilder.class.getResource(musicFile).toExternalForm());
+            gameOverMusicPlayer = new MediaPlayer(gameOverMusic);
+            gameOverMusicPlayer.setVolume(0.5);
+        } catch (Exception e) {
+            System.err.println("Error loading game over music: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Play the background music if enabled.
+     */
+    public static void playBackgroundMusic() {
+        if (musicEnabled && backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.play();
+        }
+    }
+
+    /**
+     * Pause the background music.
+     */
+    public static void pauseBackgroundMusic() {
+        if (backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.pause();
+        }
+    }
+
+    /**
+     * Stop the background music.
+     */
+    public static void stopBackgroundMusic() {
+        if (backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.stop();
+        }
+    }
+
+    /**
+     * Play game over music.
+     */
+    public static void playGameOverMusic() {
+        stopBackgroundMusic();
+        if (musicEnabled && gameOverMusicPlayer != null) {
+            gameOverMusicPlayer.play();
+        }
+    }
+
+    /**
+     * Toggle music on/off.
+     */
+    public static void toggleMusic() {
+        musicEnabled = !musicEnabled;
+        if (musicEnabled) {
+            playBackgroundMusic();
+        } else {
+            pauseBackgroundMusic();
+        }
+    }
+
+    /**
+     * Set the volume of the background music.
+     * @param volume Volume level (0.0 to 1.0)
+     */
+    public static void setMusicVolume(double volume) {
+        if (backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.setVolume(Math.min(1.0, Math.max(0.0, volume)));
+        }
+        if (gameOverMusicPlayer != null) {
+            gameOverMusicPlayer.setVolume(Math.min(1.0, Math.max(0.0, volume)));
+        }
+    }
+
+    /**
+     * Check if music is enabled.
+     * @return true if music is enabled
+     */
+    public static boolean isMusicEnabled() {
+        return musicEnabled;
+    }
+
+    public static void resetMusic() {
+        if (backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.stop();
+            backgroundMusicPlayer.dispose(); // Release all resources
+            backgroundMusicPlayer = null;
+        }
+
+        if (gameOverMusicPlayer != null) {
+            gameOverMusicPlayer.stop();
+            gameOverMusicPlayer.dispose(); // Release all resources
+            gameOverMusicPlayer = null;
         }
     }
 }

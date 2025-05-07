@@ -19,6 +19,8 @@ public class PauseMenuController {
     private Button continueBtn;
     @FXML
     private Button exitBtn;
+    @FXML
+    private Button musicToggleBtn;
 
     private Pane uiPane;
 
@@ -46,6 +48,7 @@ public class PauseMenuController {
         if (GameSceneBuilder.gameLoop != null) {
             GameSceneBuilder.gameLoop.stop();
         }
+        GameSceneBuilder.resetMusic();
         GameSceneBuilder.hidePauseMenu(uiPane);
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -61,6 +64,25 @@ public class PauseMenuController {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onToggleMusic(ActionEvent event) {
+        // Toggle music state
+        GameSceneBuilder.toggleMusic();
+
+        // Update button text based on new state
+        updateMusicButtonText();
+    }
+
+    private void updateMusicButtonText() {
+        if (musicToggleBtn != null) {
+            if (GameSceneBuilder.isMusicEnabled()) {
+                musicToggleBtn.setText("♫ON");
+            } else {
+                musicToggleBtn.setText("♫OFF");
+            }
         }
     }
 }
