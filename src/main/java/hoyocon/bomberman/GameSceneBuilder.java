@@ -842,8 +842,6 @@ public class GameSceneBuilder {
             uiPane.getChildren().remove(pauseMenu);
             pauseMenu = null;
 
-            // 2. Resume tất cả Transitions/Timers và gameLoop
-            resumeAll();
             if (gameLoop != null) {
                 if (playerAI != null) {
                     playerAI.resetTimer();
