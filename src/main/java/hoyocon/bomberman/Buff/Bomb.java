@@ -11,8 +11,10 @@ public class Bomb implements BuffGeneric {
     public void apply(Player player) {
         // Tăng số bom tối đa thêm 1
         player.setMaxBombs(player.getMaxBombs() + 1);
+        player.getActiveBuffs().put("bomb", System.currentTimeMillis());
         // Không cần đưa vào activeBuffs nếu vĩnh viễn
     }
+
 
     @Override
     public void remove(Player player) {
