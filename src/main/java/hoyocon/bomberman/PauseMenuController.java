@@ -52,6 +52,9 @@ public class PauseMenuController {
                     getClass().getResource("/hoyocon/bomberman/Menu-view.fxml"));
             Parent menuRoot = loader.load();
 
+            MenuController menuCtrl = loader.getController();
+            menuCtrl.setPausedScene(uiPane.getScene());
+
             Stage stage = (Stage) uiPane.getScene().getWindow();
 
             stage.setScene(new Scene(menuRoot));
