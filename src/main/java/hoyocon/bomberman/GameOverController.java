@@ -31,8 +31,8 @@ public class GameOverController {
     @FXML
     private void onMenuClicked(ActionEvent event) {
         try {
-            // Load Menu-view.fxml
-            Parent menuView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Menu-view.fxml"));
+            // Load Start-view.fxml
+            Parent menuView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Start-view.fxml"));
             Scene menuScene = new Scene(menuView, 1920, 1080);
 
             // Lấy Stage hiện tại từ sự kiện

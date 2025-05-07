@@ -13,43 +13,58 @@
    <children>
       <ImageView fitHeight="1080.0" fitWidth="1920.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@b0cf517597fd9ae3948d3181b1db2736.jpg" />
+            <Image url="@Image.jpg" />
          </image>
       </ImageView>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="715.0" layoutY="252.0" prefHeight="233.0" prefWidth="445.0" text="GameOver" textFill="#1a0a0a">
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="687.0" layoutY="234.0" prefHeight="233.0" prefWidth="503.0" text="GameOver" textFill="WHITE">
          <font>
-            <Font name="System Bold Italic" size="72.0" />
+            <Font name="System Bold Italic" size="96.0" />
          </font>
       </Label>
-      <Button layoutX="870.0" layoutY="437.0" mnemonicParsing="false" onAction="#onRetryClicked" prefHeight="60.0" prefWidth="135.0" text="Retry">
+      <Button layoutX="870.0" layoutY="437.0" mnemonicParsing="false" onAction="#onRetryClicked" prefHeight="60.0" prefWidth="135.0" text="Retry" underline="true">
          <stylesheets>
-            <URL value="@Cartoon_UI.css" />
             <URL value="@style1.css" />
+            <URL value="@style2.css" />
+            <URL value="@../../CSS/ColorChange.css" />
          </stylesheets>
          <styleClass>
-            <String fx:value="button-cartoon" />
+            <String fx:value="color-change" />
+            <String fx:value="invisible-button" />
             <String fx:value="zoom-effect" />
          </styleClass>
+         <font>
+            <Font name="System Bold Italic" size="48.0" />
+         </font>
       </Button>
-      <Button layoutX="870.0" layoutY="556.0" mnemonicParsing="false" onAction="#onMenuClicked" prefHeight="60.0" prefWidth="135.0" text="Menu">
+      <Button layoutX="870.0" layoutY="556.0" mnemonicParsing="false" onAction="#onMenuClicked" prefHeight="60.0" prefWidth="135.0" text="Menu" textFill="WHITE" underline="true">
          <stylesheets>
-            <URL value="@Cartoon_UI.css" />
             <URL value="@style1.css" />
+            <URL value="@../../CSS/ColorChange.css" />
+            <URL value="@style2.css" />
          </stylesheets>
          <styleClass>
-            <String fx:value="button-cartoon" />
             <String fx:value="zoom-effect" />
+            <String fx:value="color-change" />
+            <String fx:value="invisible-button" />
          </styleClass>
+         <font>
+            <Font name="System Bold Italic" size="48.0" />
+         </font>
       </Button>
-      <Button layoutX="871.0" layoutY="667.0" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="60.0" prefWidth="135.0" text="Exit">
+      <Button layoutX="871.0" layoutY="672.0" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="60.0" prefWidth="135.0" text="Exit" textFill="WHITE" underline="true">
          <stylesheets>
-            <URL value="@Cartoon_UI.css" />
             <URL value="@style1.css" />
+            <URL value="@style2.css" />
+            <URL value="@../../CSS/ColorChange.css" />
          </stylesheets>
          <styleClass>
-            <String fx:value="button-cartoon" />
             <String fx:value="zoom-effect" />
+            <String fx:value="invisible-button" />
+            <String fx:value="color-change" />
          </styleClass>
+         <font>
+            <Font name="System Bold Italic" size="48.0" />
+         </font>
       </Button>
    </children>
 </AnchorPane>

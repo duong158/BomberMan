@@ -20,6 +20,8 @@ public class GuideController {
     @FXML private Button itemBuffBomb;
     @FXML private Button itemBuffFlame;
     @FXML private Button itemBuffSpeed;
+    @FXML private Button itemBuffFlamePass;
+    @FXML private Button itemBuffLife;
     @FXML private Button nextRound;
     @FXML private Button ESC;
     @FXML private Label LabelOfkeyBox;
@@ -29,6 +31,8 @@ public class GuideController {
     @FXML private Label LabelOfBuffSpeed;
     @FXML private Label LabelOfnextRound;
     @FXML private Label LabelOfESC;
+    @FXML private Label LabelOfLife;
+    @FXML private Label LabelOfFlamePass;
 
     @FXML
     private void initialize() {
@@ -48,6 +52,8 @@ public class GuideController {
         setupHover(itemBuffSpeed, LabelOfBuffSpeed, "Tốc độ di chuyển của người chơi tăng lên đáng kể trong 10s.");
         setupHover(nextRound, LabelOfnextRound, "Mục tiêu hướng tới của mỗi màn chơi, bạn cần phải đến đó để qua màn");
         setupHover(ESC, LabelOfESC, "Ấm áp nhắc nhở : đây là phím tắt để bạn có thể quay lại các giao diện khi cần thiết");
+        setupHover(itemBuffFlamePass, LabelOfFlamePass, "Cho phép người chơi có khả năng kháng hỏa trong 10s ngắn ngủi.");
+        setupHover(itemBuffLife, LabelOfLife, "Hồi lại một sinh mạng cho người chơi.");
         LabelOfkeyBox.setVisible(false);
         LabelOfplaceBomb.setVisible(false);
         LabelOfBuffBomb.setVisible(false);
@@ -55,6 +61,8 @@ public class GuideController {
         LabelOfBuffSpeed.setVisible(false);
         LabelOfnextRound.setVisible(false);
         LabelOfESC.setVisible(false);
+        LabelOfLife.setVisible(false);
+        LabelOfFlamePass.setVisible(false);
     }
 
     private void setupHover(Node node,Label label, String text) {
@@ -63,7 +71,6 @@ public class GuideController {
             label.setVisible(true);
         });
         node.setOnMouseExited(e -> label.setVisible(false));
-
         node.setOnMouseEntered(e -> {
             label.setText(text);
             label.setVisible(true);
@@ -99,6 +106,7 @@ public class GuideController {
             label.setVisible(true);
         });
         node.setOnMouseExited(e -> label.setVisible(false));
+
     }
 
     private void handleKeyPressed(KeyEvent event) {

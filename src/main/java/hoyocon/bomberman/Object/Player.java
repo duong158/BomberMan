@@ -1,36 +1,30 @@
 package hoyocon.bomberman.Object;
 
-import com.almasb.fxgl.dsl.FXGL;
-import com.almasb.fxgl.entity.Entity;
-import hoyocon.bomberman.EntitiesState.EntityType;
-import hoyocon.bomberman.EntitiesState.State;
-import hoyocon.bomberman.Main;
-import hoyocon.bomberman.Map.GMap;
-import javafx.animation.AnimationTimer;
-import javafx.animation.PauseTransition;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.geometry.Bounds;
-import javafx.scene.layout.Pane;
-import hoyocon.bomberman.GameSceneBuilder;
-import hoyocon.bomberman.Buff.BuffGeneric;
-import javafx.scene.layout.Pane;
-import hoyocon.bomberman.Object.Bomb;
-
-import com.almasb.fxgl.entity.component.Component;
-import com.almasb.fxgl.texture.AnimatedTexture;
-import com.almasb.fxgl.texture.AnimationChannel;
-import javafx.scene.media.AudioClip;
-import javafx.util.Duration;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.texture.AnimatedTexture;
+import com.almasb.fxgl.texture.AnimationChannel;
+
+import hoyocon.bomberman.Buff.BuffGeneric;
+import hoyocon.bomberman.EntitiesState.State;
+import hoyocon.bomberman.GameSceneBuilder;
 import static hoyocon.bomberman.GameSceneBuilder.camera;
 import static hoyocon.bomberman.GameSceneBuilder.gameWorld;
+import hoyocon.bomberman.Main;
+import hoyocon.bomberman.Map.GMap;
+import javafx.animation.AnimationTimer;
+import javafx.animation.PauseTransition;
+import javafx.geometry.Bounds;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
+import javafx.scene.media.AudioClip;
+import javafx.util.Duration;
 
 public class Player extends Component {
     // Vị trí người chơi
@@ -409,17 +403,22 @@ public class Player extends Component {
 
         // Hẹn 2s để nổ
         PauseTransition delay = new PauseTransition(Duration.seconds(2));
+        GameSceneBuilder.registerPauseTransition(delay);
+
         AnimationTimer bombAnimLoop = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 bombTexture.onUpdate(1.0 / 60.0);
             }
         };
+        GameSceneBuilder.registerAnimationTimer(bombAnimLoop);
         bombAnimLoop.start();
 
         delay.setOnFinished(evt -> {
+            GameSceneBuilder.unregisterTransition(delay);
             // Dừng animation bom và xoá bom khỏi scene
             bombAnimLoop.stop();
+            GameSceneBuilder.unregisterTimer(bombAnimLoop);
             gamePane.getChildren().remove(bombPane);
             gameWorld.getChildren().remove(bombPane);
             bombs.remove(bombPane);
@@ -487,10 +486,12 @@ public class Player extends Component {
                             flameTex.onUpdate(1.0 / 60.0);
                         }
                     };
+                    GameSceneBuilder.registerAnimationTimer(flameLoop);
                     flameLoop.start();
 
                     // Xóa flame sau 1s
                     PauseTransition t = new PauseTransition(Duration.seconds(1));
+                    GameSceneBuilder.registerPauseTransition(t);
                     t.setOnFinished(e2 -> {
                         flameLoop.stop();
                         gamePane.getChildren().remove(flamePane);
@@ -528,6 +529,7 @@ public class Player extends Component {
                         breakLoop.start();
 
                         PauseTransition pb = new PauseTransition(Duration.seconds(0.8));
+                        GameSceneBuilder.registerPauseTransition(pb);
                         pb.setOnFinished(ev3 -> {
                             breakLoop.stop();
                             gamePane.getChildren().remove(breakPane);
@@ -599,6 +601,7 @@ public class Player extends Component {
                 break;
             case "bomb":
                 setMaxBombs(getMaxBombs() + 1);
+                activeBuffs.put("bomb", System.currentTimeMillis());
                 break;
             default:
                 System.out.println("Unknown item type: " + itemType);
@@ -647,10 +650,11 @@ public class Player extends Component {
                 }
             }
         };
-
+        GameSceneBuilder.registerAnimationTimer(blink);
         blink.start();
 
         PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        GameSceneBuilder.registerPauseTransition(pause);
         pause.setOnFinished(e -> {
             invincible = false;
             view.setVisible(true);

@@ -46,6 +46,7 @@ import hoyocon.bomberman.StatusBar; // Thêm import cho StatusBar
 import javafx.util.Duration;
 
 public class GameSceneBuilder {
+    public static PlayerAIController playerAI;
     private static boolean autoPlayEnabled = false;
     private static Player lastPlayer;
     private static double savedX = 195;
@@ -73,6 +74,37 @@ public class GameSceneBuilder {
     public static Camera camera;
 
     public static AnimationTimer gameLoop; // Lưu tham chiếu đến game loop
+
+    // Danh sách quản lý Transitions và Timers để pause/resume
+    private static final List<PauseTransition> pauseTransitions = new ArrayList<>();
+    private static final List<AnimationTimer> animationTimers = new ArrayList<>();
+
+    public static void registerPauseTransition(PauseTransition t) {
+        pauseTransitions.add(t);
+    }
+
+    public static void registerAnimationTimer(AnimationTimer timer) {
+        animationTimers.add(timer);
+    }
+
+    public static void unregisterTransition(PauseTransition t) {
+        pauseTransitions.remove(t);
+    }
+    public static void unregisterTimer(AnimationTimer t) {
+        animationTimers.remove(t);
+    }
+
+    /** Pause tất cả Transitions và Timers */
+    public static void pauseAll() {
+        pauseTransitions.forEach(PauseTransition::pause);
+        animationTimers.forEach(AnimationTimer::stop);
+    }
+
+    /** Resume tất cả Transitions và Timers */
+    public static void resumeAll() {
+        pauseTransitions.forEach(PauseTransition::play);
+        animationTimers.forEach(AnimationTimer::start);
+    }
 
     // Quản lý buff.
     public static List<BuffEntity> buffEntities = new ArrayList<>();
@@ -218,7 +250,7 @@ public class GameSceneBuilder {
 
         // them thanh mau
         StatusBar statusBar = new StatusBar(player);
-        statusBar.setTranslateX(screenWidth - 150);
+        statusBar.setTranslateX(screenWidth - 220);
         statusBar.setTranslateY(10);
         uiPane.getChildren().add(statusBar);
         System.out.println("StatusBar added to uiPane in buildContinueScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
@@ -354,7 +386,7 @@ public class GameSceneBuilder {
 
         //them thanh mau
         StatusBar statusBar = new StatusBar(playerComponent);
-        statusBar.setTranslateX(screenWidth - 150);
+        statusBar.setTranslateX(screenWidth - 220);
         statusBar.setTranslateY(10);
         uiPane.getChildren().add(statusBar);
         System.out.println("StatusBar added to uiPane in buildGameScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
@@ -376,7 +408,8 @@ public class GameSceneBuilder {
                 }
             }
         }
-        PlayerAIController playerAI = new PlayerAIController(playerComponent, gameGMap, allEnemyEntities, gamePane);
+
+        playerAI = new PlayerAIController(playerComponent, gameGMap, allEnemyEntities, gamePane);
 
         // Tính kích thước thế giới game
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
@@ -675,7 +708,7 @@ public class GameSceneBuilder {
         uiPane.setPrefWidth(screenWidth);
         uiPane.setPrefHeight(screenHeight);
         StatusBar statusBar = new StatusBar(player);
-        statusBar.setTranslateX(screenWidth - 150);
+        statusBar.setTranslateX(screenWidth - 220);
         statusBar.setTranslateY(10);
         uiPane.getChildren().add(statusBar);
         System.out.println("StatusBar added to uiPane in buildGameSceneWithState at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
@@ -782,31 +815,35 @@ public class GameSceneBuilder {
         );
 //        pauseBackgroundMusic();
 
+        // 1. Dừng gameLoop và pause tất cả Transitions/Timers
+        if (gameLoop != null) gameLoop.stop();
+        pauseAll();
+
+        // 2. Tải FXML pause menu
         try {
             FXMLLoader loader = new FXMLLoader(
                     GameSceneBuilder.class.getResource("/hoyocon/bomberman/pause_menu.fxml"));
-
             AnchorPane menuPane = loader.load();
             PauseMenuController ctrl = loader.getController();
             ctrl.setUiPane(uiPane);
 
-            // 2. Tạo overlay mờ full‐screen
+            // 3. Tạo overlay mờ full-screen
             Pane overlay = new Pane();
             overlay.setPrefSize(screenWidth, screenHeight);
             overlay.setStyle("-fx-background-color: rgba(0,0,0,0.5);");
 
-            // 3. Wrap overlay + menuPane
+            // 4. Wrap overlay + menuPane thành pauseMenu
             pauseMenu = new Pane();
             pauseMenu.setPrefSize(screenWidth, screenHeight);
             pauseMenu.getChildren().setAll(overlay, menuPane);
 
-            // 4. Center menuPane
+            // 5. Center menuPane trong màn hình
             double mx = (screenWidth - menuPane.getPrefWidth()) / 2;
             double my = (screenHeight - menuPane.getPrefHeight()) / 2;
             menuPane.setLayoutX(mx);
             menuPane.setLayoutY(my);
 
-            // 5. Add vào UI layer
+            // 6. Thêm vào UI layer
             uiPane.getChildren().add(pauseMenu);
 
 
@@ -817,8 +854,16 @@ public class GameSceneBuilder {
 
     static void hidePauseMenu(Pane uiPane) {
         if (pauseMenu != null) {
+            // 1. Remove pause menu khỏi UI layer
             uiPane.getChildren().remove(pauseMenu);
             pauseMenu = null;
+
+            if (gameLoop != null) {
+                if (playerAI != null) {
+                    playerAI.resetTimer();
+                }
+                gameLoop.start();
+            }
         }
 //        if (musicEnabled) {
 //            playBackgroundMusic();
