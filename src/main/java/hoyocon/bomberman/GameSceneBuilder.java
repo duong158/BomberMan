@@ -208,7 +208,7 @@ public class GameSceneBuilder {
 
         // them thanh mau
         StatusBar statusBar = new StatusBar(player);
-        statusBar.setTranslateX(screenWidth - 150);
+        statusBar.setTranslateX(screenWidth - 220);
         statusBar.setTranslateY(10);
         uiPane.getChildren().add(statusBar);
         System.out.println("StatusBar added to uiPane in buildContinueScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
@@ -344,7 +344,7 @@ public class GameSceneBuilder {
 
         //them thanh mau
         StatusBar statusBar = new StatusBar(playerComponent);
-        statusBar.setTranslateX(screenWidth - 150);
+        statusBar.setTranslateX(screenWidth - 220);
         statusBar.setTranslateY(10);
         uiPane.getChildren().add(statusBar);
         System.out.println("StatusBar added to uiPane in buildGameScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
@@ -661,7 +661,7 @@ public class GameSceneBuilder {
         uiPane.setPrefWidth(screenWidth);
         uiPane.setPrefHeight(screenHeight);
         StatusBar statusBar = new StatusBar(player);
-        statusBar.setTranslateX(screenWidth - 150);
+        statusBar.setTranslateX(screenWidth - 220);
         statusBar.setTranslateY(10);
         uiPane.getChildren().add(statusBar);
         System.out.println("StatusBar added to uiPane in buildGameSceneWithState at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
