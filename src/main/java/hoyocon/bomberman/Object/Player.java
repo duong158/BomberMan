@@ -1,36 +1,30 @@
 package hoyocon.bomberman.Object;
 
-import com.almasb.fxgl.dsl.FXGL;
-import com.almasb.fxgl.entity.Entity;
-import hoyocon.bomberman.EntitiesState.EntityType;
-import hoyocon.bomberman.EntitiesState.State;
-import hoyocon.bomberman.Main;
-import hoyocon.bomberman.Map.GMap;
-import javafx.animation.AnimationTimer;
-import javafx.animation.PauseTransition;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.geometry.Bounds;
-import javafx.scene.layout.Pane;
-import hoyocon.bomberman.GameSceneBuilder;
-import hoyocon.bomberman.Buff.BuffGeneric;
-import javafx.scene.layout.Pane;
-import hoyocon.bomberman.Object.Bomb;
-
-import com.almasb.fxgl.entity.component.Component;
-import com.almasb.fxgl.texture.AnimatedTexture;
-import com.almasb.fxgl.texture.AnimationChannel;
-import javafx.scene.media.AudioClip;
-import javafx.util.Duration;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.almasb.fxgl.entity.component.Component;
+import com.almasb.fxgl.texture.AnimatedTexture;
+import com.almasb.fxgl.texture.AnimationChannel;
+
+import hoyocon.bomberman.Buff.BuffGeneric;
+import hoyocon.bomberman.EntitiesState.State;
+import hoyocon.bomberman.GameSceneBuilder;
 import static hoyocon.bomberman.GameSceneBuilder.camera;
 import static hoyocon.bomberman.GameSceneBuilder.gameWorld;
+import hoyocon.bomberman.Main;
+import hoyocon.bomberman.Map.GMap;
+import javafx.animation.AnimationTimer;
+import javafx.animation.PauseTransition;
+import javafx.geometry.Bounds;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
+import javafx.scene.media.AudioClip;
+import javafx.util.Duration;
 
 public class Player extends Component {
     // Vị trí người chơi
@@ -217,8 +211,12 @@ public class Player extends Component {
             if (expired) {
                 switch (entry.getKey()) {
                     case "speed" -> speed = baseSpeed;
-                    case "flameRange" -> flameRange = 1;      // reset về 1 khi flame buff hết
-                    case "bomb" -> maxBombs = Math.max(1, maxBombs - 1); // nếu bạn dùng bomb buff có thời hạn
+                    case "flameRange" -> flameRange = 1;
+                    case "bomb" -> {
+                        setMaxBombs(getMaxBombs() + 1);
+                        activeBuffs.put("bomb", System.currentTimeMillis());
+                    }
+                    default -> System.out.println("Unknown buff: " + entry.getKey());
                 }
             }
             return expired;
@@ -595,6 +593,7 @@ public class Player extends Component {
                 break;
             case "bomb":
                 setMaxBombs(getMaxBombs() + 1);
+                activeBuffs.put("bomb", System.currentTimeMillis());
                 break;
             default:
                 System.out.println("Unknown item type: " + itemType);
