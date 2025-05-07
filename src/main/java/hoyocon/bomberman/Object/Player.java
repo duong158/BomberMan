@@ -135,7 +135,7 @@ public class Player extends Component {
     }
 
     public Player() {
-        this.lives = 3;
+        this.lives = 1;
         this.speed = baseSpeed;
         this.bombCount = 0;
         this.maxBombs = 1;

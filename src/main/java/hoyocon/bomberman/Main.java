@@ -27,6 +27,12 @@ public class Main extends Application {
         try {
             mainStage = stage;
             // Load FXML với đường dẫn chính xác
+            Font.loadFont(
+                    GameSceneBuilder.class
+                            .getResource("/fonts/PressStart2P-Regular.ttf")
+                            .toExternalForm(),
+                    10   // size bất kỳ, chỉ để register
+            );
             Parent root = FXMLLoader.load(Objects.requireNonNull(
                     getClass().getResource("/hoyocon/bomberman/Start-view.fxml")
             ));

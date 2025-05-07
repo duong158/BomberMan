@@ -3,10 +3,10 @@
 <?import java.lang.String?>
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoyocon.bomberman.GameOverController">
@@ -16,55 +16,59 @@
             <Image url="@Image.jpg" />
          </image>
       </ImageView>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="687.0" layoutY="234.0" prefHeight="233.0" prefWidth="503.0" text="GameOver" textFill="WHITE">
-         <font>
-            <Font name="System Bold Italic" size="96.0" />
-         </font>
-      </Label>
-      <Button layoutX="870.0" layoutY="437.0" mnemonicParsing="false" onAction="#onRetryClicked" prefHeight="60.0" prefWidth="135.0" text="Retry" underline="true">
-         <stylesheets>
-            <URL value="@style1.css" />
-            <URL value="@style2.css" />
-            <URL value="@../../CSS/ColorChange.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="color-change" />
-            <String fx:value="invisible-button" />
-            <String fx:value="zoom-effect" />
-         </styleClass>
-         <font>
-            <Font name="System Bold Italic" size="48.0" />
-         </font>
-      </Button>
-      <Button layoutX="870.0" layoutY="556.0" mnemonicParsing="false" onAction="#onMenuClicked" prefHeight="60.0" prefWidth="135.0" text="Menu" textFill="WHITE" underline="true">
-         <stylesheets>
-            <URL value="@style1.css" />
-            <URL value="@../../CSS/ColorChange.css" />
-            <URL value="@style2.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="zoom-effect" />
-            <String fx:value="color-change" />
-            <String fx:value="invisible-button" />
-         </styleClass>
-         <font>
-            <Font name="System Bold Italic" size="48.0" />
-         </font>
-      </Button>
-      <Button layoutX="871.0" layoutY="672.0" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="60.0" prefWidth="135.0" text="Exit" textFill="WHITE" underline="true">
-         <stylesheets>
-            <URL value="@style1.css" />
-            <URL value="@style2.css" />
-            <URL value="@../../CSS/ColorChange.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="zoom-effect" />
-            <String fx:value="invisible-button" />
-            <String fx:value="color-change" />
-         </styleClass>
-         <font>
-            <Font name="System Bold Italic" size="48.0" />
-         </font>
-      </Button>
+      <ImageView fitHeight="419.0" fitWidth="656.0" layoutX="632.0" layoutY="53.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@gameover.png" />
+         </image>
+      </ImageView>
+      <VBox alignment="CENTER" layoutX="729.0" layoutY="458.0" prefHeight="464.0" prefWidth="462.0" spacing="40">
+         <children>
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#onRetryClicked" prefHeight="72.0" prefWidth="370.0" text="RETRY">
+               <stylesheets>
+                  <URL value="@style1.css" />
+                  <URL value="@style2.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="color-change" />
+                  <String fx:value="invisible-button" />
+                  <String fx:value="zoom-effect" />
+               </styleClass>
+               <font>
+                  <Font name="Press Start 2P" size="40.0" />
+               </font>
+            </Button>
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#onMenuClicked" prefHeight="72.0" prefWidth="322.0" text="MENU" textFill="WHITE">
+               <stylesheets>
+                  <URL value="@style1.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+                  <URL value="@style2.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="zoom-effect" />
+                  <String fx:value="color-change" />
+                  <String fx:value="invisible-button" />
+               </styleClass>
+               <font>
+                  <Font name="Press Start 2P" size="40.0" />
+               </font>
+            </Button>
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="72.0" prefWidth="399.0" text="EXIT" textFill="WHITE">
+               <stylesheets>
+                  <URL value="@style1.css" />
+                  <URL value="@style2.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="zoom-effect" />
+                  <String fx:value="invisible-button" />
+                  <String fx:value="color-change" />
+               </styleClass>
+               <font>
+                  <Font name="Press Start 2P" size="40.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

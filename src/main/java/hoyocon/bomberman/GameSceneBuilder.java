@@ -175,9 +175,9 @@ public class GameSceneBuilder {
         allEnemyEntities.clear();
         bombEntities.clear();
         explosionEntities.clear();
-        resetMusic();
-
-        initializeMusic();
+        if (backgroundMusicPlayer == null) {
+            initializeMusic();
+        }
         initializeGameOverMusic();
 
         // → Reset translate cũ của gameWorld
@@ -843,6 +843,7 @@ public class GameSceneBuilder {
             menuPane.setLayoutX(mx);
             menuPane.setLayoutY(my);
 
+
             // 6. Thêm vào UI layer
             uiPane.getChildren().add(pauseMenu);
 
@@ -857,6 +858,7 @@ public class GameSceneBuilder {
             // 1. Remove pause menu khỏi UI layer
             uiPane.getChildren().remove(pauseMenu);
             pauseMenu = null;
+            resumeAll();
 
             if (gameLoop != null) {
                 if (playerAI != null) {
@@ -889,7 +891,7 @@ public class GameSceneBuilder {
 
     public static void initializeGameOverMusic() {
         try {
-            String musicFile = "/assets/sounds/player_die.wav"; // Path to game over music
+            String musicFile = "/assets/music/deadgod.mp3"; // Path to game over music
             Media gameOverMusic = new Media(GameSceneBuilder.class.getResource(musicFile).toExternalForm());
             gameOverMusicPlayer = new MediaPlayer(gameOverMusic);
             gameOverMusicPlayer.setVolume(0.5);

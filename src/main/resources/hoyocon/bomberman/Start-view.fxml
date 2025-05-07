@@ -8,6 +8,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" stylesheets="@style1.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoyocon.bomberman.StartController">
@@ -26,44 +27,110 @@
          </image>
       </ImageView>
 
-      <!-- Start Button -->
-      <Button layoutX="805.0" layoutY="336.0" mnemonicParsing="false" onAction="#onStartClicked" prefHeight="86.0" prefWidth="311.0" text="Start" textAlignment="CENTER" textFill="WHITE" underline="true">
-         <font><Font name="System Bold" size="48.0" /></font>
-         <stylesheets>
-            <URL value="@style2.css" />
-            <URL value="@style1.css" />
-            <URL value="@../../CSS/ColorChange.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="invisible-button" />
-            <String fx:value="zoom-effect" />
-            <String fx:value="color-change" />
-         </styleClass>
-      </Button>
-
-      <!-- How To Play Button -->
-      <Button layoutX="826.0" layoutY="530.0" mnemonicParsing="false" onAction="#onHowToPlayClicked" text="How To Play" textFill="WHITE" underline="true">
-         <font>
-            <Font name="System Bold" size="48.0" />
-         </font>
-         <stylesheets>
-            <URL value="@style1.css" />
-            <URL value="@style2.css" />
-            <URL value="@../../CSS/ColorChange.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="invisible-button" />
-            <String fx:value="zoom-effect" />
-            <String fx:value="color-change" />
-         </styleClass>
-      </Button>
-
       <!-- Title Label -->
       <Label alignment="CENTER" layoutX="1094.0" layoutY="292.0" prefHeight="70.0" prefWidth="262.0" text="-HoyoCon-">
          <font>
             <Font name="System Bold Italic" size="48.0" />
          </font>
       </Label>
+      <VBox alignment="CENTER" layoutX="661.0" layoutY="400.0" prefHeight="500.0" prefWidth="600.0" spacing="20.0">
+         <children>
+      
+            <!-- Start Button -->
+            <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onStartClicked" prefHeight="100.0" prefWidth="450.0" text="START" textFill="WHITE">
+               <font>
+                  <Font name="Press Start 2P" size="30.0" />
+               </font>
+               <stylesheets>
+                  <URL value="@style2.css" />
+                  <URL value="@style1.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="invisible-button" />
+                  <String fx:value="zoom-effect" />
+                  <String fx:value="color-change" />
+               </styleClass>
+            </Button>
+      
+            <!-- How To Play Button -->
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#onHowToPlayClicked" prefHeight="100.0" prefWidth="450.0" text="HOW TO PLAY" textFill="WHITE">
+               <font>
+                  <Font name="Press Start 2P" size="30.0" />
+               </font>
+               <stylesheets>
+                  <URL value="@style1.css" />
+                  <URL value="@style2.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="invisible-button" />
+                  <String fx:value="zoom-effect" />
+                  <String fx:value="color-change" />
+               </styleClass>
+            </Button>
+            <Button fx:id="autoPlayButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onAutoPlayClicked" prefHeight="100.0" prefWidth="450.0" text="AUTO PLAY: Off" textFill="WHITE">
+               <font>
+                  <Font name="Press Start 2P" size="30.0" />
+               </font>
+               <stylesheets>
+                  <URL value="@../../CSS/ColorChange.css" />
+                  <URL value="@style2.css" />
+                  <URL value="@style1.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="color-change" />
+                  <String fx:value="invisible-button" />
+                  <String fx:value="zoom-effect" />
+               </styleClass>
+            </Button>
+            <Button alignment="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="450.0" text="PLAY TOP LEVEL" textFill="WHITE">
+               <font>
+                  <Font name="Press Start 2P" size="30.0" />
+               </font>
+               <stylesheets>
+                  <URL value="@style2.css" />
+                  <URL value="@style1.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="color-change" />
+                  <String fx:value="invisible-button" />
+                  <String fx:value="zoom-effect" />
+               </styleClass>
+            </Button>
+            <Button alignment="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="450.0" text="SAVE LEVEL" textFill="WHITE">
+               <font>
+                  <Font name="Press Start 2P" size="30.0" />
+               </font>
+               <stylesheets>
+                  <URL value="@style2.css" />
+                  <URL value="@style1.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="color-change" />
+                  <String fx:value="invisible-button" />
+                  <String fx:value="zoom-effect" />
+               </styleClass>
+            </Button>
+            <Button fx:id="onExitClicked" alignment="CENTER" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="100.0" prefWidth="450.0" text="QUIT" textFill="WHITE">
+               <font>
+                  <Font name="Press Start 2P" size="30.0" />
+               </font>
+               <stylesheets>
+                  <URL value="@style2.css" />
+                  <URL value="@style1.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="invisible-button" />
+                  <String fx:value="zoom-effect" />
+                  <String fx:value="color-change" />
+               </styleClass>
+            </Button>
+         </children>
+      </VBox>
 
       <!-- Music Button Group -->
       <StackPane layoutX="1503.0" layoutY="861.0">
@@ -124,65 +191,5 @@
             </styleClass>
          </Button>
       </StackPane>
-      <Button fx:id="onExitClicked" layoutX="826.0" layoutY="818.0" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="86.0" prefWidth="262.0" text="Quit" textFill="WHITE" underline="true">
-         <font>
-            <Font name="System Bold" size="48.0" />
-         </font>
-         <stylesheets>
-            <URL value="@style2.css" />
-            <URL value="@style1.css" />
-            <URL value="@../../CSS/ColorChange.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="invisible-button" />
-            <String fx:value="zoom-effect" />
-            <String fx:value="color-change" />
-         </styleClass>
-      </Button>
-      <Button layoutX="797.0" layoutY="602.0" mnemonicParsing="false" prefHeight="102.0" prefWidth="343.0" text="Save Level" textFill="WHITE" underline="true">
-         <font>
-            <Font name="System Bold" size="48.0" />
-         </font>
-         <stylesheets>
-            <URL value="@style2.css" />
-            <URL value="@style1.css" />
-            <URL value="@../../CSS/ColorChange.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="color-change" />
-            <String fx:value="invisible-button" />
-            <String fx:value="zoom-effect" />
-         </styleClass>
-      </Button>
-      <Button fx:id="autoPlayButton" alignment="CENTER" contentDisplay="CENTER" layoutX="751.0" layoutY="704.0" mnemonicParsing="false" onAction="#onAutoPlayClicked" prefHeight="102.0" prefWidth="435.0" text="Auto Play" textFill="WHITE" underline="true">
-         <font>
-            <Font name="System Bold" size="48.0" />
-         </font>
-         <stylesheets>
-            <URL value="@../../CSS/ColorChange.css" />
-            <URL value="@style2.css" />
-            <URL value="@style1.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="color-change" />
-            <String fx:value="invisible-button" />
-            <String fx:value="zoom-effect" />
-         </styleClass>
-      </Button>
-      <Button layoutX="736.0" layoutY="422.0" mnemonicParsing="false" prefHeight="102.0" prefWidth="449.0" text="Play Top Level" textFill="WHITE" underline="true">
-         <font>
-            <Font name="System Bold" size="48.0" />
-         </font>
-         <stylesheets>
-            <URL value="@style2.css" />
-            <URL value="@style1.css" />
-            <URL value="@../../CSS/ColorChange.css" />
-         </stylesheets>
-         <styleClass>
-            <String fx:value="color-change" />
-            <String fx:value="invisible-button" />
-            <String fx:value="zoom-effect" />
-         </styleClass>
-      </Button>
    </children>
 </AnchorPane>
