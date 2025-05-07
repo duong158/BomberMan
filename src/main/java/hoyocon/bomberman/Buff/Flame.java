@@ -22,15 +22,12 @@ public class Flame implements BuffGeneric {
     }
 
     @Override
-    public String getName() { return "flameRange"; }
+    public String getName() {
+        return "Flame";
+    }
 
     @Override
     public Image getIcon() {
         return icon;
-    }
-
-    @Override
-    public String getType() {
-        return getName();
     }
 }

@@ -15,7 +15,6 @@
         <Image url="@../../assets/textures/a-o-t-pixelcastle-1920.jpg" />
       </image>
     </ImageView>
-
     <!-- VBox căn giữa, spacing=20 để chia đều khoảng cách -->
     <VBox alignment="CENTER" prefHeight="540.0" prefWidth="960.0" spacing="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
@@ -38,5 +37,10 @@
         </Button>
       </children>
     </VBox>
+      <Button fx:id="musicToggleBtn" alignment="TOP_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onToggleMusic" style="-fx-background-color: transparent; -fx-border-color: transparent;" text="♫ON" textFill="WHITE">
+         <font>
+           <Font name="Press Start 2P" size="20.0" />
+         </font>
+      </Button>
   </children>
 </AnchorPane>

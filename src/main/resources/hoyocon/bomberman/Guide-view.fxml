@@ -46,7 +46,7 @@
          </graphic>
       </Button>
 
-      <Button fx:id="nextRound" layoutX="1433.0" layoutY="688.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
+      <Button fx:id="nextRound" layoutX="1423.0" layoutY="683.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
          <graphic>
             <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                <Image url="@portal.png" />
@@ -152,32 +152,32 @@
             <String fx:value="color-change" />
          </styleClass>
       </Button>
-      <Label fx:id="LabelOfESC" layoutX="449.0" layoutY="581.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+      <Label fx:id="LabelOfESC" layoutX="449.0" layoutY="631.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfnextRound" layoutX="1458.0" layoutY="528.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+      <Label fx:id="LabelOfnextRound" alignment="CENTER" layoutX="1224.0" layoutY="511.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfBuffBomb" layoutX="985.0" layoutY="108.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+      <Label fx:id="LabelOfBuffBomb" alignment="CENTER" layoutX="736.0" layoutY="108.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfBuffFlame" layoutX="985.0" layoutY="285.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+      <Label fx:id="LabelOfBuffFlame" alignment="CENTER" layoutX="736.0" layoutY="307.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfBuffSpeed" layoutX="985.0" layoutY="504.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+      <Label fx:id="LabelOfBuffSpeed" alignment="CENTER" layoutX="736.0" layoutY="511.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Button fx:id="itemBuffLife" layoutX="1426.0" layoutY="260.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
+      <Button fx:id="itemBuffLife" layoutX="1423.0" layoutY="270.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
          <graphic>
             <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -186,7 +186,7 @@
             </ImageView>
          </graphic>
       </Button>
-      <Button fx:id="itemBuffFlamePass" layoutX="1433.0" layoutY="461.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
+      <Button fx:id="itemBuffFlamePass" layoutX="1423.0" layoutY="448.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
          <graphic>
             <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -195,22 +195,22 @@
             </ImageView>
          </graphic>
       </Button>
-      <Label fx:id="LabelOfkeyBox" layoutX="512.0" layoutY="61.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+      <Label fx:id="LabelOfkeyBox" alignment="CENTER" contentDisplay="CENTER" layoutX="131.0" layoutY="21.0" prefHeight="155.0" prefWidth="448.0" text="Label" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfplaceBomb" layoutX="449.0" layoutY="363.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+      <Label fx:id="LabelOfplaceBomb" layoutX="449.0" layoutY="414.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfFlamePass" layoutX="1451.0" layoutY="295.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+      <Label fx:id="LabelOfFlamePass" alignment="CENTER" layoutX="1224.0" layoutY="295.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfLife" layoutX="1458.0" layoutY="108.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+      <Label fx:id="LabelOfLife" alignment="CENTER" layoutX="1227.0" layoutY="108.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>

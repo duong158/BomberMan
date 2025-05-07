@@ -30,7 +30,7 @@ public class StartController {
 
         // Cập nhật nhãn theo trạng thái mới
         boolean enabled = getAutoPlayState();
-        autoPlayButton.setText(enabled ? "Auto Play: ON" : "Auto Play: OFF");
+        autoPlayButton.setText(enabled ? "AUTO PLAY: On" : "AUTO PLAY: Off");
     }
 
     private boolean getAutoPlayState() {
@@ -58,7 +58,6 @@ public class StartController {
 
     @FXML
     private void initialize() {
-        autoPlayButton.setText("Auto Play");
         // Khởi tạo MediaPlayer với nhạc nền từ đường dẫn mới
         try {
             // Sử dụng đường dẫn tương đối trong thư mục resources
