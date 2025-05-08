@@ -15,6 +15,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import static hoyocon.bomberman.GameSceneBuilder.gameLoop;
+
 public class PauseMenuController {
     @FXML
     private Pane rootPane;
@@ -40,15 +42,15 @@ public class PauseMenuController {
     @FXML
     private void onContinue(ActionEvent event) {
         GameSceneBuilder.hidePauseMenu(uiPane);
-        if (GameSceneBuilder.gameLoop != null) {
-            GameSceneBuilder.gameLoop.start();
+        if (gameLoop != null) {
+            gameLoop.start();
         }
         uiPane.getScene().getRoot().requestFocus();
     }
 
     private void showConfirmationDialog(String title, String message, Runnable onConfirm) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/hoyocon/bomberman/ConfirmationDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/ConfirmationDialog.fxml"));
             VBox dialogRoot = loader.load();
             // Configure dialog
             ConfirmationDialogController controller = loader.getController();
@@ -81,7 +83,8 @@ public class PauseMenuController {
                 "Exit Game",
                 "Are you sure you want to exit the game?",
                 () -> {
-                    if (GameSceneBuilder.gameLoop != null) GameSceneBuilder.gameLoop.stop();
+                    if (gameLoop != null) gameLoop.stop();
+                    SfxManager.stopWalk();
                     Platform.exit();
                 }
         );
@@ -94,15 +97,15 @@ public class PauseMenuController {
                 "Return to Main Menu",
                 "Are you sure you want to return to the main menu? Your progress will be lost.",
                 () -> {
-                    if (GameSceneBuilder.gameLoop != null) {
-                        GameSceneBuilder.gameLoop.stop();
+                    if (gameLoop != null) {
+                        gameLoop.stop();
                     }
                     GameSceneBuilder.resetMusic();
                     GameSceneBuilder.hidePauseMenu(uiPane);
                     try {
                         // Load the main Start view
                         Parent startView = FXMLLoader.load(
-                                getClass().getResource("/hoyocon/bomberman/Start-view.fxml")
+                                getClass().getResource("/FXML/Start-view.fxml")
                         );
                         Scene startScene = new Scene(startView, 1920, 1080);
 

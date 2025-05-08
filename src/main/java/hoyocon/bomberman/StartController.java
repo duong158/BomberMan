@@ -79,7 +79,7 @@ public class StartController {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
         }
-        Parent menuView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Guide-view.fxml"));
+        Parent menuView = FXMLLoader.load(getClass().getResource("/FXML/Guide-view.fxml"));
         Scene scene = new Scene(menuView, 1920, 1080);
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(scene);

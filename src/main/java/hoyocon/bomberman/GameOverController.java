@@ -33,8 +33,8 @@ public class GameOverController {
     private void onMenuClicked(ActionEvent event) {
         GameSceneBuilder.resetMusic();
         try {
-            // Load Start-view.fxml
-            Parent menuView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Start-view.fxml"));
+            // Load
+            Parent menuView = FXMLLoader.load(getClass().getResource("/FXML/Start-view.fxml"));
             Scene menuScene = new Scene(menuView, 1920, 1080);
 
             // Lấy Stage hiện tại từ sự kiện
