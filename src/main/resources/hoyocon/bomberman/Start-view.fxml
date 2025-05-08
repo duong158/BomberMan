@@ -84,36 +84,6 @@
                   <String fx:value="zoom-effect" />
                </styleClass>
             </Button>
-            <Button alignment="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="450.0" text="PLAY TOP LEVEL" textFill="WHITE">
-               <font>
-                  <Font name="Press Start 2P" size="30.0" />
-               </font>
-               <stylesheets>
-                  <URL value="@style2.css" />
-                  <URL value="@style1.css" />
-                  <URL value="@../../CSS/ColorChange.css" />
-               </stylesheets>
-               <styleClass>
-                  <String fx:value="color-change" />
-                  <String fx:value="invisible-button" />
-                  <String fx:value="zoom-effect" />
-               </styleClass>
-            </Button>
-            <Button alignment="CENTER" mnemonicParsing="false" prefHeight="100.0" prefWidth="450.0" text="SAVE LEVEL" textFill="WHITE">
-               <font>
-                  <Font name="Press Start 2P" size="30.0" />
-               </font>
-               <stylesheets>
-                  <URL value="@style2.css" />
-                  <URL value="@style1.css" />
-                  <URL value="@../../CSS/ColorChange.css" />
-               </stylesheets>
-               <styleClass>
-                  <String fx:value="color-change" />
-                  <String fx:value="invisible-button" />
-                  <String fx:value="zoom-effect" />
-               </styleClass>
-            </Button>
             <Button fx:id="onExitClicked" alignment="CENTER" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="100.0" prefWidth="450.0" text="QUIT" textFill="WHITE">
                <font>
                   <Font name="Press Start 2P" size="30.0" />
@@ -147,7 +117,7 @@
                <String fx:value="zoom-effect" />
             </styleClass>
          </Button>
-         <Button fx:id="musicOffButton" mnemonicParsing="false" onAction="#handleMusicOn" styleClass="blue-icon-button zoom-effect" text="🎵⃠" visible="false">
+         <Button fx:id="musicOffButton" mnemonicParsing="false" onAction="#handleMusicOn" styleClass="blue-icon-button zoom-effect" text="🎵⃠" textFill="WHITE" visible="false">
             <font><Font size="24" /></font>
             <stylesheets>
                <URL value="@style1.css" />
@@ -177,7 +147,7 @@
                <String fx:value="zoom-effect" />
             </styleClass>
          </Button>
-         <Button fx:id="sfxOffButton" mnemonicParsing="false" onAction="#handleSfxOn" styleClass="blue-icon-button zoom-effect" text="🔇" visible="false">
+         <Button fx:id="sfxOffButton" mnemonicParsing="false" onAction="#handleSfxOn" styleClass="blue-icon-button zoom-effect" text="🔇" textFill="WHITE" visible="false">
             <font><Font size="24" /></font>
             <stylesheets>
                <URL value="@style1.css" />
