@@ -335,7 +335,7 @@ public class GameSceneBuilder {
 
         //them thanh mau
         StatusBar statusBar = new StatusBar(playerComponent);
-        statusBar.setTranslateX(screenWidth - 220);
+        statusBar.setTranslateX(screenWidth - 270);
         statusBar.setTranslateY(10);
         uiPane.getChildren().add(statusBar);
         System.out.println("StatusBar added to uiPane in buildGameScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());

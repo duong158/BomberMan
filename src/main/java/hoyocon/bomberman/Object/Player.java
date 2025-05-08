@@ -345,7 +345,7 @@ public class Player extends Component {
                 setState(State.UP);
                 // Làm tròn nếu gần sát vị trí nguyên
                 double snappedY = Math.round(newY);
-                if (Math.abs(snappedY - newY) < 0.001) {
+                if (Math.abs(snappedY - newY) < 1) {
                     entity.setY(snappedY);
                 } else {
                     entity.translateY(-speed * tpf);
@@ -372,7 +372,7 @@ public class Player extends Component {
                 setState(State.DOWN);
                 // Làm tròn nếu gần sát vị trí nguyên
                 double snappedY = Math.round(newY);
-                if (Math.abs(snappedY - newY) < 0.001) {
+                if (Math.abs(snappedY - newY) < 1) {
                     entity.setY(snappedY);
                 } else {
                     entity.translateY(speed * tpf);
@@ -399,7 +399,7 @@ public class Player extends Component {
                 setState(State.LEFT);
                 // Làm tròn nếu gần sát vị trí nguyên (hoặc tile)
                 double snappedX = Math.round(newX);
-                if (Math.abs(snappedX - newX) < 0.001) {
+                if (Math.abs(snappedX - newX) < 1) {
                     entity.setX(snappedX);
                 } else {
                     entity.translateX(-speed * tpf);
@@ -426,7 +426,7 @@ public class Player extends Component {
                 setState(State.RIGHT);
                 // Làm tròn nếu gần sát vị trí nguyên (hoặc tile)
                 double snappedX = Math.round(newX);
-                if (Math.abs(snappedX - newX) < 0.001) {
+                if (Math.abs(snappedX - newX) < 1) {
                     entity.setX(snappedX);
                 } else {
                     entity.translateX(speed * tpf);
