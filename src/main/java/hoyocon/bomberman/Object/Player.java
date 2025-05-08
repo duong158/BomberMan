@@ -135,10 +135,10 @@ public class Player extends Component {
     }
 
     public Player() {
-        this.lives = 1;
-        this.speed = baseSpeed;
+        lives = 1000;
+        speed = baseSpeed;
         this.bombCount = 0;
-        this.maxBombs = 1;
+        maxBombs = 1;
         this.canPlaceBomb = true;
         this.state = State.IDLE;
         this.lastAni = State.IDLE;

@@ -137,6 +137,13 @@ public class Map1 {
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
     };
+    public static int[][] getBossRoomMapData() {
+        // Đã định nghĩa sẵn trong Map1 class
+        return BOSS_ROOM_MAP;
+    }
+
+    // Thêm hằng số cho BOSS
+    public static final int BOSS = 10;
 
     private void placeEntranceAndExit(int[][] map) {
         int height = map.length;
