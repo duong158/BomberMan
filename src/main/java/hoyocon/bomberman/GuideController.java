@@ -46,12 +46,12 @@ public class GuideController {
         });
         setupHover(keyBox, LabelOfkeyBox, "Dùng các phím A, W, S, D để di chuyển nhân vật.");
         setupHover(placeBomb, LabelOfplaceBomb, "Cho phép người chơi đăt bom tại vị trí tương ứng, số lượng đặt cùng lúc có thể"
-                + " thay đổi nhưng không thể đặt 2 quả bom cùng một vị trí, ngoài ra thời gian nổ của bom là 2s.");
+                + " thay đổi nhưng không thể đặt 2 quả bom cùng một vị trí.");
         setupHover(itemBuffBomb, LabelOfBuffBomb, "Tăng số lượng bom có thể đặt cùng lúc thêm 1, không cố định số lượng tối đa.");
-        setupHover(itemBuffFlame, LabelOfBuffFlame, "Phạm vi nổ của bom tăng thêm 1 trong 10s.");
-        setupHover(itemBuffSpeed, LabelOfBuffSpeed, "Tốc độ di chuyển của người chơi tăng lên đáng kể trong 10s.");
-        setupHover(nextRound, LabelOfnextRound, "Mục tiêu hướng tới của mỗi màn chơi, bạn cần phải đến đó để qua màn");
-        setupHover(ESC, LabelOfESC, "Ấm áp nhắc nhở : đây là phím tắt để bạn có thể quay lại các giao diện khi cần thiết");
+        setupHover(itemBuffFlame, LabelOfBuffFlame, "Tăng phạm vi nổ của bom tăng trong 10s.");
+        setupHover(itemBuffSpeed, LabelOfBuffSpeed, "Tăng tốc độ di chuyển của người chơi lên đáng kể trong 10s.");
+        setupHover(nextRound, LabelOfnextRound, "Đích đến của hành trình.");
+        setupHover(ESC, LabelOfESC, "Nhấn vào để bạn có thể quay lại các giao diện khi cần thiết");
         setupHover(itemBuffFlamePass, LabelOfFlamePass, "Cho phép người chơi có khả năng kháng hỏa trong 10s ngắn ngủi.");
         setupHover(itemBuffLife, LabelOfLife, "Hồi lại một sinh mạng cho người chơi.");
         LabelOfkeyBox.setVisible(false);
@@ -66,41 +66,6 @@ public class GuideController {
     }
 
     private void setupHover(Node node,Label label, String text) {
-        node.setOnMouseEntered(e -> {
-            label.setText(text);
-            label.setVisible(true);
-        });
-        node.setOnMouseExited(e -> label.setVisible(false));
-        node.setOnMouseEntered(e -> {
-            label.setText(text);
-            label.setVisible(true);
-        });
-        node.setOnMouseExited(e -> label.setVisible(false));
-
-        node.setOnMouseEntered(e -> {
-            label.setText(text);
-            label.setVisible(true);
-        });
-        node.setOnMouseExited(e -> label.setVisible(false));
-
-        node.setOnMouseEntered(e -> {
-            label.setText(text);
-            label.setVisible(true);
-        });
-        node.setOnMouseExited(e -> label.setVisible(false));
-
-        node.setOnMouseEntered(e -> {
-            label.setText(text);
-            label.setVisible(true);
-        });
-        node.setOnMouseExited(e -> label.setVisible(false));
-
-        node.setOnMouseEntered(e -> {
-            label.setText(text);
-            label.setVisible(true);
-        });
-        node.setOnMouseExited(e -> label.setVisible(false));
-
         node.setOnMouseEntered(e -> {
             label.setText(text);
             label.setVisible(true);

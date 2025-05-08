@@ -30,7 +30,7 @@
             </graphic>
         </Button>
 
-        <Button fx:id="itemBuffFlame" layoutX="935.0" layoutY="448.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
+        <Button fx:id="itemBuffFlame" layoutX="935.0" layoutY="525.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
             <graphic>
                 <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                     <Image url="@../hoyocon/bomberman/powerup_flames.png" />
@@ -38,7 +38,7 @@
             </graphic>
         </Button>
 
-        <Button fx:id="itemBuffSpeed" layoutX="935.0" layoutY="683.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
+        <Button fx:id="itemBuffSpeed" layoutX="935.0" layoutY="761.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
             <graphic>
                 <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                     <Image url="@../hoyocon/bomberman/powerup_speed.png" />
@@ -46,7 +46,7 @@
             </graphic>
         </Button>
 
-        <Button fx:id="nextRound" layoutX="1423.0" layoutY="683.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
+        <Button fx:id="nextRound" layoutX="1423.0" layoutY="761.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
             <graphic>
                 <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                     <Image url="@../hoyocon/bomberman/portal.png" />
@@ -123,7 +123,7 @@
         </GridPane>
 
         <!-- Other Controls -->
-        <Button fx:id="ESC" layoutX="325.0" layoutY="678.0" text="ESC" textFill="#f5f5f5">
+        <Button fx:id="ESC" layoutX="325.0" layoutY="761.0" text="ESC" textFill="#f5f5f5">
             <font>
                 <Font name="System Bold" size="18.0" />
             </font>
@@ -137,7 +137,7 @@
             </styleClass>
         </Button>
 
-        <Button fx:id="placeBomb" layoutX="288.0" layoutY="461.0" text="SPACE">
+        <Button fx:id="placeBomb" layoutX="289.0" layoutY="520.0" text="SPACE">
             <font>
                 <Font size="18.0" />
             </font>
@@ -152,32 +152,32 @@
                 <String fx:value="color-change" />
             </styleClass>
         </Button>
-        <Label fx:id="LabelOfESC" layoutX="449.0" layoutY="631.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+        <Label fx:id="LabelOfESC" layoutX="385.0" layoutY="606.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
             <font>
-                <Font name="System Bold" size="18.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
-        <Label fx:id="LabelOfnextRound" alignment="CENTER" layoutX="1224.0" layoutY="511.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+        <Label fx:id="LabelOfnextRound" alignment="CENTER" layoutX="1458.0" layoutY="606.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
             <font>
-                <Font name="System Bold" size="18.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
-        <Label fx:id="LabelOfBuffBomb" alignment="CENTER" layoutX="736.0" layoutY="108.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+        <Label fx:id="LabelOfBuffBomb" alignment="CENTER" layoutX="949.0" layoutY="92.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
             <font>
-                <Font name="System Bold" size="18.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
-        <Label fx:id="LabelOfBuffFlame" alignment="CENTER" layoutX="736.0" layoutY="307.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+        <Label fx:id="LabelOfBuffFlame" alignment="CENTER" layoutX="960.0" layoutY="343.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
             <font>
-                <Font name="System Bold" size="18.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
-        <Label fx:id="LabelOfBuffSpeed" alignment="CENTER" layoutX="736.0" layoutY="511.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+        <Label fx:id="LabelOfBuffSpeed" alignment="CENTER" layoutX="949.0" layoutY="606.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
             <font>
-                <Font name="System Bold" size="18.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
-        <Button fx:id="itemBuffLife" layoutX="1423.0" layoutY="270.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
+        <Button fx:id="itemBuffLife" layoutX="1433.0" layoutY="270.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
             <graphic>
                 <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                     <image>
@@ -186,7 +186,7 @@
                 </ImageView>
             </graphic>
         </Button>
-        <Button fx:id="itemBuffFlamePass" layoutX="1423.0" layoutY="448.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
+        <Button fx:id="itemBuffFlamePass" layoutX="1433.0" layoutY="515.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
             <graphic>
                 <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                     <image>
@@ -195,26 +195,30 @@
                 </ImageView>
             </graphic>
         </Button>
-        <Label fx:id="LabelOfkeyBox" alignment="CENTER" contentDisplay="CENTER" layoutX="131.0" layoutY="21.0" prefHeight="155.0" prefWidth="448.0" text="Label" textAlignment="CENTER" textFill="WHITE" wrapText="true">
+        <Label fx:id="LabelOfkeyBox" alignment="CENTER" contentDisplay="CENTER" layoutX="385.0" layoutY="14.0" prefHeight="155.0" prefWidth="448.0" text="Label" textAlignment="CENTER" textFill="WHITE" wrapText="true">
             <font>
-                <Font name="System Bold" size="18.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
-        <Label fx:id="LabelOfplaceBomb" layoutX="449.0" layoutY="414.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+        <Label fx:id="LabelOfplaceBomb" layoutX="380.0" layoutY="343.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
             <font>
-                <Font name="System Bold" size="18.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
-        <Label fx:id="LabelOfFlamePass" alignment="CENTER" layoutX="1224.0" layoutY="295.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+        <Label fx:id="LabelOfFlamePass" alignment="CENTER" layoutX="1473.0" layoutY="335.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
             <font>
-                <Font name="System Bold" size="18.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
-        <Label fx:id="LabelOfLife" alignment="CENTER" layoutX="1227.0" layoutY="108.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+        <Label fx:id="LabelOfLife" alignment="CENTER" layoutX="1458.0" layoutY="108.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
             <font>
-                <Font name="System Bold" size="18.0" />
+                <Font name="System Bold" size="24.0" />
             </font>
         </Label>
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="567.0" layoutY="902.0" prefHeight="105.0" prefWidth="788.0" text="Gợi ý: chế độ Auto Play ngoài bật bên ngoài, còn có thể dùng phím tắt F1." textFill="WHITE">
+         <font>
+            <Font name="System Bold Italic" size="24.0" />
+         </font>
+      </Label>
     </children>
 </AnchorPane>
-
