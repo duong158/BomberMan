@@ -1,6 +1,9 @@
 package hoyocon.bomberman;
 
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.texture.AnimatedTexture;
+import com.almasb.fxgl.texture.AnimationChannel;
+import hoyocon.bomberman.Camera.CameraFrog;
 import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.Map.Map1;
@@ -59,6 +62,8 @@ public class GameSceneBuilder {
     private static Pane pauseMenu = null;
 
     public static Group gameWorld = new Group();
+
+    public static CameraFrog cameraFrog;
 
     public static Camera camera;
 
@@ -180,6 +185,9 @@ public class GameSceneBuilder {
 
         // 3. Xây dựng scene va camera mới từ vị trí start
         Scene scene = buildGameScene(GMap.TILE_SIZE, GMap.TILE_SIZE);
+        if (cameraFrog != null) {
+            cameraFrog.reset();
+        }
         if (camera != null) {
             camera.reset();
         }
@@ -197,14 +205,22 @@ public class GameSceneBuilder {
     private static Scene buildGameScene(double startX, double startY) {
         // Container chính cho toàn bộ scene
         Pane gamePane = new Pane();
+
+        Pane gameWorldContainer = new Pane();
+
         GameSceneBuilder.explosionEntities.clear();
 
         gamePane.setStyle("-fx-background-color: black;");
 
         // Thêm gameWorld và uiPane vào gamePane
         Pane uiPane = new Pane(); // UI layer for StatusBar
-        gamePane.getChildren().addAll(gameWorld, uiPane);
+
         uiPane.setStyle("-fx-background-color: transparent;");
+
+        // Thêm fogPane vào cùng container với gameWorld
+        Pane fogPane = new Pane();
+        gameWorldContainer.getChildren().addAll(gameWorld, fogPane);
+        gamePane.getChildren().addAll(gameWorldContainer, uiPane);
 
         gamePane.setFocusTraversable(true);
 
@@ -315,15 +331,26 @@ public class GameSceneBuilder {
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
         int worldHeight = gameGMap.height * (int)GMap.TILE_SIZE;
 
-        // Tạo camera theo dõi người chơi
-        camera = new Camera(
-                gameWorld,
-                playerEntity.getViewComponent().getParent(),
-                (int)screenWidth,
-                (int)screenHeight,
-                worldWidth,
-                worldHeight
-        );
+        if (Player.getLevel() >= 2) {
+            camera = null;
+            cameraFrog = new CameraFrog(fogPane,
+                    gameWorld,
+                    playerEntity.getViewComponent().getParent(),
+                    (int)screenWidth,
+                    (int)screenHeight,
+                    worldWidth,
+                    worldHeight
+            );
+        } else {
+            camera = new Camera(gameWorld,
+                    playerEntity.getViewComponent().getParent(),
+                    (int)screenWidth,
+                    (int)screenHeight,
+                    worldWidth,
+                    worldHeight
+            );
+            cameraFrog = null;
+        }
 
         Scene scene = new Scene(gamePane, screenWidth, screenHeight);
 
