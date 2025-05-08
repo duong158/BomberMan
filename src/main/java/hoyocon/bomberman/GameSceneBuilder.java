@@ -228,7 +228,16 @@ public class GameSceneBuilder {
         gamePane.setFocusTraversable(true);
 
         // Tạo và hiển thị map
-        GMap gameGMap = new GMap(Map1.getMapData(60, 40, 0.3f));
+        GMap gameGMap;
+        if (Player.getLevel() == 4) {
+            // Sử dụng boss room map
+            gameGMap = new GMap(Map1.getBossRoomMapData());
+            System.out.println("Loading Boss Room Map for Level 4");
+        } else {
+            // Sử dụng map thông thường
+            gameGMap = new GMap(Map1.getMapData(60, 40, 0.3f));
+            System.out.println("Loading Regular Map for Level " + Player.getLevel());
+        }
         gameGMap.render();
         gameWorld.getChildren().add(gameGMap.getCanvas());  // Thêm vào gameWorld thay vì gamePane
 
@@ -284,6 +293,27 @@ public class GameSceneBuilder {
         } catch (Exception e) {
             System.err.println("Error setting up enemies: " + e.getMessage());
             e.printStackTrace();
+        }
+        if (Player.getLevel() == 4) {
+            try {
+                // Vị trí center của boss trong map
+                int bossRow = 6;  // Hàng thứ 7 (index từ 0)
+                int bossCol = 8;  // Cột thứ 9 (index từ 0)
+
+                // Tạo instance của Boss
+                Boss boss = new Boss(bossCol, bossRow);
+
+                // Tạo entity và thêm vào gameWorld
+                Entity bossEntity = boss.createEntity();
+                gameWorld.getChildren().add(bossEntity.getViewComponent().getParent());
+
+                // Lưu trữ boss để xử lý logic sau này nếu cần
+                // Ví dụ: có thể thêm vào một danh sách Boss riêng
+                System.out.println("Boss spawned at row=" + bossRow + ", col=" + bossCol);
+            } catch (Exception e) {
+                System.err.println("Error spawning boss: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
 
         // Tạo entity và thêm Player component

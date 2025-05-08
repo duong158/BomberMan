@@ -218,23 +218,18 @@ public class Player extends Component {
 
     // Enhanced collision detection
     private boolean canMoveTo(double newX, double newY) {
-        if (gameGMap == null)
-            return true;
+        if (gameGMap == null) return true;
 
-        double[][] pts = getHitboxPoints(newX, newY);
-        for (double[] p : pts) {
-            int col = GMap.pixelToTile(p[0]);
-            int row = GMap.pixelToTile(p[1]);
+        double[][] hitboxPoints = getHitboxPoints(newX, newY);
 
-            // 1. Cản tường/gạch
-            if (row < 0 || row >= gameGMap.height
-                    || col < 0 || col >= gameGMap.width
-                    || !gameGMap.isWalkable(row, col)) {
+        for (double[] point : hitboxPoints) {
+            int col = GMap.pixelToTile(point[0]);
+            int row = GMap.pixelToTile(point[1]);
+
+            if (row < 0 || row >= gameGMap.height || col < 0 || col >= gameGMap.width || !gameGMap.isWalkable(row, col)) {
                 return false;
             }
-            
         }
-
         return true;
     }
 
@@ -242,7 +237,7 @@ public class Player extends Component {
         this.lives = 3;
         this.speed = baseSpeed;
         this.bombCount = 0;
-        this.maxBombs = 1;
+        maxBombs = 1;
         this.canPlaceBomb = true;
         this.state = State.IDLE;
         this.lastAni = State.IDLE;
@@ -341,113 +336,113 @@ public class Player extends Component {
         });
     }
 
-
     public boolean moveUp(double tpf) {
-        if (state == State.DEAD) return false;
+        if(state != State.DEAD) {
+            double newX = entity.getX();
+            double newY = entity.getY() - speed * tpf;
 
-        double newX = entity.getX();
-        double newY = entity.getY() - speed * tpf;
-
-        if (canMoveTo(newX, newY)) {
-            setState(State.UP);
-            entity.translateY(-speed * tpf);
-            return true;
-        }
-        else if (tryPushBomb(0, -1)) {
-            setState(State.UP);
-            entity.translateY(-speed * tpf);
-            return true;
-        }
-
-        setState(State.UP);
-        double safe = findSafeDistance(entity.getX(), entity.getY(), 0, -1, speed * tpf);
-        if (safe > 0) {
-            entity.translateY(-safe);
-            return true;
+            if (canMoveTo(newX, newY)) {
+                setState(State.UP);
+                // Làm tròn nếu gần sát vị trí nguyên
+                double snappedY = Math.round(newY);
+                if (Math.abs(snappedY - newY) < 0.001) {
+                    entity.setY(snappedY);
+                } else {
+                    entity.translateY(-speed * tpf);
+                }
+                return true;
+            } else {
+                setState(State.UP);
+                double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 0, -1, speed * tpf);
+                if (safeDistance > 0) {
+                    entity.translateY(-safeDistance);
+                    return true;
+                }
+            }
         }
         return false;
     }
-
 
     public boolean moveDown(double tpf) {
-        if (state == State.DEAD) return false;
+        if(state != State.DEAD) {
+            double newX = entity.getX();
+            double newY = entity.getY() + speed * tpf;
 
-        double newX = entity.getX();
-        double newY = entity.getY() + speed * tpf;
-
-        if (canMoveTo(newX, newY)) {
-            setState(State.DOWN);
-            entity.translateY(speed * tpf);
-            return true;
-        }
-        else if (tryPushBomb(0, +1)) {
-            setState(State.DOWN);
-            entity.translateY(speed * tpf);
-            return true;
-        }
-
-        setState(State.DOWN);
-        double safe = findSafeDistance(entity.getX(), entity.getY(), 0, 1, speed * tpf);
-        if (safe > 0) {
-            entity.translateY(safe);
-            return true;
+            if (canMoveTo(newX, newY)) {
+                setState(State.DOWN);
+                // Làm tròn nếu gần sát vị trí nguyên
+                double snappedY = Math.round(newY);
+                if (Math.abs(snappedY - newY) < 0.001) {
+                    entity.setY(snappedY);
+                } else {
+                    entity.translateY(speed * tpf);
+                }
+                return true;
+            } else {
+                setState(State.DOWN);
+                double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 0, 1, speed * tpf);
+                if (safeDistance > 0) {
+                    entity.translateY(safeDistance);
+                    return true;
+                }
+            }
         }
         return false;
     }
 
-
     public boolean moveLeft(double tpf) {
-        if (state == State.DEAD) return false;
+        if(state != State.DEAD) {
+            double newX = entity.getX() - speed * tpf;
+            double newY = entity.getY();
 
-        double newX = entity.getX() - speed * tpf;
-        double newY = entity.getY();
-
-        if (canMoveTo(newX, newY)) {
-            setState(State.LEFT);
-            entity.translateX(-speed * tpf);
-            return true;
-        }
-        else if (tryPushBomb(-1, 0)) {
-            setState(State.LEFT);
-            entity.translateX(-speed * tpf);
-            return true;
-        }
-
-        setState(State.LEFT);
-        double safe = findSafeDistance(entity.getX(), entity.getY(), -1, 0, speed * tpf);
-        if (safe > 0) {
-            entity.translateX(-safe);
-            return true;
+            if (canMoveTo(newX, newY)) {
+                setState(State.LEFT);
+                // Làm tròn nếu gần sát vị trí nguyên (hoặc tile)
+                double snappedX = Math.round(newX);
+                if (Math.abs(snappedX - newX) < 0.001) {
+                    entity.setX(snappedX);
+                } else {
+                    entity.translateX(-speed * tpf);
+                }
+                return true;
+            } else {
+                setState(State.LEFT);
+                double safeDistance = findSafeDistance(entity.getX(), entity.getY(), -1, 0, speed * tpf);
+                if (safeDistance > 0) {
+                    entity.translateX(-safeDistance);
+                    return true;
+                }
+            }
         }
         return false;
     }
 
     public boolean moveRight(double tpf) {
-        if (state == State.DEAD) return false;
+        if(state != State.DEAD) {
+            double newX = entity.getX() + speed * tpf;
+            double newY = entity.getY();
 
-        double newX = entity.getX() + speed * tpf;
-        double newY = entity.getY();
-
-        if (canMoveTo(newX, newY)) {
-            setState(State.RIGHT);
-            entity.translateX(speed * tpf);
-            return true;
-        }
-        else if (tryPushBomb(+1, 0)) {
-            setState(State.RIGHT);
-            entity.translateX(speed * tpf);
-            return true;
-        }
-
-        setState(State.RIGHT);
-        double safe = findSafeDistance(entity.getX(), entity.getY(), 1, 0, speed * tpf);
-        if (safe > 0) {
-            entity.translateX(safe);
-            return true;
+            if (canMoveTo(newX, newY)) {
+                setState(State.RIGHT);
+                // Làm tròn nếu gần sát vị trí nguyên (hoặc tile)
+                double snappedX = Math.round(newX);
+                if (Math.abs(snappedX - newX) < 0.001) {
+                    entity.setX(snappedX);
+                } else {
+                    entity.translateX(speed * tpf);
+                }
+                return true;
+            } else {
+                setState(State.RIGHT);
+                double safeDistance = findSafeDistance(entity.getX(), entity.getY(), 1, 0, speed * tpf);
+                if (safeDistance > 0) {
+                    entity.translateX(safeDistance);
+                    return true;
+                }
+            }
         }
         return false;
     }
-
 
     private double findSafeDistance(double startX, double startY, int dirX, int dirY, double maxDistance) {
         double safeDistance = 0;
@@ -497,10 +492,12 @@ public class Player extends Component {
             }
         }
 
+        // 2) Giới hạn theo maxBombs
         if (bombCount >= maxBombs) {
             return false;
         }
 
+        // Đặt bom mới
         bombCount++;
         Bomb bombComponent = new Bomb(this, gamePane);
         AnimatedTexture bombTexture = bombComponent.getTexture();
