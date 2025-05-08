@@ -1,6 +1,5 @@
 package hoyocon.bomberman;
 
-import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.texture.AnimatedTexture;
 import com.almasb.fxgl.texture.AnimationChannel;
@@ -11,26 +10,22 @@ import hoyocon.bomberman.Map.Map1;
 import hoyocon.bomberman.Object.EnemyGroup.*;
 import hoyocon.bomberman.Object.Player;
 import hoyocon.bomberman.AI.PlayerAIController;
-import hoyocon.bomberman.Object.Bomb;
 
 import java.io.IOException;
 import java.util.*;
-
-import hoyocon.bomberman.Object.Player;
-import hoyocon.bomberman.Save.*;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
-import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.scene.Group;
@@ -45,10 +40,9 @@ import hoyocon.bomberman.StatusBar; // Thêm import cho StatusBar
 import javafx.util.Duration;
 
 public class GameSceneBuilder {
+    public static PlayerAIController playerAI;
     private static boolean autoPlayEnabled = false;
     private static Player lastPlayer;
-    private static double savedX = 195;
-    private static double savedY = 70;
 
     private static final double screenWidth = 1920;
     private static final double screenHeight = 1080;
@@ -60,6 +54,10 @@ public class GameSceneBuilder {
     private static boolean isLeftPressed = false;
     private static boolean isRightPressed = false;
 
+    private static MediaPlayer backgroundMusicPlayer;
+    private static MediaPlayer gameOverMusicPlayer;
+    private static boolean musicEnabled = true;
+
     // Thêm biến static cho pause menu
     private static Pane pauseMenu = null;
 
@@ -70,6 +68,37 @@ public class GameSceneBuilder {
     public static Camera camera;
 
     public static AnimationTimer gameLoop; // Lưu tham chiếu đến game loop
+
+    // Danh sách quản lý Transitions và Timers để pause/resume
+    private static final List<PauseTransition> pauseTransitions = new ArrayList<>();
+    private static final List<AnimationTimer> animationTimers = new ArrayList<>();
+
+    public static void registerPauseTransition(PauseTransition t) {
+        pauseTransitions.add(t);
+    }
+
+    public static void registerAnimationTimer(AnimationTimer timer) {
+        animationTimers.add(timer);
+    }
+
+    public static void unregisterTransition(PauseTransition t) {
+        pauseTransitions.remove(t);
+    }
+    public static void unregisterTimer(AnimationTimer t) {
+        animationTimers.remove(t);
+    }
+
+    /** Pause tất cả Transitions và Timers */
+    public static void pauseAll() {
+        pauseTransitions.forEach(PauseTransition::pause);
+        animationTimers.forEach(AnimationTimer::stop);
+    }
+
+    /** Resume tất cả Transitions và Timers */
+    public static void resumeAll() {
+        pauseTransitions.forEach(PauseTransition::play);
+        animationTimers.forEach(AnimationTimer::start);
+    }
 
     // Quản lý buff.
     public static List<BuffEntity> buffEntities = new ArrayList<>();
@@ -140,6 +169,10 @@ public class GameSceneBuilder {
         allEnemyEntities.clear();
         bombEntities.clear();
         explosionEntities.clear();
+        if (backgroundMusicPlayer == null) {
+            initializeMusic();
+        }
+        initializeGameOverMusic();
 
         // → Reset translate cũ của gameWorld
         gameWorld = new Group();
@@ -167,95 +200,6 @@ public class GameSceneBuilder {
 
         ((Pane)scene.getRoot()).requestFocus();
         return scene;
-    }
-
-    public static Scene buildContinueScene() {
-        GameState state = SaveManager.load();
-        if (state == null) {
-            return buildNewGameScene();
-        }
-
-        // 1. Clear toàn bộ dữ liệu cũ
-        if (gameLoop != null) gameLoop.stop();
-        buffEntities.clear();
-        enemyEntities.clear();
-        allEnemyEntities.clear();
-        bombEntities.clear();
-        explosionEntities.clear();
-
-        // 2. Tạo map từ dữ liệu đã lưu
-        Pane gamePane = new Pane();
-        Group gameWorld = new Group();
-        Pane uiPane = new Pane();
-        uiPane.setPrefWidth(screenWidth);
-        uiPane.setPrefHeight(screenHeight);
-        gamePane.getChildren().clear();
-        uiPane.setStyle("-fx-background-color: transparent;");
-        gamePane.getChildren().addAll(gameWorld, uiPane);
-        GMap gameGMap = new GMap(state.mapData);
-        gameGMap.render();
-        gameWorld.getChildren().add(gameGMap.getCanvas());
-
-        // 3. Tạo camera, input, gameLoop tương tự buildGameScene nhưng KHÔNG sinh entity mặc định
-        //    (Bạn có thể tách riêng phần thiết lập chung sang một helper)
-
-        // 4. Khôi phục Player
-        Entity playerEntity = new Entity();
-        Player player = new Player();
-        lastPlayer = player;
-        player.setPosition(state.playerX, state.playerY);
-        player.setLives(state.lives);
-        player.setSpeed(state.speed);
-        player.setMaxBombs(state.maxBombs);
-        player.setFlameRange(state.flameRange);
-        player.setActiveBuffs(state.activeBuffs);
-        playerEntity.addComponent(player);
-        gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
-
-        // them thanh mau
-        StatusBar statusBar = new StatusBar(player);
-        statusBar.setTranslateX(screenWidth - 220);
-        statusBar.setTranslateY(10);
-        uiPane.getChildren().add(statusBar);
-        System.out.println("StatusBar added to uiPane in buildContinueScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
-
-        // 5. Khôi phục Enemies
-        for (EnemyState es : state.enemies) {
-            Enemy e = createEnemy(es.type, es.x, es.y);
-            if (e != null) {
-                Entity ent = e.getEntity();
-                ent.setPosition(es.x, es.y);
-                allEnemyEntities.add(e);
-                enemyEntities.computeIfAbsent(e.getClass(), k -> new ArrayList<>()).add(ent);
-                gameWorld.getChildren().add(ent.getViewComponent().getParent());
-            }
-        }
-
-        // 6. Khôi phục Buffs
-        for (BuffState bs : state.buffs) {
-            BuffGeneric buff = createBuff(bs.buffType);
-            if (buff != null) {
-                BuffEntity be = new BuffEntity(buff, bs.x, bs.y);
-                buffEntities.add(be);
-                gamePane.getChildren().add(be.getImageView());
-                gameWorld.getChildren().add(be.getImageView());
-            }
-        }
-
-        // 7. Khôi phục Bombs
-        for (BombState bs : state.bombs) {
-            Bomb bombComp = new Bomb(player, gamePane);
-            AnimatedTexture tex = bombComp.getTexture();
-            Player.BombPane bp = new Player.BombPane(tex, bs.x, bs.y);
-            bombEntities.add(bp);
-            player.getBombPanes().add(bp);
-            gamePane.getChildren().add(bp);
-            gameWorld.getChildren().add(bp);
-        }
-
-        // 8. Thiết lập focus và trả về
-        gamePane.requestFocus();
-        return new Scene(gamePane, screenWidth, screenHeight);
     }
 
     private static Scene buildGameScene(double startX, double startY) {
@@ -380,7 +324,8 @@ public class GameSceneBuilder {
                 }
             }
         }
-        PlayerAIController playerAI = new PlayerAIController(playerComponent, gameGMap, allEnemyEntities, gamePane);
+
+        playerAI = new PlayerAIController(playerComponent, gameGMap, allEnemyEntities, gamePane);
 
         // Tính kích thước thế giới game
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
@@ -465,6 +410,8 @@ public class GameSceneBuilder {
                         if (!playerComponent.isInvincible()&& !playerComponent.isFlamePassActive() && playerComponent.getState() != State.DEAD) {
                             playerComponent.setState(State.DEAD);
                             if (playerComponent.hit()) {
+                                pauseBackgroundMusic();
+                                playGameOverMusic();
                                 PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
                                 deathDelay.setOnFinished(event -> {
                                     stop(); // Stop game loop after animation completes
@@ -556,6 +503,8 @@ public class GameSceneBuilder {
                             if (!playerComponent.isInvincible() && playerComponent.getState() != State.DEAD) {
                                 playerComponent.setState(State.DEAD);
                                 if (playerComponent.hit()) {
+                                    pauseBackgroundMusic();
+                                    playGameOverMusic();
                                     PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
                                     deathDelay.setOnFinished(event -> {
                                         stop(); // Stop game loop after animation completes
@@ -661,79 +610,6 @@ public class GameSceneBuilder {
         return scene;
     }
 
-    public static Scene buildGameSceneWithState(GameState state) {
-        // Đảm bảo GAME_WIDTH và GAME_HEIGHT được định nghĩa
-        final int GAME_WIDTH = 1920; // Thay đổi giá trị phù hợp với game của bạn
-        final int GAME_HEIGHT = 1080;
-
-        Pane gamePane = new Pane();
-        Scene scene = new Scene(gamePane, GAME_WIDTH, GAME_HEIGHT);
-
-        Pane uiPane = new Pane(); // UI layer for StatusBar
-        gamePane.getChildren().addAll(uiPane);
-        uiPane.setStyle("-fx-background-color: transparent;");
-
-        // Khôi phục người chơi
-        Player player = new Player();
-        player.setPosition(state.playerX, state.playerY); // Đảm bảo Player có phương thức setPosition
-        player.setLives(state.lives);
-        player.setSpeed(state.speed);
-        player.setMaxBombs(state.maxBombs);
-        player.setFlameRange(state.flameRange);
-        gamePane.getChildren().add(player.getEntity().getViewComponent().getParent()); // Sửa lại để lấy ViewComponent từ Entity
-
-        //them thanh mau
-        uiPane.setPrefWidth(screenWidth);
-        uiPane.setPrefHeight(screenHeight);
-        StatusBar statusBar = new StatusBar(player);
-        statusBar.setTranslateX(screenWidth - 220);
-        statusBar.setTranslateY(10);
-        uiPane.getChildren().add(statusBar);
-        System.out.println("StatusBar added to uiPane in buildGameSceneWithState at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
-
-        // Khôi phục danh sách kẻ địch
-        for (EnemyState es : state.enemies) {
-            Enemy enemy = createEnemy(es.type, es.x, es.y); // Sử dụng phương thức createEnemy để tạo kẻ địch
-            if (enemy != null) {
-                allEnemyEntities.add(enemy); // Thêm vào danh sách kẻ địch
-                gamePane.getChildren().add(enemy.getEntity().getViewComponent().getParent());// Sửa lại để lấy ViewComponent từ Entity
-                gameWorld.getChildren().add(enemy.getEntity().getViewComponent().getParent());
-            }
-        }
-
-        // Khôi phục danh sách buff
-        for (BuffState bs : state.buffs) {
-            BuffGeneric buff = createBuff(bs.buffType); // Sử dụng phương thức createBuff để tạo buff
-            if (buff != null) {
-                BuffEntity buffEntity = new BuffEntity(buff, bs.x, bs.y);
-                buffEntities.add(buffEntity); // Thêm vào danh sách buff
-                gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
-                gameWorld.getChildren().add(buffEntity.getImageView());
-            }
-        }
-
-        // Khôi phục bombs
-        for (BombState bs : state.bombs) {
-            // Tạo lại component bom để lấy AnimatedTexture
-            Bomb bombComponent = new Bomb(player, gamePane);
-            AnimatedTexture tex = bombComponent.getTexture();
-            // Tạo BombPane giống khi đặt bom
-            Player.BombPane bombPane = new Player.BombPane(tex, bs.x, bs.y);
-            // Thêm vào scene và danh sách Pane
-            gamePane.getChildren().add(bombPane);
-            gameWorld.getChildren().add(bombPane);
-            bombEntities.add(bombPane);
-            // Đồng thời thêm vào bộ đếm bom của player nếu cần
-            player.getBombPanes().add(bombPane);
-        }
-
-        // Đảm bảo focus vào màn chơi
-        gamePane.requestFocus();
-
-        // Trả về scene đã được khôi phục
-        return scene;
-    }
-
     // Phương thức tạo kẻ địch dựa trên loại
     private static Enemy createEnemy(String type, double x, double y) {
         switch (type.toLowerCase()) {
@@ -749,21 +625,6 @@ public class GameSceneBuilder {
                 return new Pass((int) x, (int) y, null, null, null); // Thay null bằng các tham số phù hợp
             default:
                 System.err.println("Unknown enemy type: " + type);
-                return null;
-        }
-    }
-
-    // Phương thức tạo buff dựa trên loại
-    private static BuffGeneric createBuff(String buffType) {
-        switch (buffType.toLowerCase()) {
-            case "speed":
-                return new Speed();
-            case "flame":
-                return new Flame();
-            case "bomb":
-                return new hoyocon.bomberman.Buff.Bomb();
-            default:
-                System.err.println("Unknown buff type: " + buffType);
                 return null;
         }
     }
@@ -791,33 +652,40 @@ public class GameSceneBuilder {
                         .toExternalForm(),
                 10
         );
+//        pauseBackgroundMusic();
 
+        // 1. Dừng gameLoop và pause tất cả Transitions/Timers
+        if (gameLoop != null) gameLoop.stop();
+        pauseAll();
+
+        // 2. Tải FXML pause menu
         try {
             FXMLLoader loader = new FXMLLoader(
                     GameSceneBuilder.class.getResource("/hoyocon/bomberman/pause_menu.fxml"));
-
             AnchorPane menuPane = loader.load();
             PauseMenuController ctrl = loader.getController();
             ctrl.setUiPane(uiPane);
 
-            // 2. Tạo overlay mờ full‐screen
+            // 3. Tạo overlay mờ full-screen
             Pane overlay = new Pane();
             overlay.setPrefSize(screenWidth, screenHeight);
             overlay.setStyle("-fx-background-color: rgba(0,0,0,0.5);");
 
-            // 3. Wrap overlay + menuPane
+            // 4. Wrap overlay + menuPane thành pauseMenu
             pauseMenu = new Pane();
             pauseMenu.setPrefSize(screenWidth, screenHeight);
             pauseMenu.getChildren().setAll(overlay, menuPane);
 
-            // 4. Center menuPane
+            // 5. Center menuPane trong màn hình
             double mx = (screenWidth - menuPane.getPrefWidth()) / 2;
             double my = (screenHeight - menuPane.getPrefHeight()) / 2;
             menuPane.setLayoutX(mx);
             menuPane.setLayoutY(my);
 
-            // 5. Add vào UI layer
+
+            // 6. Thêm vào UI layer
             uiPane.getChildren().add(pauseMenu);
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -826,8 +694,132 @@ public class GameSceneBuilder {
 
     static void hidePauseMenu(Pane uiPane) {
         if (pauseMenu != null) {
+            // 1. Remove pause menu khỏi UI layer
             uiPane.getChildren().remove(pauseMenu);
             pauseMenu = null;
+            resumeAll();
+
+            if (gameLoop != null) {
+                if (playerAI != null) {
+                    playerAI.resetTimer();
+                }
+                gameLoop.start();
+            }
+        }
+//        if (musicEnabled) {
+//            playBackgroundMusic();
+//        }
+
+    }
+    public static void initializeMusic() {
+        try {
+            String musicFile = "/assets/music/battle-theme.mp3"; // Path to music file in resources folder
+            Media backgroundMusic = new Media(GameSceneBuilder.class.getResource(musicFile).toExternalForm());
+            backgroundMusicPlayer = new MediaPlayer(backgroundMusic);
+            backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop indefinitely
+            backgroundMusicPlayer.setVolume(0.5); // Set to 50% volume
+
+            if (musicEnabled) {
+                backgroundMusicPlayer.play();
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading background music: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public static void initializeGameOverMusic() {
+        try {
+            String musicFile = "/assets/music/deadgod.mp3"; // Path to game over music
+            Media gameOverMusic = new Media(GameSceneBuilder.class.getResource(musicFile).toExternalForm());
+            gameOverMusicPlayer = new MediaPlayer(gameOverMusic);
+            gameOverMusicPlayer.setVolume(0.5);
+        } catch (Exception e) {
+            System.err.println("Error loading game over music: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Play the background music if enabled.
+     */
+    public static void playBackgroundMusic() {
+        if (musicEnabled && backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.play();
+        }
+    }
+
+    /**
+     * Pause the background music.
+     */
+    public static void pauseBackgroundMusic() {
+        if (backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.pause();
+        }
+    }
+
+    /**
+     * Stop the background music.
+     */
+    public static void stopBackgroundMusic() {
+        if (backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.stop();
+        }
+    }
+
+    /**
+     * Play game over music.
+     */
+    public static void playGameOverMusic() {
+        stopBackgroundMusic();
+        if (musicEnabled && gameOverMusicPlayer != null) {
+            gameOverMusicPlayer.play();
+        }
+    }
+
+    /**
+     * Toggle music on/off.
+     */
+    public static void toggleMusic() {
+        musicEnabled = !musicEnabled;
+        if (musicEnabled) {
+            playBackgroundMusic();
+        } else {
+            pauseBackgroundMusic();
+        }
+    }
+
+    /**
+     * Set the volume of the background music.
+     * @param volume Volume level (0.0 to 1.0)
+     */
+    public static void setMusicVolume(double volume) {
+        if (backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.setVolume(Math.min(1.0, Math.max(0.0, volume)));
+        }
+        if (gameOverMusicPlayer != null) {
+            gameOverMusicPlayer.setVolume(Math.min(1.0, Math.max(0.0, volume)));
+        }
+    }
+
+    /**
+     * Check if music is enabled.
+     * @return true if music is enabled
+     */
+    public static boolean isMusicEnabled() {
+        return musicEnabled;
+    }
+
+    public static void resetMusic() {
+        if (backgroundMusicPlayer != null) {
+            backgroundMusicPlayer.stop();
+            backgroundMusicPlayer.dispose(); // Release all resources
+            backgroundMusicPlayer = null;
+        }
+
+        if (gameOverMusicPlayer != null) {
+            gameOverMusicPlayer.stop();
+            gameOverMusicPlayer.dispose(); // Release all resources
+            gameOverMusicPlayer = null;
         }
     }
 }

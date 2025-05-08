@@ -21,7 +21,7 @@ public class Map1 {
     public static final int DAHL = 8;
     public static final int DORIA = 9;
 
-    public static double MOBNUMS = 5;
+    public static double MOBNUMS = 10;
     
     // Tỷ lệ phần trăm của từng loại quái
     private static final double BALLOON_PERCENT = 0.3;
@@ -66,7 +66,7 @@ public class Map1 {
 
         // Trộn danh sách vị trí trống để đảm bảo ngẫu nhiên
         Collections.shuffle(emptyPositions);
-        if(MOBNUMS < emptyPositions.size()) MOBNUMS += Player.getLevel()*5;
+        if(MOBNUMS < emptyPositions.size()) MOBNUMS += Player.getLevel()*3;
         int balloonCount = (int) Math.round(MOBNUMS * BALLOON_PERCENT);
         int passCount = (int) Math.round(MOBNUMS * PASS_PERCENT);
         int onealCount = Player.getLevel() >= 3 ?  (int) Math.round(MOBNUMS * ONEAL_PERCENT) : 0;
@@ -152,13 +152,5 @@ public class Map1 {
         }
     }
 
-    public void printMapToConsole(int[][] map) {
-        for (int[] ints : map) {
-            for (int x = 0; x < map[0].length; x++) {
-                System.out.print(ints[x] + " ");
-            }
-            System.out.println();
-        }
-    }
 
 }

@@ -17,12 +17,12 @@
       <!-- Background Image -->
       <ImageView fitHeight="1080.0" fitWidth="1920.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@b0cf517597fd9ae3948d3181b1db2736.jpg" />
+            <Image url="@black-aesthetic-1920X1080-wallpaper-ch9tk3j5p772ls09.jpeg" />
          </image>
       </ImageView>
 
       <!-- Power-up Buttons -->
-      <Button fx:id="itemBuffBomb" layoutX="1131.0" layoutY="270.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
+      <Button fx:id="itemBuffBomb" layoutX="935.0" layoutY="270.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
          <graphic>
             <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                <Image url="@powerup_bombs.png" />
@@ -30,7 +30,7 @@
          </graphic>
       </Button>
 
-      <Button fx:id="itemBuffFlame" layoutX="1131.0" layoutY="448.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
+      <Button fx:id="itemBuffFlame" layoutX="935.0" layoutY="448.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
          <graphic>
             <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                <Image url="@powerup_flames.png" />
@@ -38,7 +38,7 @@
          </graphic>
       </Button>
 
-      <Button fx:id="itemBuffSpeed" layoutX="1131.0" layoutY="678.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
+      <Button fx:id="itemBuffSpeed" layoutX="935.0" layoutY="683.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
          <graphic>
             <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                <Image url="@powerup_speed.png" />
@@ -46,7 +46,7 @@
          </graphic>
       </Button>
 
-      <Button fx:id="nextRound" layoutX="837.0" layoutY="847.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
+      <Button fx:id="nextRound" layoutX="1423.0" layoutY="683.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
          <graphic>
             <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
                <Image url="@portal.png" />
@@ -55,7 +55,7 @@
       </Button>
 
       <!-- Controls Grid -->
-      <GridPane fx:id="keyBox" layoutX="376.0" layoutY="185.0" prefHeight="199.0" prefWidth="312.0" styleClass="zoom-effect" stylesheets="@style1.css">
+      <GridPane fx:id="keyBox" layoutX="224.0" layoutY="185.0" prefHeight="199.0" prefWidth="312.0" styleClass="zoom-effect" stylesheets="@style1.css">
          <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -67,80 +67,150 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
-            <Label alignment="CENTER" styleClass="blue-icon-button" stylesheets="@MusicButton.css" text="W" textFill="WHITE" GridPane.columnIndex="1">
+            <Label alignment="CENTER" text="W" textFill="WHITE" GridPane.columnIndex="1">
                <font>
                   <Font name="System Bold" size="24.0" />
                </font>
+               <stylesheets>
+                  <URL value="@MusicButton.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="blue-icon-button" />
+                  <String fx:value="color-change" />
+               </styleClass>
             </Label>
-            <Label alignment="CENTER" styleClass="blue-icon-button" stylesheets="@MusicButton.css" text="A" textFill="WHITE" GridPane.rowIndex="1">
+            <Label alignment="CENTER" text="A" textFill="WHITE" GridPane.rowIndex="1">
                <font>
                   <Font name="System Bold" size="24.0" />
                </font>
+               <stylesheets>
+                  <URL value="@MusicButton.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="blue-icon-button" />
+                  <String fx:value="color-change" />
+               </styleClass>
             </Label>
-            <Label alignment="CENTER" styleClass="blue-icon-button" stylesheets="@MusicButton.css" text="D" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="1">
+            <Label alignment="CENTER" text="D" textFill="WHITE" GridPane.columnIndex="2" GridPane.rowIndex="1">
                <font>
                   <Font name="System Bold" size="24.0" />
                </font>
+               <stylesheets>
+                  <URL value="@MusicButton.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="blue-icon-button" />
+                  <String fx:value="color-change" />
+               </styleClass>
             </Label>
-            <Label alignment="CENTER" styleClass="blue-icon-button" stylesheets="@MusicButton.css" text="S" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label alignment="CENTER" text="S" textFill="WHITE" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <font>
                   <Font name="System Bold" size="24.0" />
                </font>
+               <stylesheets>
+                  <URL value="@MusicButton.css" />
+                  <URL value="@../../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="blue-icon-button" />
+                  <String fx:value="color-change" />
+               </styleClass>
             </Label>
          </children>
       </GridPane>
 
       <!-- Other Controls -->
-      <Button fx:id="ESC" layoutX="476.0" layoutY="673.0" styleClass="blue-icon-button" stylesheets="@MusicButton.css" text="ESC" textFill="#f5f5f5">
+      <Button fx:id="ESC" layoutX="325.0" layoutY="678.0" text="ESC" textFill="#f5f5f5">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
+         <stylesheets>
+            <URL value="@MusicButton.css" />
+            <URL value="@../../CSS/ColorChange.css" />
+         </stylesheets>
+         <styleClass>
+            <String fx:value="blue-icon-button" />
+            <String fx:value="color-change" />
+         </styleClass>
       </Button>
 
-      <Button fx:id="placeBomb" layoutX="439.0" layoutY="443.0" text="SPACE">
+      <Button fx:id="placeBomb" layoutX="288.0" layoutY="461.0" text="SPACE">
          <font>
             <Font size="18.0" />
          </font>
          <stylesheets>
             <URL value="@style1.css" />
             <URL value="@Cartoon_UI.css" />
+            <URL value="@../../CSS/ColorChange.css" />
          </stylesheets>
          <styleClass>
             <String fx:value="button-cartoon" />
             <String fx:value="zoom-effect" />
+            <String fx:value="color-change" />
          </styleClass>
       </Button>
-      <Label fx:id="LabelOfkeyBox" layoutX="615.0" layoutY="89.0" prefHeight="155.0" prefWidth="448.0" text="Label" wrapText="true">
+      <Label fx:id="LabelOfESC" layoutX="449.0" layoutY="631.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfplaceBomb" layoutX="616.0" layoutY="306.0" prefHeight="155.0" prefWidth="448.0" text="Label" wrapText="true">
+      <Label fx:id="LabelOfnextRound" alignment="CENTER" layoutX="1224.0" layoutY="511.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfESC" layoutX="615.0" layoutY="503.0" prefHeight="155.0" prefWidth="448.0" text="Label" wrapText="true">
+      <Label fx:id="LabelOfBuffBomb" alignment="CENTER" layoutX="736.0" layoutY="108.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfnextRound" layoutX="638.0" layoutY="673.0" prefHeight="155.0" prefWidth="448.0" text="Label" wrapText="true">
+      <Label fx:id="LabelOfBuffFlame" alignment="CENTER" layoutX="736.0" layoutY="307.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfBuffBomb" layoutX="1241.0" layoutY="115.0" prefHeight="155.0" prefWidth="448.0" text="Label" wrapText="true">
+      <Label fx:id="LabelOfBuffSpeed" alignment="CENTER" layoutX="736.0" layoutY="511.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfBuffFlame" layoutX="1241.0" layoutY="295.0" prefHeight="155.0" prefWidth="448.0" text="Label" wrapText="true">
+      <Button fx:id="itemBuffLife" layoutX="1423.0" layoutY="270.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
+         <graphic>
+            <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@powerup_life.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <Button fx:id="itemBuffFlamePass" layoutX="1423.0" layoutY="448.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@style1.css">
+         <graphic>
+            <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@powerup_flamepass.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <Label fx:id="LabelOfkeyBox" alignment="CENTER" contentDisplay="CENTER" layoutX="131.0" layoutY="21.0" prefHeight="155.0" prefWidth="448.0" text="Label" textAlignment="CENTER" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
       </Label>
-      <Label fx:id="LabelOfBuffSpeed" layoutX="1241.0" layoutY="503.0" prefHeight="155.0" prefWidth="448.0" text="Label" wrapText="true">
+      <Label fx:id="LabelOfplaceBomb" layoutX="449.0" layoutY="414.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="LabelOfFlamePass" alignment="CENTER" layoutX="1224.0" layoutY="295.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="LabelOfLife" alignment="CENTER" layoutX="1227.0" layoutY="108.0" prefHeight="155.0" prefWidth="448.0" text="Label" textFill="WHITE" wrapText="true">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>

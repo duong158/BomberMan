@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.control.Button;
 import javafx.event.ActionEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -19,6 +20,8 @@ public class PauseMenuController {
     private Button continueBtn;
     @FXML
     private Button exitBtn;
+    @FXML
+    private Button musicToggleBtn;
 
     private Pane uiPane;
 
@@ -36,31 +39,91 @@ public class PauseMenuController {
         }
         uiPane.getScene().getRoot().requestFocus();
     }
-    @FXML
-    private void onExit(ActionEvent event) {
-        if (GameSceneBuilder.gameLoop != null) GameSceneBuilder.gameLoop.stop();
-        Platform.exit();
-    }
-    @FXML
-    private void onMenu(ActionEvent event) {
-        if (GameSceneBuilder.gameLoop != null) {
-            GameSceneBuilder.gameLoop.stop();
-        }
-        GameSceneBuilder.hidePauseMenu(uiPane);
+    private void showConfirmationDialog(String title, String message, Runnable onConfirm) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/hoyocon/bomberman/Menu-view.fxml"));
-            Parent menuRoot = loader.load();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/hoyocon/bomberman/ConfirmationDialog.fxml"));
+            VBox dialogRoot = loader.load();
+            // Configure dialog
+            ConfirmationDialogController controller = loader.getController();
+            controller.setDialogData(title, message, onConfirm);
 
-            Stage stage = (Stage) uiPane.getScene().getWindow();
+            // Create and show dialog
+            Scene dialogScene = new Scene(dialogRoot);
+            dialogScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
-            stage.setScene(new Scene(menuRoot));
-            stage.getScene().getStylesheets().add(
-                    getClass().getResource("/hoyocon/bomberman/style1.css").toExternalForm()
-            );
+            Stage dialogStage = new Stage();
+            dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+            dialogStage.setScene(dialogScene);
 
+            // Center on parent
+            Stage parentStage = (Stage) uiPane.getScene().getWindow();
+            dialogStage.setX(parentStage.getX() + (parentStage.getWidth() - dialogRoot.getPrefWidth()) / 2);
+            dialogStage.setY(parentStage.getY() + (parentStage.getHeight() - dialogRoot.getPrefHeight()) / 2);
+
+            dialogStage.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onExit(ActionEvent event) {
+        showConfirmationDialog(
+                "Exit Game",
+                "Are you sure you want to exit the game?",
+                () -> {
+                    if (GameSceneBuilder.gameLoop != null) GameSceneBuilder.gameLoop.stop();
+                    Platform.exit();
+                }
+        );
+    }
+
+    @FXML
+    private void onMenu(ActionEvent event) {
+        showConfirmationDialog(
+                "Return to Main Menu",
+                "Are you sure you want to return to the main menu? Your progress will be lost.",
+                () -> {
+                    if (GameSceneBuilder.gameLoop != null) {
+                        GameSceneBuilder.gameLoop.stop();
+                    }
+                    GameSceneBuilder.resetMusic();
+                    GameSceneBuilder.hidePauseMenu(uiPane);
+                    try {
+                        // Load the main Start view
+                        Parent startView = FXMLLoader.load(
+                                getClass().getResource("/hoyocon/bomberman/Start-view.fxml")
+                        );
+                        Scene startScene = new Scene(startView, 1920, 1080);
+
+                        Stage stage = (Stage) uiPane.getScene().getWindow();
+                        stage.setScene(startScene);
+                        stage.setTitle("Bomberman Menu");
+                        startScene.getRoot().requestFocus();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
+    }
+
+    @FXML
+    private void onToggleMusic(ActionEvent event) {
+        // Toggle music state
+        GameSceneBuilder.toggleMusic();
+
+        // Update button text based on new state
+        updateMusicButtonText();
+    }
+
+    private void updateMusicButtonText() {
+        if (musicToggleBtn != null) {
+            if (GameSceneBuilder.isMusicEnabled()) {
+                musicToggleBtn.setText("♫ON");
+            } else {
+                musicToggleBtn.setText("♫OFF");
+            }
         }
     }
 }

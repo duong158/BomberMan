@@ -17,6 +17,7 @@ public class PlayerAIController {
     private List<Enemy> enemies;
     private Pane gamePane;
     private Position lastPlayerPosition = null;
+    private long lastTime = 0;
 
     // AI States
     private enum AIState {
@@ -46,8 +47,8 @@ public class PlayerAIController {
     private List<Node> escapePath;
     
     // Decision making
-    private static final int ENEMY_DANGER_DISTANCE = 2;
-    private static final int ENEMY_AWARE_DISTANCE = 4;
+    private static final int ENEMY_DANGER_DISTANCE = 1;
+    private static final int ENEMY_AWARE_DISTANCE = 5;
     private static final int MAX_PATH_FINDING_ATTEMPTS = 3;
     
     /**
@@ -144,6 +145,13 @@ public class PlayerAIController {
      * Update the AI controller each frame
      */
     public void update(long now) {
+        if (lastTime == 0) {
+            lastTime = now;
+        }
+        double dt = (now - lastTime) / 1_000_000_000.0;
+        dt = Math.min(dt, 0.05);
+        lastTime = now;
+
         Position playerPos = getPlayerPosition();
         
         log("AI State: " + currentState + ", Player at " + playerPos);
@@ -900,5 +908,9 @@ public class PlayerAIController {
         bombRow = -1;
         bombCol = -1;
         log("AI state reset after respawn");
+    }
+
+    public void resetTimer() {
+        lastTime = 0;
     }
 }

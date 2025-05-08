@@ -197,22 +197,6 @@ public class GMap {
         return topLeftRow == bottomRightRow && topLeftCol == bottomRightCol;
     }
 
-//    public boolean canMoveTo(double x, double y, double width, double height) {
-//        int topLeftRow = pixelToTile(y);
-//        int topLeftCol = pixelToTile(x);
-//        int topRightRow = pixelToTile(y);
-//        int topRightCol = pixelToTile(x + width - 1);
-//        int bottomLeftRow = pixelToTile(y + height - 1);
-//        int bottomLeftCol = pixelToTile(x);
-//        int bottomRightRow = pixelToTile(y + height - 1);
-//        int bottomRightCol = pixelToTile(x + width - 1);
-//
-//        return isWalkable(topLeftRow, topLeftCol) &&
-//               isWalkable(topRightRow, topRightCol) &&
-//               isWalkable(bottomLeftRow, bottomLeftCol) &&
-//               isWalkable(bottomRightRow, bottomRightCol);
-//    }
-
     public boolean isWallHitbox(int row, int col) {
         return row >= 0 && row < height && col >= 0 && col < width && wallHitbox[row][col];
     }
@@ -285,18 +269,4 @@ public class GMap {
         return brickEntity;
     }
 
-    public void initializeEntities() {
-        for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width; col++) {
-                if (mapData[row][col] == WALL) {
-                    FXGL.getGameWorld().addEntity(createWallEntity(row, col));
-                } else if (mapData[row][col] == BRICK) {
-                    FXGL.getGameWorld().addEntity(createBrickEntity(row, col));
-                }
-            }
-        }
-    }
-    public int[][] getMapDataArray() {
-        return this.mapData;
-    }
 }

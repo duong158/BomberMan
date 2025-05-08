@@ -1,13 +1,10 @@
 package hoyocon.bomberman;
 
-import com.almasb.fxgl.app.GameApplication;
-import com.almasb.fxgl.app.GameSettings;
-import com.almasb.fxgl.dsl.FXGL;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -26,10 +23,15 @@ public class Main extends Application {
         try {
             mainStage = stage;
             // Load FXML với đường dẫn chính xác
+            Font.loadFont(
+                    GameSceneBuilder.class
+                            .getResource("/fonts/PressStart2P-Regular.ttf")
+                            .toExternalForm(),
+                    10   // size bất kỳ, chỉ để register
+            );
             Parent root = FXMLLoader.load(Objects.requireNonNull(
                     getClass().getResource("/hoyocon/bomberman/Start-view.fxml")
             ));
-
             Scene scene = new Scene(root, 1920, 1080);
 
             stage.setTitle("Bomberman Game");

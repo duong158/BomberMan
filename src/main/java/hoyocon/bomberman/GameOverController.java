@@ -20,6 +20,7 @@ public class GameOverController {
 
     @FXML
     private void onRetryClicked(ActionEvent event) {
+        GameSceneBuilder.resetMusic();
         // Tạo và hiển thị màn hình game
         Scene gameScene = GameSceneBuilder.buildNewGameScene();
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -30,9 +31,10 @@ public class GameOverController {
 
     @FXML
     private void onMenuClicked(ActionEvent event) {
+        GameSceneBuilder.resetMusic();
         try {
-            // Load Menu-view.fxml
-            Parent menuView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Menu-view.fxml"));
+            // Load Start-view.fxml
+            Parent menuView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Start-view.fxml"));
             Scene menuScene = new Scene(menuView, 1920, 1080);
 
             // Lấy Stage hiện tại từ sự kiện
