@@ -27,9 +27,6 @@ import javafx.scene.media.AudioClip;
 import javafx.util.Duration;
 
 public class Player extends Component {
-    // Vị trí người chơi
-    private int x, y;
-
     public static int level = 1;
     private boolean hasExited = false;
 
@@ -591,22 +588,6 @@ public class Player extends Component {
         activeBuffs.put("speed", System.currentTimeMillis());
     }
 
-    public void pickUpItem(String itemType) {
-        switch (itemType) {
-            case "speed":
-                increaseSpeed(1);
-                break;
-            case "flameRange":
-                increaseFlameRange(1);
-                break;
-            case "bomb":
-                setMaxBombs(getMaxBombs() + 1);
-                activeBuffs.put("bomb", System.currentTimeMillis());
-                break;
-            default:
-                System.out.println("Unknown item type: " + itemType);
-        }
-    }
     private void onExit(){
         level++; // Tăng level
         // Dừng game loop hiện tại
@@ -663,14 +644,6 @@ public class Player extends Component {
         pause.play();
     }
 
-    public void setPosition(double x, double y) {
-        this.x = (int) x;
-        this.y = (int) y;
-        // Đẩy tọa độ xuống FXGL Entity để hiển thị
-        if (entity != null) {
-            entity.setPosition(x, y);
-        }
-    }
 
     public State getState() {
         return state;

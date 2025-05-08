@@ -49,8 +49,6 @@ public class GameSceneBuilder {
     public static PlayerAIController playerAI;
     private static boolean autoPlayEnabled = false;
     private static Player lastPlayer;
-    private static double savedX = 195;
-    private static double savedY = 70;
 
     private static final double screenWidth = 1920;
     private static final double screenHeight = 1080;
@@ -203,95 +201,6 @@ public class GameSceneBuilder {
 
         ((Pane)scene.getRoot()).requestFocus();
         return scene;
-    }
-
-    public static Scene buildContinueScene() {
-        GameState state = SaveManager.load();
-        if (state == null) {
-            return buildNewGameScene();
-        }
-
-        // 1. Clear toàn bộ dữ liệu cũ
-        if (gameLoop != null) gameLoop.stop();
-        buffEntities.clear();
-        enemyEntities.clear();
-        allEnemyEntities.clear();
-        bombEntities.clear();
-        explosionEntities.clear();
-
-        // 2. Tạo map từ dữ liệu đã lưu
-        Pane gamePane = new Pane();
-        Group gameWorld = new Group();
-        Pane uiPane = new Pane();
-        uiPane.setPrefWidth(screenWidth);
-        uiPane.setPrefHeight(screenHeight);
-        gamePane.getChildren().clear();
-        uiPane.setStyle("-fx-background-color: transparent;");
-        gamePane.getChildren().addAll(gameWorld, uiPane);
-        GMap gameGMap = new GMap(state.mapData);
-        gameGMap.render();
-        gameWorld.getChildren().add(gameGMap.getCanvas());
-
-        // 3. Tạo camera, input, gameLoop tương tự buildGameScene nhưng KHÔNG sinh entity mặc định
-        //    (Bạn có thể tách riêng phần thiết lập chung sang một helper)
-
-        // 4. Khôi phục Player
-        Entity playerEntity = new Entity();
-        Player player = new Player();
-        lastPlayer = player;
-        player.setPosition(state.playerX, state.playerY);
-        player.setLives(state.lives);
-        player.setSpeed(state.speed);
-        player.setMaxBombs(state.maxBombs);
-        player.setFlameRange(state.flameRange);
-        player.setActiveBuffs(state.activeBuffs);
-        playerEntity.addComponent(player);
-        gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
-
-        // them thanh mau
-        StatusBar statusBar = new StatusBar(player);
-        statusBar.setTranslateX(screenWidth - 220);
-        statusBar.setTranslateY(10);
-        uiPane.getChildren().add(statusBar);
-        System.out.println("StatusBar added to uiPane in buildContinueScene at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
-
-        // 5. Khôi phục Enemies
-        for (EnemyState es : state.enemies) {
-            Enemy e = createEnemy(es.type, es.x, es.y);
-            if (e != null) {
-                Entity ent = e.getEntity();
-                ent.setPosition(es.x, es.y);
-                allEnemyEntities.add(e);
-                enemyEntities.computeIfAbsent(e.getClass(), k -> new ArrayList<>()).add(ent);
-                gameWorld.getChildren().add(ent.getViewComponent().getParent());
-            }
-        }
-
-        // 6. Khôi phục Buffs
-        for (BuffState bs : state.buffs) {
-            BuffGeneric buff = createBuff(bs.buffType);
-            if (buff != null) {
-                BuffEntity be = new BuffEntity(buff, bs.x, bs.y);
-                buffEntities.add(be);
-                gamePane.getChildren().add(be.getImageView());
-                gameWorld.getChildren().add(be.getImageView());
-            }
-        }
-
-        // 7. Khôi phục Bombs
-        for (BombState bs : state.bombs) {
-            Bomb bombComp = new Bomb(player, gamePane);
-            AnimatedTexture tex = bombComp.getTexture();
-            Player.BombPane bp = new Player.BombPane(tex, bs.x, bs.y);
-            bombEntities.add(bp);
-            player.getBombPanes().add(bp);
-            gamePane.getChildren().add(bp);
-            gameWorld.getChildren().add(bp);
-        }
-
-        // 8. Thiết lập focus và trả về
-        gamePane.requestFocus();
-        return new Scene(gamePane, screenWidth, screenHeight);
     }
 
     private static Scene buildGameScene(double startX, double startY) {
@@ -683,79 +592,6 @@ public class GameSceneBuilder {
         return scene;
     }
 
-    public static Scene buildGameSceneWithState(GameState state) {
-        // Đảm bảo GAME_WIDTH và GAME_HEIGHT được định nghĩa
-        final int GAME_WIDTH = 1920; // Thay đổi giá trị phù hợp với game của bạn
-        final int GAME_HEIGHT = 1080;
-
-        Pane gamePane = new Pane();
-        Scene scene = new Scene(gamePane, GAME_WIDTH, GAME_HEIGHT);
-
-        Pane uiPane = new Pane(); // UI layer for StatusBar
-        gamePane.getChildren().addAll(uiPane);
-        uiPane.setStyle("-fx-background-color: transparent;");
-
-        // Khôi phục người chơi
-        Player player = new Player();
-        player.setPosition(state.playerX, state.playerY); // Đảm bảo Player có phương thức setPosition
-        player.setLives(state.lives);
-        player.setSpeed(state.speed);
-        player.setMaxBombs(state.maxBombs);
-        player.setFlameRange(state.flameRange);
-        gamePane.getChildren().add(player.getEntity().getViewComponent().getParent()); // Sửa lại để lấy ViewComponent từ Entity
-
-        //them thanh mau
-        uiPane.setPrefWidth(screenWidth);
-        uiPane.setPrefHeight(screenHeight);
-        StatusBar statusBar = new StatusBar(player);
-        statusBar.setTranslateX(screenWidth - 220);
-        statusBar.setTranslateY(10);
-        uiPane.getChildren().add(statusBar);
-        System.out.println("StatusBar added to uiPane in buildGameSceneWithState at " + statusBar.getTranslateX() + ", " + statusBar.getTranslateY());
-
-        // Khôi phục danh sách kẻ địch
-        for (EnemyState es : state.enemies) {
-            Enemy enemy = createEnemy(es.type, es.x, es.y); // Sử dụng phương thức createEnemy để tạo kẻ địch
-            if (enemy != null) {
-                allEnemyEntities.add(enemy); // Thêm vào danh sách kẻ địch
-                gamePane.getChildren().add(enemy.getEntity().getViewComponent().getParent());// Sửa lại để lấy ViewComponent từ Entity
-                gameWorld.getChildren().add(enemy.getEntity().getViewComponent().getParent());
-            }
-        }
-
-        // Khôi phục danh sách buff
-        for (BuffState bs : state.buffs) {
-            BuffGeneric buff = createBuff(bs.buffType); // Sử dụng phương thức createBuff để tạo buff
-            if (buff != null) {
-                BuffEntity buffEntity = new BuffEntity(buff, bs.x, bs.y);
-                buffEntities.add(buffEntity); // Thêm vào danh sách buff
-                gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
-                gameWorld.getChildren().add(buffEntity.getImageView());
-            }
-        }
-
-        // Khôi phục bombs
-        for (BombState bs : state.bombs) {
-            // Tạo lại component bom để lấy AnimatedTexture
-            Bomb bombComponent = new Bomb(player, gamePane);
-            AnimatedTexture tex = bombComponent.getTexture();
-            // Tạo BombPane giống khi đặt bom
-            Player.BombPane bombPane = new Player.BombPane(tex, bs.x, bs.y);
-            // Thêm vào scene và danh sách Pane
-            gamePane.getChildren().add(bombPane);
-            gameWorld.getChildren().add(bombPane);
-            bombEntities.add(bombPane);
-            // Đồng thời thêm vào bộ đếm bom của player nếu cần
-            player.getBombPanes().add(bombPane);
-        }
-
-        // Đảm bảo focus vào màn chơi
-        gamePane.requestFocus();
-
-        // Trả về scene đã được khôi phục
-        return scene;
-    }
-
     // Phương thức tạo kẻ địch dựa trên loại
     private static Enemy createEnemy(String type, double x, double y) {
         switch (type.toLowerCase()) {
@@ -771,21 +607,6 @@ public class GameSceneBuilder {
                 return new Pass((int) x, (int) y, null, null, null); // Thay null bằng các tham số phù hợp
             default:
                 System.err.println("Unknown enemy type: " + type);
-                return null;
-        }
-    }
-
-    // Phương thức tạo buff dựa trên loại
-    private static BuffGeneric createBuff(String buffType) {
-        switch (buffType.toLowerCase()) {
-            case "speed":
-                return new Speed();
-            case "flame":
-                return new Flame();
-            case "bomb":
-                return new hoyocon.bomberman.Buff.Bomb();
-            default:
-                System.err.println("Unknown buff type: " + buffType);
                 return null;
         }
     }
