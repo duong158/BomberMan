@@ -44,6 +44,7 @@ public class GameSceneBuilder {
     public static PlayerAIController playerAI;
     private static boolean autoPlayEnabled = false;
     private static Player lastPlayer;
+    public static Boss boss;
 
     private static final double screenWidth = 1920;
     private static final double screenHeight = 1080;
@@ -172,9 +173,7 @@ public class GameSceneBuilder {
         allEnemyEntities.clear();
         bombEntities.clear();
         explosionEntities.clear();
-        if (backgroundMusicPlayer == null) {
-            initializeMusic();
-        }
+        initializeMusic();
         initializeGameOverMusic();
 
         // → Reset translate cũ của gameWorld
@@ -294,6 +293,10 @@ public class GameSceneBuilder {
             System.err.println("Error setting up enemies: " + e.getMessage());
             e.printStackTrace();
         }
+        // Tạo entity và thêm Player component
+        Entity playerEntity = new Entity();
+        final Player playerComponent = new Player();
+        playerEntity.addComponent(playerComponent);
         if (Player.getLevel() == 4) {
             try {
                 // Vị trí center của boss trong map
@@ -301,7 +304,10 @@ public class GameSceneBuilder {
                 int bossCol = 8;  // Cột thứ 9 (index từ 0)
 
                 // Tạo instance của Boss
-                Boss boss = new Boss(bossCol, bossRow);
+                boss = new Boss(bossCol, bossRow);
+                boss.setMain(playerComponent);
+
+                boss.setGameReferences(gameWorld, gamePane, gameGMap);
 
                 // Tạo entity và thêm vào gameWorld
                 Entity bossEntity = boss.createEntity();
@@ -316,10 +322,7 @@ public class GameSceneBuilder {
             }
         }
 
-        // Tạo entity và thêm Player component
-        Entity playerEntity = new Entity();
-        final Player playerComponent = new Player();
-        playerEntity.addComponent(playerComponent);
+
 
         // Set the game map for collision detection
         playerComponent.setGameMap(gameGMap);
@@ -374,7 +377,7 @@ public class GameSceneBuilder {
                     worldWidth,
                     worldHeight
             );
-        } else if (Player.getLevel() % 3 == 0 || Player.getLevel() % 4 == 0 ) {
+        } else if (Player.getLevel() % 3 == 0 || Player.getLevel() % 5 == 0 ) {
             camera = null;
             cameraFrog = null;
             cameraStorm = new CameraStorm(fogPane,
@@ -430,9 +433,13 @@ public class GameSceneBuilder {
                         playerComponent.stop();
                     }
                 }
+
                 //Muốn dùng AI thì bỏ comment
                 if (autoPlayEnabled) {
                     playerAI.update(now);
+                }
+                if(boss != null) {
+                    boss.onUpdate(1.0/60.0);
                 }
                 playerComponent.onUpdate(1.0 / 60.0);
 
@@ -670,6 +677,8 @@ public class GameSceneBuilder {
                     playerAI.resetAIState();
                     toggleAutoPlay();
                     return;  // ngăn xử lý tiếp
+                } if (event.getCode() == KeyCode.F2) {
+                    playerEntity.setPosition(58*GMap.TILE_SIZE, 38*GMap.TILE_SIZE);
                 }
             }
 
@@ -803,7 +812,9 @@ public class GameSceneBuilder {
     }
     public static void initializeMusic() {
         try {
-            String musicFile = "/assets/music/battle-theme.mp3"; // Path to music file in resources folder
+            String musicFile;
+            if(Player.getLevel() % 4 == 0)  musicFile = "/assets/music/boss_theme.mp3";
+            else  musicFile = "/assets/music/battle-theme.mp3"; // Path to music file in resources folder
             Media backgroundMusic = new Media(GameSceneBuilder.class.getResource(musicFile).toExternalForm());
             backgroundMusicPlayer = new MediaPlayer(backgroundMusic);
             backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop indefinitely
