@@ -12,8 +12,6 @@ import com.almasb.fxgl.texture.AnimationChannel;
 import hoyocon.bomberman.Buff.BuffGeneric;
 import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.GameSceneBuilder;
-import static hoyocon.bomberman.GameSceneBuilder.camera;
-import static hoyocon.bomberman.GameSceneBuilder.gameWorld;
 import hoyocon.bomberman.Main;
 import hoyocon.bomberman.Map.GMap;
 import javafx.animation.AnimationTimer;
@@ -25,6 +23,8 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.AudioClip;
 import javafx.util.Duration;
+
+import static hoyocon.bomberman.GameSceneBuilder.*;
 
 public class Player extends Component {
     // Vị trí người chơi
@@ -423,8 +423,14 @@ public class Player extends Component {
             // Âm thanh nổ
             new AudioClip(getClass().getResource("/assets/sounds/explosion.wav").toString()).play();
 
-            if (camera != null) {
-                camera.startShake(100, 3);
+            if (Player.getLevel() >= 2) {
+                if (GameSceneBuilder.cameraFrog != null) {
+                    GameSceneBuilder.cameraFrog.startShake(10, 0.5);
+                }
+            } else {
+                if (GameSceneBuilder.camera != null) {
+                    GameSceneBuilder.camera.startShake(10, 0.5);
+                }
             }
 
             // Logic nổ với kiểm tra Wall/Brick
@@ -602,6 +608,11 @@ public class Player extends Component {
     private void onExit(){
         level++; // Tăng level
         // Dừng game loop hiện tại
+        if (level == 2) {
+            GameSceneBuilder.camera = null;
+            GameSceneBuilder.cameraFrog = null;
+        }
+
         if (GameSceneBuilder.gameLoop != null) {
             GameSceneBuilder.gameLoop.stop();
         }
