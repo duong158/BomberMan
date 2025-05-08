@@ -396,6 +396,50 @@ public class GameSceneBuilder {
                 // Bounds of player
                 Bounds playerBounds = playerEntity.getViewComponent().getParent().getBoundsInParent();
 
+                for (Pane p : bombEntities) {
+                    if (!(p instanceof Player.BombPane)) continue;
+                    Player.BombPane b = (Player.BombPane) p;
+                    // Kiểm tra va chạm đúng: bounds của player và bom
+                    int playerTileX = GMap.pixelToTile(playerEntity.getX());
+                    int playerTileY = GMap.pixelToTile(playerEntity.getY());
+                    int bombTileX = GMap.pixelToTile(b.getLayoutX());
+                    int bombTileY = GMap.pixelToTile(b.getLayoutY());
+
+                    int dx = 0, dy = 0;
+
+// Kiểm tra nếu player đang ở đúng phía đối diện bom
+                    if (isUpPressed && playerTileX == bombTileX && playerTileY == bombTileY + 1) {
+                        dy = -1;
+                    } else if (isDownPressed && playerTileX == bombTileX && playerTileY == bombTileY - 1) {
+                        dy = +1;
+                    } else if (isLeftPressed && playerTileY == bombTileY && playerTileX == bombTileX + 1) {
+                        dx = -1;
+                    } else if (isRightPressed && playerTileY == bombTileY && playerTileX == bombTileX - 1) {
+                        dx = +1;
+                    }
+
+                    if ((dx != 0 || dy != 0)) {
+                        int tx = bombTileX + dx;
+                        int ty = bombTileY + dy;
+
+                        boolean tileEmpty = gameGMap.isWalkable(ty, tx)
+                                && GameSceneBuilder.bombEntities.stream().noneMatch(o ->
+                                GMap.pixelToTile(o.getLayoutX()) == tx &&
+                                        GMap.pixelToTile(o.getLayoutY()) == ty)
+                                && GameSceneBuilder.enemyEntities.values().stream().flatMap(List::stream)
+                                .noneMatch(e ->
+                                        GMap.pixelToTile(e.getX()) == tx &&
+                                                GMap.pixelToTile(e.getY()) == ty);
+
+                        if (tileEmpty && !b.isSliding()) {
+                            b.startSliding(dx, dy);
+                        }
+                    }
+
+
+                }
+
+
                 // Player vs Flame
                 for (Pane flamePane : explosionEntities) {
                     Bounds flameBounds = flamePane.getBoundsInParent();

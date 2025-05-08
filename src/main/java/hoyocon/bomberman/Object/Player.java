@@ -89,6 +89,24 @@ public class Player extends Component {
 
     public static class BombPane extends Pane {
         private long timePlaced;
+
+        // ---- Bổ sung cho trượt ----
+        private boolean sliding = false;
+        private int dirX = 0, dirY = 0;
+        private double timeAcc = 0;
+        private static final double SLIDE_INTERVAL = 0.2;  // 0.2s cho mỗi ô
+
+        private boolean passThroughAllowed = true;
+
+        public boolean isPassThroughAllowed() {
+            return passThroughAllowed;
+        }
+
+        public void disablePassThrough() {
+            this.passThroughAllowed = false;
+        }
+
+
         public BombPane(AnimatedTexture tex, double x, double y) {
             super(tex);
             setPrefSize(GMap.TILE_SIZE, GMap.TILE_SIZE);
@@ -98,6 +116,47 @@ public class Player extends Component {
         }
         public long getTimePlaced() {
             return timePlaced;
+        }
+
+        // Khởi động trượt theo hướng dirX/dirY (−1,0, or +1)
+        public void startSliding(int dirX, int dirY) {
+            this.sliding = true;
+            this.dirX = dirX;
+            this.dirY = dirY;
+            this.timeAcc = 0;
+        }
+        public boolean isSliding() { return sliding; }
+
+        // Thực hiện 1 bước trượt nếu đủ time
+        public void updateSlide(double tpf, GMap map) {
+            if (!sliding) return;
+            timeAcc += tpf;
+            if (timeAcc < SLIDE_INTERVAL) return;
+            timeAcc = 0;
+
+            double nextX = getLayoutX() + dirX * GMap.TILE_SIZE;
+            double nextY = getLayoutY() + dirY * GMap.TILE_SIZE;
+            int tileX = GMap.pixelToTile(nextX);
+            int tileY = GMap.pixelToTile(nextY);
+
+            // Kiểm tra vật cản: wall/brick/enemy/bomb khác
+            boolean blocked =
+                    !map.isWalkable(tileY, tileX)
+                            || GameSceneBuilder.enemyEntities.values().stream()
+                            .flatMap(List::stream)
+                            .anyMatch(e -> GMap.pixelToTile(e.getX())==tileX
+                                    && GMap.pixelToTile(e.getY())==tileY)
+                            || GameSceneBuilder.bombEntities.stream()
+                            .anyMatch(b -> b != this
+                                    && GMap.pixelToTile(b.getLayoutX())==tileX
+                                    && GMap.pixelToTile(b.getLayoutY())==tileY);
+
+            if (blocked) {
+                sliding = false;
+            } else {
+                setLayoutX(nextX);
+                setLayoutY(nextY);
+            }
         }
     }
 
@@ -128,6 +187,19 @@ public class Player extends Component {
             if (row < 0 || row >= gameGMap.height || col < 0 || col >= gameGMap.width || !gameGMap.isWalkable(row, col)) {
                 return false;
             }
+
+            if (!flamePassActive) {
+                boolean hasBlockingBomb = GameSceneBuilder.bombEntities.stream()
+                        .filter(p -> p instanceof Player.BombPane)  // chỉ lấy BombPane
+                        .map(p -> (Player.BombPane) p)              // ép kiểu an toàn
+                        .anyMatch(bomb ->
+                                GMap.pixelToTile(bomb.getLayoutX()) == col &&
+                                        GMap.pixelToTile(bomb.getLayoutY()) == row &&
+                                        !bomb.isPassThroughAllowed()
+                        );
+                if (hasBlockingBomb) return false;
+            }
+
         }
         return true;
     }
@@ -179,6 +251,20 @@ public class Player extends Component {
             onExit();
             hasExited = true;
         }
+
+        int currentTileX = GMap.pixelToTile(entity.getX());
+        int currentTileY = GMap.pixelToTile(entity.getY());
+
+        for (BombPane bomb : bombs) {
+            int bombTileX = GMap.pixelToTile(bomb.getLayoutX());
+            int bombTileY = GMap.pixelToTile(bomb.getLayoutY());
+
+            // Nếu player đã rời khỏi ô có bom → tắt quyền đi xuyên
+            if (!(bombTileX == currentTileX && bombTileY == currentTileY)) {
+                bomb.disablePassThrough();
+            }
+        }
+
     }
 
     private void updateAnimation() {
@@ -407,6 +493,8 @@ public class Player extends Component {
             @Override
             public void handle(long now) {
                 bombTexture.onUpdate(1.0 / 60.0);
+
+                bombPane.updateSlide(1.0/60.0, gameGMap);
             }
         };
         GameSceneBuilder.registerAnimationTimer(bombAnimLoop);
@@ -437,8 +525,10 @@ public class Player extends Component {
             }
 
             // Logic nổ với kiểm tra Wall/Brick
-            int bombCellX = (int)(snappedX / tileSize);
-            int bombCellY = (int)(snappedY / tileSize);
+            double currentX = bombPane.getLayoutX();
+            double currentY = bombPane.getLayoutY();
+            int bombCellX = (int)(currentX / tileSize);
+            int bombCellY = (int)(currentY / tileSize);
             int[][] gridDirs = {
                     { 0,  0},  // trung tâm
                     { 0, -1},  // lên
