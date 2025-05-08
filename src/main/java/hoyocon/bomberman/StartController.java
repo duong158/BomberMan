@@ -8,16 +8,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
+
 
 public class StartController {
     @FXML
@@ -78,39 +76,6 @@ public class StartController {
 
     @FXML
     private void onHowToPlayClicked(ActionEvent event) throws IOException {
-        /*try {
-            // 1. Dừng nhạc nền nếu đang phát
-            if (mediaPlayer != null) {
-                mediaPlayer.stop();
-            }
-
-            // 2. Tìm URL của FXML
-            URL guideUrl = StartController.class
-                    .getClassLoader()
-                    .getResource("hoyocon/bomberman/Guide-view.fxml");
-            System.out.println("DEBUG: guideUrl = " + guideUrl);
-            if (guideUrl == null) {
-                throw new FileNotFoundException(
-                        "Không tìm thấy hướng dẫn: /hoyocon/bomberman/Guide-view.fxml"
-                );
-            }
-
-            // 3. Load và chuyển scene
-            Parent guideView = FXMLLoader.load(guideUrl);
-            Scene scene = new Scene(guideView, 1920, 1080);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (Exception e) {
-            // 4. Bắt mọi Exception (bao gồm NullPointerException nếu resource null)
-            e.printStackTrace();
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lỗi");
-            alert.setHeaderText("Không thể mở hướng dẫn");
-            alert.setContentText(e.getClass().getSimpleName() + ": " + e.getMessage());
-            alert.show();
-        }*/
         if (mediaPlayer != null) {
             mediaPlayer.stop();
         }
@@ -122,20 +87,10 @@ public class StartController {
     }
 
     @FXML
-    private void onMenuClicked(ActionEvent event) throws IOException {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-        }
-        Parent menuView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Start-view.fxml"));
-        Scene scene = new Scene(menuView, 1920, 1080);
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(scene);
-        stage.show();
-    }
-
-    @FXML
     private void onStartClicked(ActionEvent event) {
         cleanup();
+        SfxManager.setSfxEnabled(isSfxOn);
+        System.out.println("StartController: onStartClicked -> isSfxOn = " + isSfxOn);
         Scene gameScene = GameSceneBuilder.buildNewGameScene();
         Player.level = 1;
         Main.mainStage.setScene(gameScene);
@@ -170,15 +125,15 @@ public class StartController {
     @FXML
     private void handleSfxOn() {
         isSfxOn = true;
+        SfxManager.setSfxEnabled(true);
         updateButtonStates();
-        // Add SFX logic here
     }
 
     @FXML
     private void handleSfxOff() {
         isSfxOn = false;
+        SfxManager.setSfxEnabled(false);
         updateButtonStates();
-        // Add SFX logic here
     }
 
     public void cleanup() {

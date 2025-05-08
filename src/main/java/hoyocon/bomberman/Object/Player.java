@@ -14,6 +14,7 @@ import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.GameSceneBuilder;
 import hoyocon.bomberman.Main;
 import hoyocon.bomberman.Map.GMap;
+import hoyocon.bomberman.SfxManager;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Bounds;
@@ -395,7 +396,7 @@ public class Player extends Component {
         GameSceneBuilder.bombEntities.add(bombPane);
 
         // Âm thanh và animation đặt bom
-        new AudioClip(getClass().getResource("/assets/sounds/place_bomb.wav").toString()).play();
+        SfxManager.playExplosion();
         bombTexture.loop();
 
         // Hẹn 2s để nổ
@@ -423,7 +424,7 @@ public class Player extends Component {
             bombCount--;
 
             // Âm thanh nổ
-            new AudioClip(getClass().getResource("/assets/sounds/explosion.wav").toString()).play();
+            SfxManager.playExplosion();
 
             if (Player.getLevel() >= 2) {
                 if (GameSceneBuilder.cameraFrog != null) {
