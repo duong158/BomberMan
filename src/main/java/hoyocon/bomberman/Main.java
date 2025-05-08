@@ -30,7 +30,7 @@ public class Main extends Application {
                     10   // size bất kỳ, chỉ để register
             );
             Parent root = FXMLLoader.load(Objects.requireNonNull(
-                    getClass().getResource("/hoyocon/bomberman/Start-view.fxml")
+                    getClass().getResource("/FXML/Start-view.fxml")
             ));
             Scene scene = new Scene(root, 1920, 1080);
 

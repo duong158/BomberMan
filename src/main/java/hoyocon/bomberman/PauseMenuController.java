@@ -41,7 +41,7 @@ public class PauseMenuController {
     }
     private void showConfirmationDialog(String title, String message, Runnable onConfirm) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/hoyocon/bomberman/ConfirmationDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/ConfirmationDialog.fxml"));
             VBox dialogRoot = loader.load();
             // Configure dialog
             ConfirmationDialogController controller = loader.getController();
@@ -93,7 +93,7 @@ public class PauseMenuController {
                     try {
                         // Load the main Start view
                         Parent startView = FXMLLoader.load(
-                                getClass().getResource("/hoyocon/bomberman/Start-view.fxml")
+                                getClass().getResource("/FXML/Start-view.fxml")
                         );
                         Scene startScene = new Scene(startView, 1920, 1080);
 

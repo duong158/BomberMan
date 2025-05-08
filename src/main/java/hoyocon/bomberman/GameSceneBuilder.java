@@ -507,7 +507,7 @@ public class GameSceneBuilder {
                                     stop(); // Stop game loop after animation completes
 
                                     try {
-                                        Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
+                                        Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/FXML/GameOver.fxml"));
                                         Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
 
                                         // Add null check before accessing window/stage
@@ -600,7 +600,7 @@ public class GameSceneBuilder {
                                         stop(); // Stop game loop after animation completes
 
                                         try {
-                                            Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/hoyocon/bomberman/GameOver.fxml"));
+                                            Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/FXML/GameOver.fxml"));
                                             Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
 
                                             // Add null check before accessing window/stage
@@ -751,7 +751,7 @@ public class GameSceneBuilder {
         // 2. Tải FXML pause menu
         try {
             FXMLLoader loader = new FXMLLoader(
-                    GameSceneBuilder.class.getResource("/hoyocon/bomberman/pause_menu.fxml"));
+                    GameSceneBuilder.class.getResource("/FXML/pause_menu.fxml"));
             AnchorPane menuPane = loader.load();
             PauseMenuController ctrl = loader.getController();
             ctrl.setUiPane(uiPane);

@@ -112,7 +112,7 @@ public class GuideController {
     private void handleKeyPressed(KeyEvent event) {
         if (event.getCode() == KeyCode.ESCAPE) {
             try {
-                Parent startView = FXMLLoader.load(getClass().getResource("/hoyocon/bomberman/Start-view.fxml"));
+                Parent startView = FXMLLoader.load(getClass().getResource("/FXML/Start-view.fxml"));
                 Scene scene = new Scene(startView, 1920, 1080);
                 Stage stage = Main.mainStage;
                 stage.setScene(scene);

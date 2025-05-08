@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoyocon.bomberman.GameOverController">
+    <children>
+        <ImageView fitHeight="1080.0" fitWidth="1920.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@../hoyocon/bomberman/Image.jpg" />
+            </image>
+        </ImageView>
+        <ImageView fitHeight="419.0" fitWidth="656.0" layoutX="632.0" layoutY="53.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@../hoyocon/bomberman/gameover.png" />
+            </image>
+        </ImageView>
+        <VBox alignment="CENTER" layoutX="729.0" layoutY="458.0" prefHeight="464.0" prefWidth="462.0" spacing="40">
+            <children>
+                <Button alignment="CENTER" mnemonicParsing="false" onAction="#onRetryClicked" prefHeight="72.0" prefWidth="370.0" text="RETRY" textFill="WHITE">
+                    <stylesheets>
+                        <URL value="@../CSS/ColorChange.css" />
+                        <URL value="@../CSS/ZoomStyle.css" />
+                        <URL value="@../CSS/InvisibleStyle.css" />
+                    </stylesheets>
+                    <styleClass>
+                        <String fx:value="color-change" />
+                        <String fx:value="invisible-button" />
+                        <String fx:value="zoom-effect" />
+                    </styleClass>
+                    <font>
+                        <Font name="Press Start 2P" size="40.0" />
+                    </font>
+                </Button>
+                <Button alignment="CENTER" mnemonicParsing="false" onAction="#onMenuClicked" prefHeight="72.0" prefWidth="322.0" text="MENU" textFill="WHITE">
+                    <stylesheets>
+                        <URL value="@../CSS/ColorChange.css" />
+                        <URL value="@../CSS/InvisibleStyle.css" />
+                        <URL value="@../CSS/ZoomStyle.css" />
+                    </stylesheets>
+                    <styleClass>
+                        <String fx:value="zoom-effect" />
+                        <String fx:value="color-change" />
+                        <String fx:value="invisible-button" />
+                    </styleClass>
+                    <font>
+                        <Font name="Press Start 2P" size="40.0" />
+                    </font>
+                </Button>
+                <Button alignment="CENTER" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="72.0" prefWidth="399.0" text="EXIT" textFill="WHITE">
+                    <stylesheets>
+                        <URL value="@../CSS/InvisibleStyle.css" />
+                        <URL value="@../CSS/ColorChange.css" />
+                        <URL value="@../CSS/ZoomStyle.css" />
+                    </stylesheets>
+                    <styleClass>
+                        <String fx:value="zoom-effect" />
+                        <String fx:value="invisible-button" />
+                        <String fx:value="color-change" />
+                    </styleClass>
+                    <font>
+                        <Font name="Press Start 2P" size="40.0" />
+                    </font>
+                </Button>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
