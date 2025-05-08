@@ -54,6 +54,8 @@ public class GameSceneBuilder {
     private static boolean isDownPressed = false;
     private static boolean isLeftPressed = false;
     private static boolean isRightPressed = false;
+    // Biến theo dõi trạng thái người chơi để thêm âm thanh.
+    private static boolean wasMoving = false;
 
     private static MediaPlayer backgroundMusicPlayer;
     private static MediaPlayer gameOverMusicPlayer;
@@ -166,7 +168,10 @@ public class GameSceneBuilder {
 
     public static Scene buildNewGameScene() {
         // 1. Dừng game loop và xóa sạch trạng thái cũ
-        if (gameLoop != null) gameLoop.stop();
+        if (gameLoop != null) {
+            gameLoop.stop();
+            SfxManager.stopWalk();
+        }
         buffEntities.clear();
         enemyEntities.clear();
         allEnemyEntities.clear();
@@ -430,6 +435,15 @@ public class GameSceneBuilder {
                         playerComponent.stop();
                     }
                 }
+
+                if (moved && !wasMoving) {
+                    SfxManager.playWalk();
+                    wasMoving = true;
+                } else if (!moved && wasMoving) {
+                    SfxManager.stopWalk();
+                    wasMoving = false;
+                }
+
                 //Muốn dùng AI thì bỏ comment
                 if (autoPlayEnabled) {
                     playerAI.update(now);
@@ -676,6 +690,7 @@ public class GameSceneBuilder {
             // Always allow ESC key regardless of player state
             if (event.getCode() == KeyCode.ESCAPE) {
                 if (gameLoop != null) gameLoop.stop();
+                SfxManager.stopWalk();
                 showPauseMenu(uiPane);
             }
         });
@@ -745,7 +760,10 @@ public class GameSceneBuilder {
 //        pauseBackgroundMusic();
 
         // 1. Dừng gameLoop và pause tất cả Transitions/Timers
-        if (gameLoop != null) gameLoop.stop();
+        if (gameLoop != null) {
+            SfxManager.stopWalk();
+            gameLoop.stop();
+        }
         pauseAll();
 
         // 2. Tải FXML pause menu
@@ -812,6 +830,7 @@ public class GameSceneBuilder {
             if (musicEnabled) {
                 backgroundMusicPlayer.play();
             }
+            SfxManager.initWalk();
         } catch (Exception e) {
             System.err.println("Error loading background music: " + e.getMessage());
             e.printStackTrace();

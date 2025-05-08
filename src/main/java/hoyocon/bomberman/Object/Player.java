@@ -472,6 +472,7 @@ public class Player extends Component {
         for (BuffEntity buffEntity : buffEntities) {
             if (this.getBounds().intersects(buffEntity.getImageView().getBoundsInParent())) {
                 buffEntity.getBuff().apply(this);
+                SfxManager.playBuff();
                 collectedBuffs.add(buffEntity);
                 gamePane.getChildren().remove(buffEntity.getImageView());
                 gameWorld.getChildren().remove(buffEntity.getImageView());
@@ -711,6 +712,7 @@ public class Player extends Component {
 
         if (GameSceneBuilder.gameLoop != null) {
             GameSceneBuilder.gameLoop.stop();
+            SfxManager.stopWalk();
         }
 
         // Làm sạch danh sách thực thể và trạng thái
