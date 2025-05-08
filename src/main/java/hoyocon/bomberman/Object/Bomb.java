@@ -4,6 +4,7 @@ import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.texture.AnimatedTexture;
 import com.almasb.fxgl.texture.AnimationChannel;
 import hoyocon.bomberman.GameSceneBuilder;
+import hoyocon.bomberman.SfxManager;
 import javafx.animation.PauseTransition;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
@@ -40,9 +41,7 @@ public class Bomb extends Component {
         entity.getViewComponent().addChild(texture);
         texture.loop();
 
-        // Phát sound đặt bom
-        AudioClip placeSfx = new AudioClip(getClass().getResource("/assets/sounds/place_bomb.wav").toString());
-        placeSfx.play();
+        SfxManager.playPlaceBomb();
 
         // Hẹn nổ sau 2s
         PauseTransition delay = new PauseTransition(Duration.seconds(2));
@@ -58,8 +57,7 @@ public class Bomb extends Component {
     /** Gây nổ bom: tạo hiệu ứng flame xung quanh và play sound */
     public void explode() {
         // Phát âm thanh nổ
-        AudioClip explodeSfx = new AudioClip(getClass().getResource("/assets/sounds/explosion.wav").toString());
-        explodeSfx.play();
+        SfxManager.playExplosion();
 
         double x = entity.getX();
         double y = entity.getY();
