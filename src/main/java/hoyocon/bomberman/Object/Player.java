@@ -17,6 +17,7 @@ import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.SfxManager;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -89,7 +90,7 @@ public class Player extends Component {
 
     public static class BombPane extends Pane {
         private long timePlaced;
-        private boolean sliding = false;
+        public boolean sliding = false;
         private int dirX = 0, dirY = 0;
         private double timeAcc = 0;
         private static final double SLIDE_INTERVAL = 0.2;  // 0.2s cho mỗi ô
@@ -152,6 +153,21 @@ public class Player extends Component {
                             .anyMatch(b -> b != this
                                     && GMap.pixelToTile(b.getLayoutX()) == tileX
                                     && GMap.pixelToTile(b.getLayoutY()) == tileY);
+
+            // Add boss collision check
+            if (GameSceneBuilder.boss != null) {
+                Bounds nextBombBounds = new BoundingBox(
+                        nextX,
+                        nextY,
+                        GMap.TILE_SIZE,
+                        GMap.TILE_SIZE
+                );
+                Bounds bossBounds = GameSceneBuilder.boss.getBounds();
+                if (nextBombBounds.intersects(bossBounds)) {
+                    blocked = true;
+                    System.out.println("Bomb stopped due to boss collision");
+                }
+            }
 
             if (blocked) {
                 sliding = false;
@@ -234,7 +250,7 @@ public class Player extends Component {
     }
 
     public Player() {
-        this.lives = 3;
+        this.lives = 1000;
         this.speed = baseSpeed;
         this.bombCount = 0;
         maxBombs = 1;
@@ -709,6 +725,7 @@ public class Player extends Component {
     private void onExit(){
         level++; // Tăng level
         // Dừng game loop hiện tại
+        GameSceneBuilder.resetMusic();
 
         if (GameSceneBuilder.gameLoop != null) {
             GameSceneBuilder.gameLoop.stop();

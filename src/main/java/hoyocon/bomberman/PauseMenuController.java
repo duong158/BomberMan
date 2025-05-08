@@ -9,6 +9,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.control.Button;
 import javafx.event.ActionEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -27,12 +29,16 @@ public class PauseMenuController {
 
     private Pane uiPane;
 
-    /** Gọi từ GameSceneBuilder sau khi load FXML để inject uiPane */
+    /**
+     * Gọi từ GameSceneBuilder sau khi load FXML để inject uiPane
+     */
     public void setUiPane(Pane uiPane) {
         this.uiPane = uiPane;
     }
 
-    /** Handler cho nút Continue */
+    /**
+     * Handler cho nút Continue
+     */
     @FXML
     private void onContinue(ActionEvent event) {
         GameSceneBuilder.hidePauseMenu(uiPane);
@@ -41,6 +47,7 @@ public class PauseMenuController {
         }
         uiPane.getScene().getRoot().requestFocus();
     }
+
     private void showConfirmationDialog(String title, String message, Runnable onConfirm) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/ConfirmationDialog.fxml"));
@@ -71,6 +78,7 @@ public class PauseMenuController {
 
     @FXML
     private void onExit(ActionEvent event) {
+        areUsure();
         showConfirmationDialog(
                 "Exit Game",
                 "Are you sure you want to exit the game?",
@@ -84,6 +92,7 @@ public class PauseMenuController {
 
     @FXML
     private void onMenu(ActionEvent event) {
+        areUsure();
         showConfirmationDialog(
                 "Return to Main Menu",
                 "Are you sure you want to return to the main menu? Your progress will be lost.",
@@ -127,6 +136,16 @@ public class PauseMenuController {
             } else {
                 musicToggleBtn.setText("♫OFF");
             }
+        }
+    }
+
+    private void areUsure() {
+        try{
+            Media media = new Media(getClass().getResource("/assets/sounds/omni-man-are-you-sure.mp3").toExternalForm());
+            MediaPlayer player = new MediaPlayer(media);
+            player.play();
+        } catch (Exception e) {
+            System.out.println("Nah, I'm sure");
         }
     }
 }

@@ -154,7 +154,7 @@ public class PlayerAIController {
 
         Position playerPos = getPlayerPosition();
         
-        log("AI State: " + currentState + ", Player at " + playerPos);
+        log("AI State: " + currentState + ", Player at " + playerPos + "Player At" + playerEntity.getX() + "," + playerEntity.getY());
         
         // State machine for AI behavior
         switch (currentState) {
