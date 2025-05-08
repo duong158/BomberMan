@@ -12,10 +12,9 @@ import com.almasb.fxgl.texture.AnimationChannel;
 import hoyocon.bomberman.Buff.BuffGeneric;
 import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.GameSceneBuilder;
-import static hoyocon.bomberman.GameSceneBuilder.camera;
-import static hoyocon.bomberman.GameSceneBuilder.gameWorld;
 import hoyocon.bomberman.Main;
 import hoyocon.bomberman.Map.GMap;
+import hoyocon.bomberman.SfxManager;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Bounds;
@@ -26,10 +25,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.media.AudioClip;
 import javafx.util.Duration;
 
-public class Player extends Component {
-    // Vị trí người chơi
-    private int x, y;
+import static hoyocon.bomberman.GameSceneBuilder.*;
 
+public class Player extends Component {
     public static int level = 1;
     private boolean hasExited = false;
 
@@ -91,6 +89,25 @@ public class Player extends Component {
 
     public static class BombPane extends Pane {
         private long timePlaced;
+        private boolean sliding = false;
+        private int dirX = 0, dirY = 0;
+        private double timeAcc = 0;
+        private static final double SLIDE_INTERVAL = 0.2;  // 0.2s cho mỗi ô
+        private boolean passThroughAllowed = true;
+
+        public boolean isPassThroughAllowed() {
+            return passThroughAllowed;
+        }
+
+        public void disablePassThrough() {
+            this.passThroughAllowed = false;
+        }
+
+        // Add this new method
+        public void setPassThroughAllowed(boolean allowed) {
+            this.passThroughAllowed = allowed;
+        }
+
         public BombPane(AnimatedTexture tex, double x, double y) {
             super(tex);
             setPrefSize(GMap.TILE_SIZE, GMap.TILE_SIZE);
@@ -98,10 +115,92 @@ public class Player extends Component {
             setLayoutY(y);
             this.timePlaced = System.currentTimeMillis();
         }
+
         public long getTimePlaced() {
             return timePlaced;
         }
+
+        public void startSliding(int dirX, int dirY) {
+            this.sliding = true;
+            this.dirX = dirX;
+            this.dirY = dirY;
+            this.timeAcc = 0;
+        }
+
+        public boolean isSliding() {
+            return sliding;
+        }
+
+        public void updateSlide(double tpf, GMap map) {
+            if (!sliding) return;
+            timeAcc += tpf;
+            if (timeAcc < SLIDE_INTERVAL) return;
+            timeAcc = 0;
+
+            double nextX = getLayoutX() + dirX * GMap.TILE_SIZE;
+            double nextY = getLayoutY() + dirY * GMap.TILE_SIZE;
+            int tileX = GMap.pixelToTile(nextX);
+            int tileY = GMap.pixelToTile(nextY);
+
+            boolean blocked =
+                    !map.isWalkable(tileY, tileX)
+                            || GameSceneBuilder.enemyEntities.values().stream()
+                            .flatMap(List::stream)
+                            .anyMatch(e -> GMap.pixelToTile(e.getX()) == tileX
+                                    && GMap.pixelToTile(e.getY()) == tileY)
+                            || GameSceneBuilder.bombEntities.stream()
+                            .anyMatch(b -> b != this
+                                    && GMap.pixelToTile(b.getLayoutX()) == tileX
+                                    && GMap.pixelToTile(b.getLayoutY()) == tileY);
+
+            if (blocked) {
+                sliding = false;
+            } else {
+                setLayoutX(nextX);
+                setLayoutY(nextY);
+            }
+        }
     }
+
+    private boolean tryPushBomb(int dirX, int dirY) {
+        int px = GMap.pixelToTile(entity.getX());
+        int py = GMap.pixelToTile(entity.getY());
+        // Chuyển sang kiểm tra bom ở ô phía trước player
+        int bx = px + dirX;
+        int by = py + dirY;
+        // Ô sau bom
+        int nx = bx + dirX;
+        int ny = by + dirY;
+
+        for (BombPane bomb : bombs) {
+            if (GMap.pixelToTile(bomb.getLayoutX()) == bx
+                    && GMap.pixelToTile(bomb.getLayoutY()) == by) {
+
+                // Kiểm tra ô sau bom trống: không tường/gạch, không bom khác, không enemy
+                boolean tileEmpty = gameGMap.isWalkable(ny, nx)
+                        && bombs.stream().noneMatch(b ->
+                        GMap.pixelToTile(b.getLayoutX()) == nx &&
+                                GMap.pixelToTile(b.getLayoutY()) == ny)
+                        && GameSceneBuilder.enemyEntities.values().stream()
+                        .flatMap(List::stream)
+                        .noneMatch(e ->
+                                GMap.pixelToTile(e.getX()) == nx &&
+                                        GMap.pixelToTile(e.getY()) == ny);
+
+                if (tileEmpty && !bomb.isSliding()) {
+                    double tile = GMap.TILE_SIZE;
+                    bomb.setLayoutX(nx * tile);
+                    bomb.setLayoutY(ny * tile);
+                    bomb.startSliding(dirX, dirY);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
 
     // Get hitbox with margins for better collision detection
     private double[][] getHitboxPoints(double x, double y) {
@@ -135,8 +234,8 @@ public class Player extends Component {
     }
 
     public Player() {
-        lives = 1000;
-        speed = baseSpeed;
+        this.lives = 3;
+        this.speed = baseSpeed;
         this.bombCount = 0;
         maxBombs = 1;
         this.canPlaceBomb = true;
@@ -181,6 +280,20 @@ public class Player extends Component {
             onExit();
             hasExited = true;
         }
+
+        int currentTileX = GMap.pixelToTile(entity.getX());
+        int currentTileY = GMap.pixelToTile(entity.getY());
+
+        for (BombPane bomb : bombs) {
+            int bombTileX = GMap.pixelToTile(bomb.getLayoutX());
+            int bombTileY = GMap.pixelToTile(bomb.getLayoutY());
+
+            // Nếu player đã rời khỏi ô có bom → tắt quyền đi xuyên
+            if (!(bombTileX == currentTileX && bombTileY == currentTileY)) {
+                bomb.disablePassThrough();
+            }
+        }
+
     }
 
     private void updateAnimation() {
@@ -373,7 +486,6 @@ public class Player extends Component {
         double snappedX = Math.floor(entity.getX() / tileSize) * tileSize;
         double snappedY = Math.floor(entity.getY() / tileSize) * tileSize;
 
-        // 1) Không đặt hai quả bom cùng ô
         for (Pane b : bombs) {
             if (b.getLayoutX() == snappedX && b.getLayoutY() == snappedY) {
                 return false;
@@ -390,18 +502,16 @@ public class Player extends Component {
         Bomb bombComponent = new Bomb(this, gamePane);
         AnimatedTexture bombTexture = bombComponent.getTexture();
 
-        // ---- DÙNG BOMB PANE ----
         BombPane bombPane = new BombPane(bombTexture, snappedX, snappedY);
+        bombPane.setPassThroughAllowed(true); // Đảm bảo bom mới cho phép đi qua
         gamePane.getChildren().add(bombPane);
         gameWorld.getChildren().add(bombPane);
         bombs.add(bombPane);
         GameSceneBuilder.bombEntities.add(bombPane);
 
-        // Âm thanh và animation đặt bom
-        new AudioClip(getClass().getResource("/assets/sounds/place_bomb.wav").toString()).play();
+        SfxManager.playExplosion();
         bombTexture.loop();
 
-        // Hẹn 2s để nổ
         PauseTransition delay = new PauseTransition(Duration.seconds(2));
         GameSceneBuilder.registerPauseTransition(delay);
 
@@ -409,6 +519,7 @@ public class Player extends Component {
             @Override
             public void handle(long now) {
                 bombTexture.onUpdate(1.0 / 60.0);
+                bombPane.updateSlide(1.0/60.0, gameGMap);
             }
         };
         GameSceneBuilder.registerAnimationTimer(bombAnimLoop);
@@ -416,7 +527,6 @@ public class Player extends Component {
 
         delay.setOnFinished(evt -> {
             GameSceneBuilder.unregisterTransition(delay);
-            // Dừng animation bom và xoá bom khỏi scene
             bombAnimLoop.stop();
             GameSceneBuilder.unregisterTimer(bombAnimLoop);
             gamePane.getChildren().remove(bombPane);
@@ -425,22 +535,32 @@ public class Player extends Component {
             GameSceneBuilder.bombEntities.remove(bombPane);
             bombCount--;
 
-            // Âm thanh nổ
-            new AudioClip(getClass().getResource("/assets/sounds/explosion.wav").toString()).play();
+            SfxManager.playExplosion();
 
-            if (camera != null) {
-                camera.startShake(100, 3);
+            if (Player.getLevel() % 2 == 0 && Player.getLevel() % 4 != 0) {
+                if (GameSceneBuilder.cameraFrog != null) {
+                    GameSceneBuilder.cameraFrog.startShake(200, 1);
+                }
+            } else if (Player.getLevel() % 4 == 0 || Player.getLevel() % 3 == 0) {
+                if (GameSceneBuilder.cameraStorm != null) {
+                    GameSceneBuilder.cameraStorm.startShake(200, 1);
+                }
+            } else {
+                if (GameSceneBuilder.camera != null) {
+                    GameSceneBuilder.camera.startShake(200, 1);
+                }
             }
 
-            // Logic nổ với kiểm tra Wall/Brick
-            int bombCellX = (int)(snappedX / tileSize);
-            int bombCellY = (int)(snappedY / tileSize);
+            double currentX = bombPane.getLayoutX();
+            double currentY = bombPane.getLayoutY();
+            int bombCellX = (int)(currentX / tileSize);
+            int bombCellY = (int)(currentY / tileSize);
             int[][] gridDirs = {
-                    { 0,  0},  // trung tâm
-                    { 0, -1},  // lên
-                    { 0,  1},  // xuống
-                    {-1,  0},  // trái
-                    { 1,  0}   // phải
+                    { 0,  0},
+                    { 0, -1},
+                    { 0,  1},
+                    {-1,  0},
+                    { 1,  0}
             };
 
             for (int d = 0; d < gridDirs.length; d++) {
@@ -451,11 +571,9 @@ public class Player extends Component {
                     int cellX = bombCellX + dx * step;
                     int cellY = bombCellY + dy * step;
 
-                    // 1) Dừng hướng nếu gặp Wall
                     if (gameGMap.isWallHitbox(cellY, cellX))
                         break;
 
-                    // 2) Vẽ flame
                     double fx = cellX * tileSize;
                     double fy = cellY * tileSize;
                     String texPath;
@@ -489,7 +607,6 @@ public class Player extends Component {
                     GameSceneBuilder.registerAnimationTimer(flameLoop);
                     flameLoop.start();
 
-                    // Xóa flame sau 1s
                     PauseTransition t = new PauseTransition(Duration.seconds(1));
                     GameSceneBuilder.registerPauseTransition(t);
                     t.setOnFinished(e2 -> {
@@ -500,9 +617,7 @@ public class Player extends Component {
                     });
                     t.play();
 
-                    // 3) Nếu gặp Brick thì phá và dừng
                     if (gameGMap.isBrickHitbox(cellY, cellX)) {
-                        // Hiệu ứng phá Brick
                         Image breakSheet = new Image(
                                 getClass().getResourceAsStream("/assets/textures/brick_break.png")
                         );
@@ -551,7 +666,6 @@ public class Player extends Component {
                     }
                 }
             }
-            // Kết thúc logic nổ
         });
 
         delay.play();
@@ -591,25 +705,10 @@ public class Player extends Component {
         activeBuffs.put("speed", System.currentTimeMillis());
     }
 
-    public void pickUpItem(String itemType) {
-        switch (itemType) {
-            case "speed":
-                increaseSpeed(1);
-                break;
-            case "flameRange":
-                increaseFlameRange(1);
-                break;
-            case "bomb":
-                setMaxBombs(getMaxBombs() + 1);
-                activeBuffs.put("bomb", System.currentTimeMillis());
-                break;
-            default:
-                System.out.println("Unknown item type: " + itemType);
-        }
-    }
     private void onExit(){
         level++; // Tăng level
         // Dừng game loop hiện tại
+
         if (GameSceneBuilder.gameLoop != null) {
             GameSceneBuilder.gameLoop.stop();
         }
@@ -663,14 +762,6 @@ public class Player extends Component {
         pause.play();
     }
 
-    public void setPosition(double x, double y) {
-        this.x = (int) x;
-        this.y = (int) y;
-        // Đẩy tọa độ xuống FXGL Entity để hiển thị
-        if (entity != null) {
-            entity.setPosition(x, y);
-        }
-    }
 
     public State getState() {
         return state;

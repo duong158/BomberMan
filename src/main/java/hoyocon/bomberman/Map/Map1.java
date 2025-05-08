@@ -174,13 +174,5 @@ public class Map1 {
         }
     }
 
-    public void printMapToConsole(int[][] map) {
-        for (int[] ints : map) {
-            for (int x = 0; x < map[0].length; x++) {
-                System.out.print(ints[x] + " ");
-            }
-            System.out.println();
-        }
-    }
 
 }

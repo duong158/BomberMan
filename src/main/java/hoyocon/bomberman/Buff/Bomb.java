@@ -15,6 +15,7 @@ public class Bomb implements BuffGeneric {
         // Không cần đưa vào activeBuffs nếu vĩnh viễn
     }
 
+
     @Override
     public void remove(Player player) {
         // Nếu muốn buff hết hạn 10s thì giảm lại 1 ở đây
