@@ -397,25 +397,27 @@ public class GameSceneBuilder {
                 Bounds playerBounds = playerEntity.getViewComponent().getParent().getBoundsInParent();
 
                 for (Pane p : bombEntities) {
+
                     if (!(p instanceof Player.BombPane)) continue;
                     Player.BombPane b = (Player.BombPane) p;
-                    // Kiểm tra va chạm đúng: bounds của player và bom
                     int playerTileX = GMap.pixelToTile(playerEntity.getX());
                     int playerTileY = GMap.pixelToTile(playerEntity.getY());
+                    int playerTileX1 = GMap.pixelToTile(playerEntity.getX() + 45);
+                    int playerTileY1 = GMap.pixelToTile(playerEntity.getY() + 45);
                     int bombTileX = GMap.pixelToTile(b.getLayoutX());
                     int bombTileY = GMap.pixelToTile(b.getLayoutY());
 
                     int dx = 0, dy = 0;
-
-// Kiểm tra nếu player đang ở đúng phía đối diện bom
-                    if (isUpPressed && playerTileX == bombTileX && playerTileY == bombTileY + 1) {
-                        dy = -1;
-                    } else if (isDownPressed && playerTileX == bombTileX && playerTileY == bombTileY - 1) {
-                        dy = +1;
-                    } else if (isLeftPressed && playerTileY == bombTileY && playerTileX == bombTileX + 1) {
-                        dx = -1;
-                    } else if (isRightPressed && playerTileY == bombTileY && playerTileX == bombTileX - 1) {
-                        dx = +1;
+                    if (playerTileX != bombTileX || playerTileY != bombTileY && playerTileX1 == playerTileX && playerTileY1 == playerTileY) {
+                        if (isUpPressed && playerTileX == bombTileX && playerTileY == bombTileY + 1) {
+                            dy = -1;
+                        } else if (isDownPressed && playerTileX == bombTileX && playerTileY == bombTileY - 1) {
+                            dy = +1;
+                        } else if (isLeftPressed && playerTileY == bombTileY && playerTileX == bombTileX + 1) {
+                            dx = -1;
+                        } else if (isRightPressed && playerTileY == bombTileY && playerTileX == bombTileX - 1) {
+                            dx = +1;
+                        }
                     }
 
                     if ((dx != 0 || dy != 0)) {
@@ -435,8 +437,6 @@ public class GameSceneBuilder {
                             b.startSliding(dx, dy);
                         }
                     }
-
-
                 }
 
 
