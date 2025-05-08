@@ -540,13 +540,17 @@ public class Player extends Component {
 
             SfxManager.playExplosion();
 
-            if (Player.getLevel() >= 2) {
+            if (Player.getLevel() % 2 == 0 && Player.getLevel() % 4 != 0) {
                 if (GameSceneBuilder.cameraFrog != null) {
-                    GameSceneBuilder.cameraFrog.startShake(10, 0.5);
+                    GameSceneBuilder.cameraFrog.startShake(200, 1);
+                }
+            } else if (Player.getLevel() % 4 == 0 || Player.getLevel() % 3 == 0) {
+                if (GameSceneBuilder.cameraStorm != null) {
+                    GameSceneBuilder.cameraStorm.startShake(200, 1);
                 }
             } else {
                 if (GameSceneBuilder.camera != null) {
-                    GameSceneBuilder.camera.startShake(10, 0.5);
+                    GameSceneBuilder.camera.startShake(200, 1);
                 }
             }
 
