@@ -57,7 +57,7 @@ public class Camera {
         Bounds b = target.getBoundsInParent();
         if (target == null || !target.isVisible()) return;
 
-        double centerX = b.getMinX() + b.getWidth() / 2.0;
+        double centerX = b.getMinX() + b.getWidth() / 2.0;    
         double centerY = b.getMinY() + b.getHeight() / 2.0;
 
         double targetX = calculateTargetX(centerX);

@@ -8,12 +8,14 @@ import javafx.scene.text.Text;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.Image;
 import javafx.animation.AnimationTimer;
+
 import java.util.Map;
 
 public class StatusBar extends VBox {
     private Player player;
     private HBox heartContainer;
     private HBox buffContainer;
+    private Text levelText;
 
     public StatusBar(Player player) {
         if (player == null) {
@@ -22,27 +24,39 @@ public class StatusBar extends VBox {
         } else {
             this.player = player;
         }
+
         this.setSpacing(10);
         this.setStyle("-fx-padding: 10; -fx-background-color: rgba(0, 0, 0, 0.5);");
-        this.setAlignment(Pos.TOP_RIGHT);
+        this.setAlignment(Pos.TOP_LEFT);  // Align everything to left
 
-        // Heart Container for HP
-        heartContainer = new HBox(5); // Spacing between hearts
+        // --- Level Box ---
+        levelText = new Text("Lvl: " + player.getLevel());
+        levelText.setStyle("-fx-font-size: 20; -fx-fill: white; -fx-font-family: 'Press Start 2P';");
+        VBox levelBox = new VBox(levelText);
+        levelBox.setAlignment(Pos.CENTER_LEFT);
+        levelBox.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-padding: 5; -fx-border-color: white; -fx-border-width: 1;");
+        levelBox.setMaxWidth(Double.MAX_VALUE);
+
+        // --- HP Container ---
+        heartContainer = new HBox(5);
+        heartContainer.setAlignment(Pos.CENTER_LEFT);
         updateHearts();
 
-        // Buff Container
+        // --- Buff Container ---
         buffContainer = new HBox(10);
+        buffContainer.setAlignment(Pos.CENTER_LEFT);
         updateBuffIcons();
 
-        this.getChildren().addAll(heartContainer, buffContainer);
-        System.out.println("StatusBar initialized with " + this.player.getLives() + " hearts at " + this.getTranslateX() + ", " + this.getTranslateY());
+        // Add all to VBox in order
+        this.getChildren().addAll(levelBox, heartContainer, buffContainer);
+
+        System.out.println("StatusBar initialized with " + this.player.getLives() + " hearts");
 
         // Update status bar periodically
         AnimationTimer statusUpdater = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 updateStatus();
-//                System.out.println("StatusBar updated with " + player.getLives() + " hearts");
             }
         };
         statusUpdater.start();
@@ -51,6 +65,13 @@ public class StatusBar extends VBox {
     private void updateStatus() {
         updateHearts();
         updateBuffIcons();
+        updateLevelText();
+    }
+
+    private void updateLevelText() {
+        if (levelText != null) {
+            levelText.setText("Lvl: " + player.getLevel());
+        }
     }
 
     private void updateHearts() {
@@ -68,11 +89,7 @@ public class StatusBar extends VBox {
         for (int i = 0; i < maxLives; i++) {
             if (i < heartContainer.getChildren().size()) {
                 ImageView heartIcon = (ImageView) heartContainer.getChildren().get(i);
-                if (i < lives) {
-                    heartIcon.setVisible(true);
-                } else {
-                    heartIcon.setVisible(false);
-                }
+                heartIcon.setVisible(i < lives);
             }
         }
 
@@ -143,6 +160,7 @@ public class StatusBar extends VBox {
                 System.err.println("Unknown buff type: " + buffType);
                 return null;
         }
+
         try {
             Image image = new Image(getClass().getResourceAsStream(imagePath));
             if (image.isError()) {
