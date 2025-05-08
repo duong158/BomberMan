@@ -4,6 +4,7 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.texture.AnimatedTexture;
 import com.almasb.fxgl.texture.AnimationChannel;
 import hoyocon.bomberman.Camera.CameraFrog;
+import hoyocon.bomberman.Camera.CameraStorm;
 import hoyocon.bomberman.EntitiesState.State;
 import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.Map.Map1;
@@ -64,6 +65,8 @@ public class GameSceneBuilder {
     public static Group gameWorld = new Group();
 
     public static CameraFrog cameraFrog;
+
+    public static CameraStorm cameraStorm;
 
     public static Camera camera;
 
@@ -331,7 +334,7 @@ public class GameSceneBuilder {
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
         int worldHeight = gameGMap.height * (int)GMap.TILE_SIZE;
 
-        if (Player.getLevel() >= 2) {
+        if (Player.getLevel() % 2 == 0 &&  Player.getLevel() % 4 != 0 ) {
             camera = null;
             cameraFrog = new CameraFrog(fogPane,
                     gameWorld,
@@ -341,7 +344,20 @@ public class GameSceneBuilder {
                     worldWidth,
                     worldHeight
             );
+        } else if (Player.getLevel() % 3 == 0 || Player.getLevel() % 4 == 0 ) {
+            camera = null;
+            cameraFrog = null;
+            cameraStorm = new CameraStorm(fogPane,
+                    gameWorld,
+                    playerEntity.getViewComponent().getParent(),
+                    (int)screenWidth,
+                    (int)screenHeight,
+                    worldWidth,
+                    worldHeight
+            );
         } else {
+            cameraFrog = null;
+            cameraStorm = null;
             camera = new Camera(gameWorld,
                     playerEntity.getViewComponent().getParent(),
                     (int)screenWidth,
@@ -349,7 +365,7 @@ public class GameSceneBuilder {
                     worldWidth,
                     worldHeight
             );
-            cameraFrog = null;
+
         }
 
         Scene scene = new Scene(gamePane, screenWidth, screenHeight);
