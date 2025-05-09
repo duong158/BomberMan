@@ -111,10 +111,13 @@ public class GameServer {
         if (!isRunning) {
             try {
                 server.start();
+                
+                // Đặt server để phản hồi các gói discovery
                 server.bind(Network.TCP_PORT, Network.UDP_PORT);
+                
                 isRunning = true;
-                System.out.println("🚀 Server started on TCP port " + Network.TCP_PORT +
-                        " and UDP port " + Network.UDP_PORT);
+                System.out.println("🚀 Server started on TCP port " + Network.TCP_PORT + 
+                        " and UDP port " + Network.UDP_PORT + " (discovery enabled)");
             } catch (IOException e) {
                 System.err.println("❌ Could not start server: " + e.getMessage());
                 e.printStackTrace();

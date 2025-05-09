@@ -5,6 +5,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Scanner;
 
@@ -98,22 +99,29 @@ public class GameClient {
     // Cập nhật phần main hoặc tạo phương thức mới để kết nối tự động
     public boolean connectToAnyServer(String playerName) {
         System.out.println("Đang tìm kiếm server trong mạng cục bộ...");
-        List<String> servers = ServerDiscovery.findServers();
 
-        if (servers.isEmpty()) {
-            System.out.println("❌ Không tìm thấy server nào trong mạng cục bộ");
+        try {
+            // Tìm tất cả các host trên UDP port của server
+            List<InetAddress> addresses = client.discoverHosts(Network.UDP_PORT, 5000);
+
+            if (addresses.isEmpty()) {
+                System.out.println("❌ Không tìm thấy server nào trong mạng cục bộ");
+                return false;
+            }
+
+            System.out.println("Tìm thấy " + addresses.size() + " server:");
+            for (int i = 0; i < addresses.size(); i++) {
+                System.out.println((i + 1) + ". " + addresses.get(i).getHostAddress());
+            }
+
+            // Kết nối với server đầu tiên tìm thấy
+            String serverIP = addresses.get(0).getHostAddress();
+            System.out.println("Đang kết nối tới server: " + serverIP);
+            return connect(serverIP, playerName);
+        } catch (Exception e) {  // Sửa IOException thành Exception
+            System.err.println("Lỗi khi tìm kiếm server: " + e.getMessage());
             return false;
         }
-
-        System.out.println("Tìm thấy " + servers.size() + " server");
-        for (int i = 0; i < servers.size(); i++) {
-            System.out.println((i + 1) + ". " + servers.get(i));
-        }
-
-        // Kết nối với server đầu tiên tìm thấy
-        String serverIP = servers.get(0);
-        System.out.println("Đang kết nối tới server: " + serverIP);
-        return connect(serverIP, playerName);
     }
 
     // Main method cho ứng dụng console
