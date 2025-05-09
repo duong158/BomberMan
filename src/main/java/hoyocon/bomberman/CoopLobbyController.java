@@ -39,7 +39,7 @@ public class CoopLobbyController {
         Network.register(client.getKryo());
         client.start();
         try {
-            client.connect(5000, ip, 54555, 54777);
+            client.connect(5000, ip, 7777, 7778);
             connected = true;
             showInfo("Kết nối server thành công!");
 
