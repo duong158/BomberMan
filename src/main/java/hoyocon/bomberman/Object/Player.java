@@ -826,7 +826,7 @@ public class Player extends Component {
         return level;
     }
 
-    public void setLevel(int level) {
+    public static void setLevel(int level) {
         Player.level = level;
     }
     // Trả về số bom đang đặt

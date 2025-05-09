@@ -25,8 +25,8 @@ public class Map1 {
     
     // Tỷ lệ phần trăm của từng loại quái
     private static final double BALLOON_PERCENT = 0.3;
-    private static final double PASS_PERCENT = 0.2;
-    private static final double ONEAL_PERCENT = 0.2;
+    private static final double PASS_PERCENT = 0.3;
+    private static final double ONEAL_PERCENT = 0.1;
     private static final double DAHL_PERCENT = 0.2;
     private static final double DORIA_PERCENT = 0.1;
 
@@ -69,7 +69,7 @@ public class Map1 {
         if(MOBNUMS < emptyPositions.size()) MOBNUMS += Player.getLevel()*5;
         int balloonCount = (int) Math.round(MOBNUMS * BALLOON_PERCENT);
         int passCount = (int) Math.round(MOBNUMS * PASS_PERCENT);
-        int onealCount = Player.getLevel() >= 3 ?  (int) Math.round(MOBNUMS * ONEAL_PERCENT) : 0;
+        int onealCount = (int) Math.round(MOBNUMS * ONEAL_PERCENT);
         int dahlCount = (int) Math.round(MOBNUMS * DAHL_PERCENT);
         int doriaCount = (Player.getLevel() >= 5) ? (int) Math.round(MOBNUMS * DORIA_PERCENT) : 0;
 

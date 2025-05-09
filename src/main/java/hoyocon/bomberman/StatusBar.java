@@ -30,7 +30,7 @@ public class StatusBar extends VBox {
         this.setAlignment(Pos.TOP_LEFT);  // Align everything to left
 
         // --- Level Box ---
-        levelText = new Text("Lvl: " + player.getLevel());
+        levelText = new Text("Lvl: " + Player.getLevel());
         levelText.setStyle("-fx-font-size: 20; -fx-fill: white; -fx-font-family: 'Press Start 2P';");
         VBox levelBox = new VBox(levelText);
         levelBox.setAlignment(Pos.CENTER_LEFT);

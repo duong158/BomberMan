@@ -92,7 +92,7 @@ public class StartController {
         SfxManager.setSfxEnabled(isSfxOn);
         System.out.println("StartController: onStartClicked -> isSfxOn = " + isSfxOn);
         Scene gameScene = GameSceneBuilder.buildNewGameScene();
-        Player.level = 1;
+        Player.setLevel(1);
         Main.mainStage.setScene(gameScene);
         Main.mainStage.setTitle("Bomberman Game");
         gameScene.getRoot().requestFocus();
