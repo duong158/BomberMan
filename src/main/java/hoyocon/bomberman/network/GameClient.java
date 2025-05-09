@@ -5,6 +5,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 
 public class GameClient {
@@ -94,16 +95,31 @@ public class GameClient {
         return playerName;
     }
 
+    // Cập nhật phần main hoặc tạo phương thức mới để kết nối tự động
+    public boolean connectToAnyServer(String playerName) {
+        System.out.println("Đang tìm kiếm server trong mạng cục bộ...");
+        List<String> servers = ServerDiscovery.findServers();
+
+        if (servers.isEmpty()) {
+            System.out.println("❌ Không tìm thấy server nào trong mạng cục bộ");
+            return false;
+        }
+
+        System.out.println("Tìm thấy " + servers.size() + " server");
+        for (int i = 0; i < servers.size(); i++) {
+            System.out.println((i + 1) + ". " + servers.get(i));
+        }
+
+        // Kết nối với server đầu tiên tìm thấy
+        String serverIP = servers.get(0);
+        System.out.println("Đang kết nối tới server: " + serverIP);
+        return connect(serverIP, playerName);
+    }
+
     // Main method cho ứng dụng console
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         GameClient gameClient = new GameClient();
-
-        System.out.print("Nhập địa chỉ IP server (hoặc Enter để dùng 192.168.110.32): ");
-        String host = scanner.nextLine().trim();
-        if (host.isEmpty()) {
-            host = "192.168.110.32";
-        }
 
         System.out.print("Nhập tên người chơi (hoặc Enter để dùng Player1): ");
         String playerName = scanner.nextLine().trim();
@@ -111,8 +127,21 @@ public class GameClient {
             playerName = "Player1";
         }
 
-        System.out.println("Đang kết nối đến server " + host + "...");
-        boolean connected = gameClient.connect(host, playerName);
+        System.out.println("Bạn muốn: \n1. Tự động tìm server \n2. Nhập địa chỉ IP thủ công");
+        String choice = scanner.nextLine().trim();
+
+        boolean connected = false;
+        if (choice.equals("1")) {
+            connected = gameClient.connectToAnyServer(playerName);
+        } else {
+            System.out.print("Nhập địa chỉ IP server: ");
+            String host = scanner.nextLine().trim();
+            if (host.isEmpty()) {
+                host = "192.168.110.32";
+            }
+            System.out.println("Đang kết nối đến server " + host + "...");
+            connected = gameClient.connect(host, playerName);
+        }
 
         if (connected) {
             // Thêm listener

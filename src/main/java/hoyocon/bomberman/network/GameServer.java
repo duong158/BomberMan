@@ -5,6 +5,8 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,6 +67,44 @@ public class GameServer {
                 }
             }
         });
+
+        // Thêm xử lý UDP discovery
+        startDiscoveryService();
+    }
+
+    private void startDiscoveryService() {
+        new Thread(() -> {
+            try (DatagramSocket socket = new DatagramSocket(7779)) {
+                System.out.println("🔍 Server discovery service listening on port 7779");
+                byte[] buffer = new byte[1024];
+
+                while (isRunning) {
+                    try {
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                        socket.receive(packet);
+
+                        String message = new String(packet.getData(), 0, packet.getLength());
+                        if (message.equals("BOMBERMAN_SERVER_DISCOVERY_REQUEST")) {
+                            System.out.println("📡 Received discovery request from: " + packet.getAddress().getHostAddress());
+
+                            // Gửi phản hồi
+                            String response = "BOMBERMAN_SERVER_DISCOVERY_RESPONSE";
+                            byte[] responseData = response.getBytes();
+                            DatagramPacket responsePacket = new DatagramPacket(
+                                    responseData, responseData.length,
+                                    packet.getAddress(), packet.getPort());
+                            socket.send(responsePacket);
+                        }
+                    } catch (IOException e) {
+                        if (isRunning) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public void start() {
@@ -84,9 +124,9 @@ public class GameServer {
 
     public void stop() {
         if (isRunning) {
-            server.stop();
             isRunning = false;
-            System.out.println("⏹️ Server stopped");
+            server.stop();
+            System.out.println("🛑 Server stopped");
         }
     }
 
