@@ -20,6 +20,9 @@ module hoyocon.bomberman {
     requires javafx.media;
     requires kryonet;
     requires kryo;
+    requires spring.jdbc;
+    requires spring.orm;
+    requires spring.tx;
 
 // Export packages for external use (if necessary)
     exports hoyocon.bomberman;

@@ -3,8 +3,8 @@ package hoyocon.bomberman.network;
 import com.esotericsoftware.kryo.Kryo;
 
 public class Network {
-    public static final int TCP_PORT = 54555;
-    public static final int UDP_PORT = 54777;
+    public static final int TCP_PORT = 7777;
+    public static final int UDP_PORT = 7778;
 
     public static void register(Kryo kryo) {
         kryo.register(JoinRequest.class);

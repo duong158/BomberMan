@@ -8,7 +8,7 @@ public class GameClient {
     public static void main(String[] args) throws IOException {
         Client client = new Client();
         client.start();
-        client.connect(5000, "localhost", Network.TCP_PORT, Network.UDP_PORT); // 👈 đổi "localhost" nếu cần
+        client.connect(5000, "192.168.110.32", Network.TCP_PORT, Network.UDP_PORT); // 👈 đổi "localhost" nếu cần
 
         client.getKryo().register(Network.JoinRequest.class);
         client.getKryo().register(Network.JoinResponse.class);
