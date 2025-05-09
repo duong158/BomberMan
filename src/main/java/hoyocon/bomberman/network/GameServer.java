@@ -9,12 +9,14 @@ public class GameServer {
         Server server = new Server();
         server.start();
         server.bind(Network.TCP_PORT, Network.UDP_PORT);
+        System.out.println("🔧 Server đang chạy trên port " + Network.TCP_PORT);
 
         // Đăng ký lớp
         server.getKryo().register(Network.JoinRequest.class);
         server.getKryo().register(Network.JoinResponse.class);
         server.getKryo().register(Network.StartGameRequest.class);
         server.getKryo().register(Network.StartGameSignal.class);
+        server.getKryo().register(Network.InviteRequest.class);
 
         server.addListener(new com.esotericsoftware.kryonet.Listener() {
             public void received(com.esotericsoftware.kryonet.Connection connection, Object object) {
@@ -28,13 +30,9 @@ public class GameServer {
                 } else if (object instanceof Network.StartGameRequest) {
                     System.out.println("Nhận StartGameRequest, broadcast StartGameSignal cho tất cả client");
                     // Gửi tín hiệu bắt đầu game cho tất cả client
-                    for (com.esotericsoftware.kryonet.Connection conn : server.getConnections()) {
-                        conn.sendTCP(new Network.StartGameSignal());
-                    }
+                    server.sendToAllTCP(new Network.StartGameSignal());
                 }
             }
         });
-
-        System.out.println("🔧 Server đang chạy trên port " + Network.TCP_PORT);
     }
 }
