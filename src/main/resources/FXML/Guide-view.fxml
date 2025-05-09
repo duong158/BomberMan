@@ -14,14 +14,12 @@
 
 <AnchorPane prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hoyocon.bomberman.GuideController">
     <children>
-        <!-- Background Image -->
         <ImageView fitHeight="1080.0" fitWidth="1920.0" pickOnBounds="true" preserveRatio="true">
             <image>
                 <Image url="@../hoyocon/bomberman/Guide_Background.jpeg" />
             </image>
         </ImageView>
 
-        <!-- Power-up Buttons -->
         <Button fx:id="itemBuffBomb" layoutX="935.0" layoutY="270.0" style="-fx-background-color: transparent; -fx-padding: 0;" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
             <graphic>
                 <ImageView fitHeight="50" fitWidth="50" pickOnBounds="true" preserveRatio="true">
@@ -54,7 +52,6 @@
             </graphic>
         </Button>
 
-        <!-- Controls Grid -->
         <GridPane fx:id="keyBox" layoutX="224.0" layoutY="185.0" prefHeight="199.0" prefWidth="312.0" styleClass="zoom-effect" stylesheets="@../CSS/ZoomStyle.css">
             <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -122,7 +119,6 @@
             </children>
         </GridPane>
 
-        <!-- Other Controls -->
         <Button fx:id="ESC" layoutX="325.0" layoutY="761.0" text="ESC" textFill="#f5f5f5">
             <font>
                 <Font name="System Bold" size="18.0" />

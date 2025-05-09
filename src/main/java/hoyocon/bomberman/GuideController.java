@@ -36,10 +36,8 @@ public class GuideController {
 
     @FXML
     private void initialize() {
-        // Khi view được load, thiết lập lắng nghe phím
         javafx.application.Platform.runLater(() -> {
-            // Lấy scene từ bất kỳ node nào
-            Scene scene = Main.mainStage.getScene();  // hoặc sử dụng một node nếu bạn có
+            Scene scene = Main.mainStage.getScene();
             if (scene != null) {
                 scene.setOnKeyPressed(this::handleKeyPressed);
             }

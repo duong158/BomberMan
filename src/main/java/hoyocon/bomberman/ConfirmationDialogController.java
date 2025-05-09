@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
 public class ConfirmationDialogController {
@@ -14,10 +13,6 @@ public class ConfirmationDialogController {
     private Label titleLabel;
     @FXML
     private Label messageLabel;
-    @FXML
-    private Button yesButton;
-    @FXML
-    private Button noButton;
 
     private Runnable onConfirmAction;
 

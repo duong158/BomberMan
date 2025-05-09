@@ -68,14 +68,12 @@ public class CameraFrog {
             currentShakeTime += 1.0 / 60.0;
 
             if (currentShakeTime < shakeDuration) {
-                // Tính toán độ rung
                 double shakeOffsetX = (Math.random() * 2 - 1) * shakeIntensity;
                 double shakeOffsetY = (Math.random() * 2 - 1) * shakeIntensity;
 
                 targetX += shakeOffsetX;
                 targetY += shakeOffsetY;
 
-                // Giảm dần cường độ
                 shakeIntensity *= 0.9;
             } else {
                 isShaking = false;

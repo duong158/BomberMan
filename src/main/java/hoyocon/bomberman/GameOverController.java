@@ -21,29 +21,26 @@ public class GameOverController {
     @FXML
     private void onRetryClicked(ActionEvent event) {
         GameSceneBuilder.resetMusic();
-        // Tạo và hiển thị màn hình game
         Scene gameScene = GameSceneBuilder.buildNewGameScene();
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.setScene(gameScene);
         stage.setTitle("Bomberman Game");
-        gameScene.getRoot().requestFocus(); // Đảm bảo focus cho game
+        gameScene.getRoot().requestFocus();
     }
 
     @FXML
     private void onMenuClicked(ActionEvent event) {
         GameSceneBuilder.resetMusic();
         try {
-            // Load
+
             Parent menuView = FXMLLoader.load(getClass().getResource("/FXML/Start-view.fxml"));
             Scene menuScene = new Scene(menuView, 1920, 1080);
 
-            // Lấy Stage hiện tại từ sự kiện
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            // Chuyển Scene sang Menu
             stage.setScene(menuScene);
             stage.setTitle("Bomberman Menu");
-            menuScene.getRoot().requestFocus(); // Đảm bảo focus cho Menu
+            menuScene.getRoot().requestFocus();
         } catch (IOException e) {
             e.printStackTrace();
         }

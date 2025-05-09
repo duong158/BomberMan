@@ -23,7 +23,6 @@ public class GMap {
     private Canvas canvas;
     private GraphicsContext gc;
 
-    // Loại ô trong map
     public static final int EMPTY = 0;
     public static final int WALL = 1;
     public static final int BRICK = 2;
@@ -35,14 +34,12 @@ public class GMap {
     public static final int DAHL = 8;
     public static final int DORIA = 9;
 
-    // Ảnh cho các tile
     private Image wallImage;
     private Image brickImage;
     private Image emptyImage;
     private Image exitImage;
     private Image entranceImage;
 
-    // Hitbox data for walls and bricks
     private boolean[][] wallHitbox;
     private boolean[][] brickHitbox;
 
@@ -60,7 +57,6 @@ public class GMap {
 
         initializeHitboxes();
         loadImages();
-        // Khởi tạo mảng và gán 15 buff ngẫu nhiên vào các vị trí brick
         hiddenBuffs = new BuffGeneric[height][width];
         assignHiddenBuffs(1000);
     }
@@ -69,7 +65,7 @@ public class GMap {
         List<int[]> bricks = new ArrayList<>();
         for (int r = 0; r < height; r++) {
             for (int c = 0; c < width; c++) {
-                if (brickHitbox[r][c])  // nếu là brick
+                if (brickHitbox[r][c])
                     bricks.add(new int[]{r, c});
             }
         }
@@ -88,11 +84,9 @@ public class GMap {
     public void clearHiddenBuff(int row, int col) {
         hiddenBuffs[row][col] = null;
     }
-    // Phương thức xoá brick (khi bị nổ)
     public void removeBrick(int row, int col) {
         mapData[row][col] = EMPTY;
         brickHitbox[row][col] = false;
-        // Vẽ lại ô trống lên canvas
         gc.drawImage(emptyImage, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }
 
@@ -111,7 +105,6 @@ public class GMap {
         }
     }
 
-    // Method to get balloon spawn positions
     public List<int[]> getESpawnPositions(int enemyType) {
         List<int[]> positions = new ArrayList<>();
         for (int row = 0; row < height; row++) {
@@ -126,7 +119,6 @@ public class GMap {
     }
 
     private void loadImages() {
-        // Tải các hình ảnh cho map
         wallImage = new Image(getClass().getResourceAsStream("/assets/textures/wall.png"));
         brickImage = new Image(getClass().getResourceAsStream("/assets/textures/brick.png"));
         emptyImage = new Image(getClass().getResourceAsStream("/assets/textures/empty.png"));
@@ -137,11 +129,9 @@ public class GMap {
     public void render() {
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
-                // Tính vị trí vẽ
                 int x = (int) (col * TILE_SIZE);
                 int y = (int) (row * TILE_SIZE);
 
-                // Vẽ tile tương ứng
                 switch (mapData[row][col]) {
                     case WALL:
                         gc.drawImage(wallImage, x, y, TILE_SIZE, TILE_SIZE);
@@ -169,7 +159,7 @@ public class GMap {
 
     public int getTileType(int row, int col) {
         if (row < 0 || row >= height || col < 0 || col >= width) {
-            return -1; // Giá trị không hợp lệ
+            return -1;
         }
         return mapData[row][col];
     }
@@ -187,13 +177,11 @@ public class GMap {
     }
 
     public static boolean isPlayerInTile(double playerX, double playerY, double playerWidth, double playerHeight) {
-        // Chuyển đổi tọa độ pixel của hai góc hitbox sang tọa độ tile
         int topLeftRow = pixelToTile(playerY);
         int topLeftCol = pixelToTile(playerX);
         int bottomRightRow = pixelToTile(playerY + playerHeight - 1);
         int bottomRightCol = pixelToTile(playerX + playerWidth - 1);
 
-        // Kiểm tra xem hai góc có nằm trong cùng một ô không
         return topLeftRow == bottomRightRow && topLeftCol == bottomRightCol;
     }
 

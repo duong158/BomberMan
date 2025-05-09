@@ -14,7 +14,6 @@ public class Main extends Application {
     public static Stage mainStage;
 
     public static void main(String[] args) {
-        // Bỏ dòng cấu hình preloader
         launch(args);
     }
 
@@ -22,7 +21,6 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
         try {
             mainStage = stage;
-            // Load FXML với đường dẫn chính xác
             Font.loadFont(
                     GameSceneBuilder.class
                             .getResource("/fonts/PressStart2P-Regular.ttf")

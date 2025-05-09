@@ -53,11 +53,9 @@ public class PauseMenuController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/FXML/ConfirmationDialog.fxml"));
             VBox dialogRoot = loader.load();
-            // Configure dialog
             ConfirmationDialogController controller = loader.getController();
             controller.setDialogData(title, message, onConfirm);
 
-            // Create and show dialog
             Scene dialogScene = new Scene(dialogRoot);
             dialogScene.setFill(javafx.scene.paint.Color.TRANSPARENT);
 
@@ -66,7 +64,6 @@ public class PauseMenuController {
             dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
             dialogStage.setScene(dialogScene);
 
-            // Center on parent
             Stage parentStage = (Stage) uiPane.getScene().getWindow();
             dialogStage.setX(parentStage.getX() + (parentStage.getWidth() - dialogRoot.getPrefWidth()) / 2);
             dialogStage.setY(parentStage.getY() + (parentStage.getHeight() - dialogRoot.getPrefHeight()) / 2);
@@ -124,10 +121,7 @@ public class PauseMenuController {
 
     @FXML
     private void onToggleMusic(ActionEvent event) {
-        // Toggle music state
         GameSceneBuilder.toggleMusic();
-
-        // Update button text based on new state
         updateMusicButtonText();
     }
 

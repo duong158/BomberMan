@@ -32,12 +32,8 @@ import javafx.stage.Stage;
 import javafx.scene.Group;
 import hoyocon.bomberman.Camera.Camera;
 
-import hoyocon.bomberman.Buff.Flame;
-import hoyocon.bomberman.Buff.Speed;
 import hoyocon.bomberman.Object.BuffEntity;
 import hoyocon.bomberman.Buff.BuffGeneric;
-import hoyocon.bomberman.Map.GMap;
-import hoyocon.bomberman.StatusBar; // Thêm import cho StatusBar
 import javafx.util.Duration;
 
 public class GameSceneBuilder {
@@ -55,6 +51,7 @@ public class GameSceneBuilder {
     private static boolean isDownPressed = false;
     private static boolean isLeftPressed = false;
     private static boolean isRightPressed = false;
+
     // Biến theo dõi trạng thái người chơi để thêm âm thanh.
     private static boolean wasMoving = false;
 
@@ -73,7 +70,7 @@ public class GameSceneBuilder {
 
     public static Camera camera;
 
-    public static AnimationTimer gameLoop; // Lưu tham chiếu đến game loop
+    public static AnimationTimer gameLoop;
 
     // Danh sách quản lý Transitions và Timers để pause/resume
     private static final List<PauseTransition> pauseTransitions = new ArrayList<>();
@@ -113,15 +110,13 @@ public class GameSceneBuilder {
     public static List<Pane> explosionEntities = new ArrayList<>();
     public static List<Pane> bombEntities = new ArrayList<>();
 
-    // Thay thế các danh sách riêng biệt bằng một Map để quản lý tất cả các loại kẻ địch
     public static Map<Class<? extends Enemy>, List<Entity>> enemyEntities = new HashMap<>();
-    // Add this new list to store all enemies in one place
     public static List<Enemy> allEnemyEntities = new ArrayList<>();
 
     public static void addBuffToMap(Pane gamePane, BuffGeneric buff, double x, double y) {
         BuffEntity buffEntity = new BuffEntity(buff, x, y);
-        buffEntities.add(buffEntity); // Lưu buff vào danh sách
-        gamePane.getChildren().add(buffEntity.getImageView()); // Thêm hình ảnh buff vào gamePane
+        buffEntities.add(buffEntity);
+        gamePane.getChildren().add(buffEntity.getImageView());
         gameWorld.getChildren().add(buffEntity.getImageView());
     }
     public static void spawnBalloonAt(int row, int col, GMap gameGMap, Pane gamePane, Group gameWorld) {
@@ -143,9 +138,8 @@ public class GameSceneBuilder {
             enemyEntity.addComponent(enemyComponent);
             enemyEntity.setPosition(x, y);
 
-            // Thêm vào danh sách tương ứng
             enemyEntities.computeIfAbsent(enemyClass, k -> new ArrayList<>()).add(enemyEntity);
-            // Also add to the flat list of all enemies
+
             allEnemyEntities.add(enemyComponent);
 
             if (enemyEntity.getViewComponent() != null &&
@@ -168,7 +162,6 @@ public class GameSceneBuilder {
     }
 
     public static Scene buildNewGameScene() {
-        // 1. Dừng game loop và xóa sạch trạng thái cũ
         if (gameLoop != null) {
             gameLoop.stop();
 //            SfxManager.stopWalk();
@@ -185,16 +178,13 @@ public class GameSceneBuilder {
         initializeMusic();
         initializeGameOverMusic();
 
-        // → Reset translate cũ của gameWorld
         gameWorld = new Group();
         gameWorld.setTranslateX(0);
         gameWorld.setTranslateY(0);
 
-        // 2. Reset biến tĩnh về giá trị ban đầu
 //        Player.level = 1;      // nếu level là biến public static
         Map1.MOBNUMS = 20;      // về số quái khởi tạo
 
-        // 3. Xây dựng scene va camera mới từ vị trí start
         Scene scene = buildGameScene(GMap.TILE_SIZE, GMap.TILE_SIZE);
         if (cameraFrog != null) {
             cameraFrog.reset();
@@ -206,7 +196,6 @@ public class GameSceneBuilder {
             cameraStorm.reset();
         }
 
-        // 4. Thiết lập thuộc tính cho player vừa được thêm vào scene
         lastPlayer.setLives(Player.getLives());
         lastPlayer.setSpeed(Player.getSpeed());
         lastPlayer.setMaxBombs(Player.getMaxBombs());
@@ -217,7 +206,6 @@ public class GameSceneBuilder {
     }
 
     private static Scene buildGameScene(double startX, double startY) {
-        // Container chính cho toàn bộ scene
         Pane gamePane = new Pane();
 
         Pane gameWorldContainer = new Pane();
@@ -226,33 +214,27 @@ public class GameSceneBuilder {
 
         gamePane.setStyle("-fx-background-color: black;");
 
-        // Thêm gameWorld và uiPane vào gamePane
-        Pane uiPane = new Pane(); // UI layer for StatusBar
+        Pane uiPane = new Pane();
 
         uiPane.setStyle("-fx-background-color: transparent;");
 
-        // Thêm fogPane vào cùng container với gameWorld
         Pane fogPane = new Pane();
         gameWorldContainer.getChildren().addAll(gameWorld, fogPane);
         gamePane.getChildren().addAll(gameWorldContainer, uiPane);
 
         gamePane.setFocusTraversable(true);
 
-        // Tạo và hiển thị map
         GMap gameGMap;
         if (Player.getLevel() == 4) {
-            // Sử dụng boss room map
             gameGMap = new GMap(Map1.getBossRoomMapData());
             System.out.println("Loading Boss Room Map for Level 4");
         } else {
-            // Sử dụng map thông thường
             gameGMap = new GMap(Map1.getMapData(60, 40, 0.3f));
             System.out.println("Loading Regular Map for Level " + Player.getLevel());
         }
         gameGMap.render();
-        gameWorld.getChildren().add(gameGMap.getCanvas());  // Thêm vào gameWorld thay vì gamePane
+        gameWorld.getChildren().add(gameGMap.getCanvas());
 
-        // Làm sạch danh sách buff và balloons
         buffEntities.clear();
         enemyEntities.clear();
 
@@ -299,34 +281,28 @@ public class GameSceneBuilder {
                 spawnEnemy(gamePane, gameWorld, gameGMap, position[0], position[1], Doria.class, Doria::new);
             }
 
-            // Có thể dễ dàng thêm các loại kẻ địch mới ở đây
 
         } catch (Exception e) {
             System.err.println("Error setting up enemies: " + e.getMessage());
             e.printStackTrace();
         }
-        // Tạo entity và thêm Player component
         Entity playerEntity = new Entity();
         final Player playerComponent = new Player();
         playerEntity.addComponent(playerComponent);
         if (Player.getLevel() == 4) {
             try {
-                // Vị trí center của boss trong map
-                int bossRow = 23/2-6;  // Hàng thứ 7 (index từ 0)
-                int bossCol = 41-10;  // Cột thứ 9 (index từ 0)
 
-                // Tạo instance của Boss
+                int bossRow = 23/2-6;
+                int bossCol = 41-10;
+
                 boss = new Boss(bossCol, bossRow);
                 boss.setMain(playerComponent);
 
                 boss.setGameReferences(gameWorld, gamePane, gameGMap);
 
-                // Tạo entity và thêm vào gameWorld
                 Entity bossEntity = boss.createEntity();
                 gameWorld.getChildren().add(bossEntity.getViewComponent().getParent());
 
-                // Lưu trữ boss để xử lý logic sau này nếu cần
-                // Ví dụ: có thể thêm vào một danh sách Boss riêng
                 System.out.println("Boss spawned at row=" + bossRow + ", col=" + bossCol);
             } catch (Exception e) {
                 System.err.println("Error spawning boss: " + e.getMessage());
@@ -335,20 +311,15 @@ public class GameSceneBuilder {
         }
 
 
-
-        // Set the game map for collision detection
         playerComponent.setGameMap(gameGMap);
 
-        // Đặt vị trí ban đầu
         startX = GMap.TILE_SIZE;
         startY = GMap.TILE_SIZE;
         playerEntity.setPosition(startX, startY);
 
-        // Thêm playerEntity vào gameWorld thay vì gamePane
         gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
         lastPlayer = playerComponent;
 
-        //them thanh mau
         StatusBar statusBar = new StatusBar(playerComponent);
         statusBar.setTranslateX(screenWidth - 270);
         statusBar.setTranslateY(10);
@@ -359,7 +330,6 @@ public class GameSceneBuilder {
             Class<? extends Enemy> enemyClass = entry.getKey();
             List<Entity> entities = entry.getValue();
 
-            // Kiểm tra xem đây có phải là Oneal hoặc lớp con của Oneal không
             if (Oneal.class.isAssignableFrom(enemyClass)) {
                 for (Entity enemy : entities) {
                     if (enemy.getComponentOptional(enemyClass).isPresent()) {
@@ -375,7 +345,6 @@ public class GameSceneBuilder {
 
         playerAI = new PlayerAIController(playerComponent, gameGMap, allEnemyEntities, gamePane);
 
-        // Tính kích thước thế giới game
         int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
         int worldHeight = gameGMap.height * (int)GMap.TILE_SIZE;
 
@@ -417,7 +386,7 @@ public class GameSceneBuilder {
         Scene scene = new Scene(gamePane, screenWidth, screenHeight);
 
         // Ẩn con trỏ chuột khi vào game
-//        scene.setCursor(Cursor.NONE);
+        //scene.setCursor(Cursor.NONE);
 
         // Focus
         gamePane.setOnMouseClicked(e -> gamePane.requestFocus());
@@ -455,7 +424,6 @@ public class GameSceneBuilder {
                     wasMoving = false;
                 }
 
-                //Muốn dùng AI thì bỏ comment
                 if (autoPlayEnabled) {
                     playerAI.update(now);
                 }
@@ -466,8 +434,6 @@ public class GameSceneBuilder {
 
                 // Buff collision
                 playerComponent.checkBuffCollision(buffEntities, gamePane);
-
-                // Bounds of player
                 Bounds playerBounds = playerEntity.getViewComponent().getParent().getBoundsInParent();
 
                 for (Pane p : bombEntities) {
@@ -517,7 +483,7 @@ public class GameSceneBuilder {
                 // Player vs Flame
                 for (Pane flamePane : explosionEntities) {
                     Bounds flameBounds = flamePane.getBoundsInParent();
-                    double shrink = 2; // số pixel muốn thu nhỏ mỗi cạnh
+                    double shrink = 2;
                     Bounds customFlameBounds = new BoundingBox(
                             flameBounds.getMinX() + shrink,
                             flameBounds.getMinY() + shrink,
@@ -532,13 +498,12 @@ public class GameSceneBuilder {
                                 playGameOverMusic();
                                 PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
                                 deathDelay.setOnFinished(event -> {
-                                    stop(); // Stop game loop after animation completes
+                                    stop();
 
                                     try {
                                         Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/FXML/GameOver.fxml"));
                                         Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
 
-                                        // Add null check before accessing window/stage
                                         if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
                                             Stage stage = (Stage) gamePane.getScene().getWindow();
                                             stage.setScene(gameOverScene);
@@ -553,13 +518,8 @@ public class GameSceneBuilder {
                             } else {
                                 PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
                                 deathDelay.setOnFinished(event -> {
-                                    // Khôi phục vị trí ban đầu
                                     playerEntity.setPosition(48, 48);
-
-                                    // Trigger invincibility sau khi hồi sinh
                                     playerComponent.triggerInvincibility();
-
-                                    // Đặt lại trạng thái
                                     playerComponent.setState(State.IDLE);
                                     playerAI.resetAIState();
 
@@ -570,7 +530,7 @@ public class GameSceneBuilder {
                     }
                 }
 
-                // Flame vs Enemy (với animation chết)
+                // Flame vs Enemy
                 for (Pane flamePane : explosionEntities) {
                     Bounds flameBounds = flamePane.getBoundsInParent();
                     for (Map.Entry<Class<? extends Enemy>, List<Entity>> entry : enemyEntities.entrySet()) {
@@ -583,10 +543,9 @@ public class GameSceneBuilder {
                                 Enemy enemyComp = enemyEntity.getComponent(entry.getKey());
 
                                 if (!enemyComp.isDead()) {
-                                    enemyComp.die(); // play death animation
+                                    enemyComp.die();
                                     Entity e = enemyEntity;
                                     List<Entity> refList = list;
-                                    // Hẹn xóa khi animation 'dead' đã hoàn thành (1.5s)
                                     PauseTransition delay = new PauseTransition(Duration.seconds(1.5));
                                     delay.setOnFinished(event -> {
                                         Platform.runLater(() -> {
@@ -607,9 +566,9 @@ public class GameSceneBuilder {
                     for (Entity enemyEntity : entry.getValue()) {
                         Enemy enemyComp = enemyEntity.getComponent(entry.getKey());
                         if (enemyComp.isDead())
-                            continue;   // bỏ qua enemy đã chết
+                            continue;
                         Bounds enemyBounds = enemyEntity.getViewComponent().getParent().getBoundsInParent();
-                        double shrink = 2; // số pixel muốn thu nhỏ mỗi cạnh (ví dụ 8)
+                        double shrink = 2;
                         Bounds customEnemyBounds = new BoundingBox(
                                 enemyBounds.getMinX() + shrink,
                                 enemyBounds.getMinY() + shrink,
@@ -625,13 +584,12 @@ public class GameSceneBuilder {
                                     playGameOverMusic();
                                     PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
                                     deathDelay.setOnFinished(event -> {
-                                        stop(); // Stop game loop after animation completes
+                                        stop();
 
                                         try {
                                             Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/FXML/GameOver.fxml"));
                                             Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
 
-                                            // Add null check before accessing window/stage
                                             if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
                                                 Stage stage = (Stage) gamePane.getScene().getWindow();
                                                 stage.setScene(gameOverScene);
@@ -644,16 +602,11 @@ public class GameSceneBuilder {
                                     });
                                     deathDelay.play();
                                 } else {
-                                    // Chạy animation chết và hồi sinh
+
                                     PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
                                     deathDelay.setOnFinished(event -> {
-                                        // Khôi phục vị trí ban đầu
                                         playerEntity.setPosition(48, 48);
-
-                                        // Trigger invincibility sau khi hồi sinh
                                         playerComponent.triggerInvincibility();
-
-                                        // Đặt lại trạng thái
                                         playerComponent.setState(State.IDLE);
                                         playerAI.resetAIState();
 
@@ -697,13 +650,12 @@ public class GameSceneBuilder {
                 } if (event.getCode() == KeyCode.F1) {
                     playerAI.resetAIState();
                     toggleAutoPlay();
-                    return;  // ngăn xử lý tiếp
+                    return;
                 } if (event.getCode() == KeyCode.F2) {
                     playerEntity.setPosition(58*GMap.TILE_SIZE, 38*GMap.TILE_SIZE);
                 }
             }
 
-            // Always allow ESC key regardless of player state
             if (event.getCode() == KeyCode.ESCAPE) {
                 if (gameLoop != null) gameLoop.stop();
 //                SfxManager.stopWalk();
@@ -782,7 +734,6 @@ public class GameSceneBuilder {
         }
         pauseAll();
 
-        // 2. Tải FXML pause menu
         try {
             FXMLLoader loader = new FXMLLoader(
                     GameSceneBuilder.class.getResource("/FXML/pause_menu.fxml"));
@@ -790,24 +741,19 @@ public class GameSceneBuilder {
             PauseMenuController ctrl = loader.getController();
             ctrl.setUiPane(uiPane);
 
-            // 3. Tạo overlay mờ full-screen
             Pane overlay = new Pane();
             overlay.setPrefSize(screenWidth, screenHeight);
             overlay.setStyle("-fx-background-color: rgba(0,0,0,0.5);");
 
-            // 4. Wrap overlay + menuPane thành pauseMenu
             pauseMenu = new Pane();
             pauseMenu.setPrefSize(screenWidth, screenHeight);
             pauseMenu.getChildren().setAll(overlay, menuPane);
 
-            // 5. Center menuPane trong màn hình
             double mx = (screenWidth - menuPane.getPrefWidth()) / 2;
             double my = (screenHeight - menuPane.getPrefHeight()) / 2;
             menuPane.setLayoutX(mx);
             menuPane.setLayoutY(my);
 
-
-            // 6. Thêm vào UI layer
             uiPane.getChildren().add(pauseMenu);
 
 
@@ -818,7 +764,6 @@ public class GameSceneBuilder {
 
     static void hidePauseMenu(Pane uiPane) {
         if (pauseMenu != null) {
-            // 1. Remove pause menu khỏi UI layer
             uiPane.getChildren().remove(pauseMenu);
             pauseMenu = null;
             resumeAll();
@@ -841,11 +786,11 @@ public class GameSceneBuilder {
             if(Player.getLevel() % 4 == 0)  musicFile = "/assets/music/boss_theme.mp3";
             else if (Player.getLevel() % 3 == 0) musicFile = "/assets/music/storm_theme.mp3";
             else if (Player.getLevel() % 2 == 0) musicFile = "/assets/music/fog_theme.mp3";
-            else  musicFile = "/assets/music/battle-theme.mp3"; // Path to music file in resources folder
+            else  musicFile = "/assets/music/battle-theme.mp3";
             Media backgroundMusic = new Media(GameSceneBuilder.class.getResource(musicFile).toExternalForm());
             backgroundMusicPlayer = new MediaPlayer(backgroundMusic);
-            backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop indefinitely
-            backgroundMusicPlayer.setVolume(0.5); // Set to 50% volume
+            backgroundMusicPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            backgroundMusicPlayer.setVolume(0.5);
 
             if (musicEnabled) {
                 backgroundMusicPlayer.play();
@@ -859,7 +804,7 @@ public class GameSceneBuilder {
 
     public static void initializeGameOverMusic() {
         try {
-            String musicFile = "/assets/music/deadgod.mp3"; // Path to game over music
+            String musicFile = "/assets/music/deadgod.mp3";
             Media gameOverMusic = new Media(GameSceneBuilder.class.getResource(musicFile).toExternalForm());
             gameOverMusicPlayer = new MediaPlayer(gameOverMusic);
             gameOverMusicPlayer.setVolume(0.5);
@@ -941,13 +886,13 @@ public class GameSceneBuilder {
     public static void resetMusic() {
         if (backgroundMusicPlayer != null) {
             backgroundMusicPlayer.stop();
-            backgroundMusicPlayer.dispose(); // Release all resources
+            backgroundMusicPlayer.dispose();
             backgroundMusicPlayer = null;
         }
 
         if (gameOverMusicPlayer != null) {
             gameOverMusicPlayer.stop();
-            gameOverMusicPlayer.dispose(); // Release all resources
+            gameOverMusicPlayer.dispose();
             gameOverMusicPlayer = null;
         }
     }

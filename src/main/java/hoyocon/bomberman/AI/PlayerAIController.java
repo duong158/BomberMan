@@ -21,32 +21,28 @@ public class PlayerAIController {
 
     // AI States
     private enum AIState {
-        IDLE,               // Default state, making decisions
-        FINDING_PATH,       // Computing a new path
-        FOLLOWING_PATH,     // Following an existing path
-        PLACING_BOMB,       // Placing a bomb
-        ESCAPING,           // Escaping from bomb explosion
-        AVOIDING_ENEMIES    // Avoiding nearby enemies
+        IDLE,
+        FINDING_PATH,
+        FOLLOWING_PATH,
+        PLACING_BOMB,
+        ESCAPING,
+        AVOIDING_ENEMIES
     }
     
     private AIState currentState = AIState.IDLE;
     private final boolean DEBUG = true;
     private boolean bombPlaced = false;
 
-
-    // Path finding
     private List<Node> currentPath;
     private Node targetExit;
-    
-    // Bomb logic
+
     private static final long BOMB_DELAY_NS = 3_500_000_000L; // 2 seconds
     private static final int TILE_SIZE = 48;
     private long bombPlacedTime;
     private int bombRow, bombCol;
     private Set<String> dangerZones = new HashSet<>();
     private List<Node> escapePath;
-    
-    // Decision making
+
     private static final int ENEMY_DANGER_DISTANCE = 1;
     private static final int ENEMY_AWARE_DISTANCE = 5;
     private static final int MAX_PATH_FINDING_ATTEMPTS = 3;
@@ -77,9 +73,9 @@ public class PlayerAIController {
      */
     private static class Node {
         int row, col;
-        int g = Integer.MAX_VALUE;  // Cost from start
-        int h = 0;                  // Heuristic (estimated cost to goal)
-        int f = Integer.MAX_VALUE;  // Total cost: f = g + h
+        int g = Integer.MAX_VALUE;
+        int h = 0;
+        int f = Integer.MAX_VALUE;
         Node parent;
         
         Node(int row, int col) {
@@ -115,10 +111,8 @@ public class PlayerAIController {
         this.map = map;
         this.enemies = enemies;
         this.gamePane = gamePane;
-        
-        // Find the actual exit location instead of hardcoding
+
         findExitPosition();
-        
         log("AI Controller initialized");
         currentState = AIState.FINDING_PATH;
     }
@@ -155,8 +149,7 @@ public class PlayerAIController {
         Position playerPos = getPlayerPosition();
         
         log("AI State: " + currentState + ", Player at " + playerPos + "Player At" + playerEntity.getX() + "," + playerEntity.getY());
-        
-        // State machine for AI behavior
+
         switch (currentState) {
             case IDLE:
                 makeDecision(playerPos);
@@ -190,22 +183,20 @@ public class PlayerAIController {
     private Position getPlayerPosition() {
         double left = playerEntity.getX();
         double top = playerEntity.getY();
-        double right = left + 45; // hitbox width
-        double bottom = top + 45; // hitbox height
+        double right = left + 45;
+        double bottom = top + 45;
 
         int leftCol = GMap.pixelToTile(left);
         int rightCol = GMap.pixelToTile(right+1);
         int topRow = GMap.pixelToTile(top);
         int bottomRow = GMap.pixelToTile(bottom+1);
 
-        // Chỉ trả về ô nếu player nằm trọn trong một ô duy nhất
         if (leftCol == rightCol && topRow == bottomRow) {
             lastPlayerPosition = new Position(topRow, leftCol);
             return lastPlayerPosition;
         }
         if(lastPlayerPosition == null) lastPlayerPosition = new Position(topRow, leftCol);
 
-        // Nếu chưa nằm trọn trong một ô nào, trả về vị trí ô trước đó
         if(lastPlayerPosition == null) return new Position((topRow + bottomRow)/2, (leftCol+rightCol)/2);
         return lastPlayerPosition;
     }
@@ -214,14 +205,12 @@ public class PlayerAIController {
      * Make a decision about what to do next
      */
     private void makeDecision(Position playerPos) {
-        // Check if there are enemies nearby that need to be avoided first
         if (isEnemyInDangerZone(playerPos)) {
             log("Enemy in danger zone detected, switching to AVOIDING_ENEMIES");
             currentState = AIState.AVOIDING_ENEMIES;
             return;
         }
-        
-        // Otherwise, find a new path
+
         currentState = AIState.FINDING_PATH;
     }
     
@@ -236,11 +225,9 @@ public class PlayerAIController {
             return;
         }
         log("Finding new path from " + playerPos);
-        
-        // First priority: Find path to exit
+
         currentPath = findPathAStar(playerPos, targetExit);
-        
-        // If no path to exit, find a brick to destroy
+
         if (currentPath == null || currentPath.isEmpty()) {
             log("No path to exit found, looking for brick to destroy");
             Node nearestBrick = findBestBrickToDestroy(playerPos);
@@ -272,26 +259,22 @@ public class PlayerAIController {
         }
         
         Node nextStep = currentPath.get(0);
-        
-        // If next step is a brick, we need to place a bomb
+
         if (map.getTileType(nextStep.row, nextStep.col) == GMap.BRICK) {
             log("Reached brick at " + nextStep + ", preparing to place bomb");
             currentState = AIState.PLACING_BOMB;
             return;
         }
-        
-        // Check for enemies in the vicinity
+
         if (isEnemyInDangerZone(new Position(nextStep.row, nextStep.col))) {
             log("Enemy detected near path, finding alternate route");
             currentState = AIState.AVOIDING_ENEMIES;
             return;
         }
-        
-        // Move toward the next step
+
         log("Moving to " + nextStep);
         moveToNode(nextStep);
-        
-        // Check if we've reached this step
+
         if (arePositionsEqual(playerPos, new Position(nextStep.row, nextStep.col))) {
             log("Reached step " + nextStep + ", moving to next");
             currentPath.remove(0);
@@ -307,7 +290,6 @@ public class PlayerAIController {
      * Place a bomb and prepare escape route
      */
     private void placeBombAndPrepareEscape(Position playerPos, long now) {
-        // Place the bomb
         bombPlaced = player.placeBomb(gamePane);
         
         if (bombPlaced) {
@@ -315,11 +297,9 @@ public class PlayerAIController {
             bombRow = playerPos.row;
             bombCol = playerPos.col;
             bombPlacedTime = now;
-            
-            // Calculate danger zones from the bomb
+
             calculateBombDangerZones();
-            
-            // Find an escape path
+
             escapePath = findEscapePath(playerPos);
             
             if (escapePath != null && !escapePath.isEmpty()) {
@@ -405,7 +385,7 @@ public class PlayerAIController {
                 return;
             }
         }
-        // Find a safe spot away from enemies
+
         List<Node> safetyPath = findSafetyPath(playerPos);
         
         if (safetyPath != null && !safetyPath.isEmpty()) {
@@ -414,18 +394,15 @@ public class PlayerAIController {
             moveToNode(safeStep);
             
             if (arePositionsEqual(playerPos, new Position(safeStep.row, safeStep.col))) {
-                // We've reached a safe spot, back to regular path finding
                 log("Reached safe spot away from enemies");
                 currentState = AIState.FINDING_PATH;
             }
         } else {
             log("Could not find safe path from enemies!");
-            // Try to place a bomb as a defensive measure if cornered
             if (isCornered(playerPos)) {
                 log("Cornered! Placing defensive bomb");
                 currentState = AIState.PLACING_BOMB;
             } else {
-                // Back to regular path finding and hope for the best
                 currentState = AIState.FINDING_PATH;
             }
         }
@@ -461,7 +438,7 @@ public class PlayerAIController {
             }
         }
         
-        return wallCount >= 3; // Three or more sides blocked = cornered
+        return wallCount >= 3;
     }
     
     /**
@@ -476,17 +453,18 @@ public class PlayerAIController {
 
         for (int r = 0; r < map.height; r++) {
             for (int c = 0; c < map.width; c++) {
+
                 String key = keyFromPosition(r, c);
-                // Không chọn ô nằm trong vùng nổ bomb
                 if (!map.isWalkable(r, c)) continue;
+
                 if (dangerMap[r][c] < lowestDanger) {
                     Node targetNode = new Node(r, c);
                     List<Node> path = findPathAStar(start, targetNode);
-                    // Đảm bảo đường đi cũng không cắt qua vùng nổ bomb
                     if (path != null && !path.isEmpty() && path.stream().noneMatch(n -> dangerZones.contains(keyFromPosition(n.row, n.col)))) {
                         lowestDanger = dangerMap[r][c];
                         safestNode = targetNode;
                     }
+
                 }
             }
         }
@@ -503,30 +481,25 @@ public class PlayerAIController {
      */
     private int[][] createEnemyDangerMap() {
         int[][] dangerMap = new int[map.height][map.width];
-        
-        // Initialize with max value
+
         for (int r = 0; r < map.height; r++) {
             for (int c = 0; c < map.width; c++) {
                 dangerMap[r][c] = 0;
             }
         }
-        
-        // Calculate danger from each enemy
+
         for (Enemy enemy : enemies) {
             if (enemy.isDead()) continue;
             
             int er = GMap.pixelToTile(enemy.getEntity().getY());
             int ec = GMap.pixelToTile(enemy.getEntity().getX());
-            
-            // Add danger in a radius around each enemy
+
             for (int r = 0; r < map.height; r++) {
                 for (int c = 0; c < map.width; c++) {
                     int distance = manhattanDistance(r, c, er, ec);
                     if (distance <= ENEMY_AWARE_DISTANCE) {
-                        // Closer = more dangerous
                         int dangerValue = ENEMY_AWARE_DISTANCE - distance + 1;
-                        
-                        // Oneal and Doria are more dangerous
+
                         if (enemy instanceof Oneal) dangerValue *= 2;
                         if (enemy instanceof Doria) dangerValue *= 3;
                         
@@ -545,26 +518,21 @@ public class PlayerAIController {
     private void calculateBombDangerZones() {
         dangerZones.clear();
         int range = player.getFlameRange();
-        
-        // Center of explosion
+
         dangerZones.add(keyFromPosition(bombRow, bombCol));
-        
-        // Check in all four directions
+
         int[][] directions = {{0,1}, {1,0}, {0,-1}, {-1,0}};
         
         for (int[] dir : directions) {
             for (int i = 1; i <= range; i++) {
                 int r = bombRow + dir[0] * i;
                 int c = bombCol + dir[1] * i;
-                
-                // Stop if we hit a wall
+
                 if (map.getTileType(r, c) == GMap.WALL) {
                     break;
                 }
-                
                 dangerZones.add(keyFromPosition(r, c));
-                
-                // Stop after adding a brick (flames stop at bricks)
+
                 if (map.getTileType(r, c) == GMap.BRICK) {
                     break;
                 }
@@ -584,7 +552,7 @@ public class PlayerAIController {
         
         Node startNode = new Node(start.row, start.col);
         startNode.g = 0;
-        startNode.f = 0; // No heuristic needed for escape
+        startNode.f = 0;
         
         openSet.add(startNode);
         allNodes.put(keyFromPosition(start.row, start.col), startNode);
@@ -598,40 +566,34 @@ public class PlayerAIController {
             }
             
             closedSet.add(currentKey);
-            
-            // Check all four directions
+
             int[][] dirs = {{0,1}, {1,0}, {0,-1}, {-1,0}};
             for (int[] dir : dirs) {
                 int newRow = current.row + dir[0];
                 int newCol = current.col + dir[1];
                 String neighborKey = keyFromPosition(newRow, newCol);
-                
-                // Skip if out of bounds, unwalkable, or already evaluated
+
                 if (newRow < 0 || newRow >= map.height || 
                     newCol < 0 || newCol >= map.width ||
                     !map.isWalkable(newRow, newCol) || 
                     closedSet.contains(neighborKey)) {
                     continue;
                 }
-                
-                // Create or retrieve neighbor node
+
                 Node neighbor = allNodes.getOrDefault(
                     neighborKey, new Node(newRow, newCol)
                 );
-                
-                // Calculate tentative g score
+
                 int tentativeG = current.g + 1;
-                
-                // Higher cost for danger zones (but still allowed)
+
                 if (dangerZones.contains(neighborKey)) {
                     tentativeG += 10;
                 }
-                
-                // If this path is better
+
                 if (tentativeG < neighbor.g) {
                     neighbor.parent = current;
                     neighbor.g = tentativeG;
-                    neighbor.f = tentativeG; // No heuristic
+                    neighbor.f = tentativeG;
                     
                     allNodes.put(neighborKey, neighbor);
                     
@@ -641,8 +603,7 @@ public class PlayerAIController {
                 }
             }
         }
-        
-        // No safe path found
+
         return null;
     }
     
@@ -650,25 +611,21 @@ public class PlayerAIController {
      * Find the nearest brick that can be destroyed
      */
     private Node findBestBrickToDestroy(Position playerPos) {
-        // Use priority queue to find closest bricks first
         PriorityQueue<Node> candidates = new PriorityQueue<>(
             Comparator.comparingInt(n -> 
                 manhattanDistance(playerPos.row, playerPos.col, n.row, n.col)
             )
         );
-        
-        // Find all bricks with at least one adjacent walkable tile
+
         for (int r = 0; r < map.height; r++) {
             for (int c = 0; c < map.width; c++) {
                 if (map.getTileType(r, c) == GMap.BRICK) {
-                    // Check adjacent tiles
                     int[][] dirs = {{0,1}, {1,0}, {0,-1}, {-1,0}};
                     for (int[] dir : dirs) {
                         int adjRow = r + dir[0];
                         int adjCol = c + dir[1];
                         
                         if (map.isWalkable(adjRow, adjCol)) {
-                            // This brick can be reached
                             candidates.add(new Node(adjRow, adjCol));
                             break;
                         }
@@ -676,8 +633,7 @@ public class PlayerAIController {
                 }
             }
         }
-        
-        // Find the first brick we can actually path to
+
         while (!candidates.isEmpty()) {
             Node target = candidates.poll();
             List<Node> path = findPathAStar(playerPos, target);
@@ -716,15 +672,12 @@ public class PlayerAIController {
             }
             
             closedSet.add(currentKey);
-            
-            // Check all four directions
             int[][] dirs = {{0,1}, {1,0}, {0,-1}, {-1,0}};
             for (int[] dir : dirs) {
                 int newRow = current.row + dir[0];
                 int newCol = current.col + dir[1];
                 String neighborKey = keyFromPosition(newRow, newCol);
 
-                // Skip if out of bounds or already evaluated
                 if (newRow < 0 || newRow >= map.height ||
                         newCol < 0 || newCol >= map.width ||
                         closedSet.contains(neighborKey)) {
@@ -733,16 +686,13 @@ public class PlayerAIController {
 
                 int tileType = map.getTileType(newRow, newCol);
 
-                // Không cho đi qua tường
                 if (tileType == GMap.WALL) continue;
 
-                // Cho đi qua gạch nhưng tăng trọng số
                 int extraCost = 0;
                 if (tileType == GMap.BRICK) {
-                    extraCost = 20; // Trọng số cho gạch
+                    extraCost = 20;
                 }
 
-                // Skip nếu có enemy
                 if (isEnemyAtPosition(newRow, newCol)) continue;
 
                 Node neighbor = allNodes.getOrDefault(
@@ -751,7 +701,6 @@ public class PlayerAIController {
 
                 int tentativeG = current.g + 1 + extraCost;
 
-                // Các chi phí khác (enemy, danger zone) giữ nguyên
                 if (isEnemyInDangerZone(new Position(newRow, newCol))) {
                     tentativeG += 5;
                 }
@@ -773,8 +722,7 @@ public class PlayerAIController {
                 }
             }
         }
-        
-        // No path found
+
         return null;
     }
     
@@ -819,7 +767,6 @@ public class PlayerAIController {
             
             int distance = manhattanDistance(pos.row, pos.col, er, ec);
 
-            // Different enemies have different danger zones
             int dangerDistance = ENEMY_DANGER_DISTANCE;
 
             if (enemy instanceof Oneal && ((Oneal) enemy).isChasing) dangerDistance = 4;
@@ -843,27 +790,21 @@ public class PlayerAIController {
 
         double playerX = playerEntity.getX();
         double playerY = playerEntity.getY();
+        double threshold = 1.0;
 
-        double threshold = 1.0; // Threshold for alignment
-
-        // Nếu chưa căn giữa trục X, chỉ di chuyển trục X
         if (Math.abs(playerX - targetPixelX) > threshold) {
             if (playerX < targetPixelX) {
                 player.moveRight(0.016);
             } else {
                 player.moveLeft(0.016);
             }
-        }
-        // Nếu đã căn giữa X, nhưng chưa căn giữa Y, chỉ di chuyển trục Y
-        else if (Math.abs(playerY - targetPixelY) > threshold) {
+        } else if (Math.abs(playerY - targetPixelY) > threshold) {
             if (playerY < targetPixelY) {
                 player.moveDown(0.016);
             } else {
                 player.moveUp(0.016);
             }
-        }
-        // Đã căn giữa cả hai trục, dừng lại
-        else {
+        } else {
             player.stop();
         }
     }

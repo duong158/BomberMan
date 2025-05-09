@@ -31,7 +31,6 @@ public class CameraStorm {
     private final int worldHeight;
     private final double lerpFactor = 0.1;
 
-    // Visuals
     private final Rectangle fog;
     private final Canvas rainCanvas;
     private final GraphicsContext rainGC;
@@ -40,7 +39,6 @@ public class CameraStorm {
     private final List<List<Point2D>> bolts = new ArrayList<>();
     private final List<Double> boltLives = new ArrayList<>();
 
-    // AudioClips for thunder levels
     private final AudioClip thunderSoft;
     private final AudioClip thunderMedium;
     private final AudioClip thunderStrong;
@@ -90,18 +88,15 @@ public class CameraStorm {
             rainClip.play();
         }
 
-        // Setup fog
         fog = new Rectangle(0, 0, screenWidth, screenHeight);
         fog.setMouseTransparent(true);
 
-        // Setup rain
         rainCanvas = new Canvas(screenWidth, screenHeight);
         rainGC = rainCanvas.getGraphicsContext2D();
         rainCanvas.setMouseTransparent(true);
         rainDrops = new ArrayList<>();
         for (int i = 0; i < 500; i++) rainDrops.add(new RainDrop(worldWidth, worldHeight));
 
-        // Lightning overlay
         lightningFlash = new Rectangle(0, 0, screenWidth, screenHeight);
         lightningFlash.setFill(Color.TRANSPARENT);
         lightningFlash.setMouseTransparent(true);
@@ -135,7 +130,6 @@ public class CameraStorm {
     public void update() {
         if (target == null || !target.isVisible()) return;
 
-        // Camera follow logic
         Bounds b = target.getBoundsInParent();
         double cx = b.getMinX() + b.getWidth() / 2;
         double cy = b.getMinY() + b.getHeight() / 2;
@@ -148,7 +142,6 @@ public class CameraStorm {
         double screenX = cx + world.getTranslateX();
         double screenY = cy + world.getTranslateY();
 
-        // Fog
         fog.setFill(new RadialGradient(0, 0,
                 screenX / screenWidth, screenY / screenHeight,
                 0.3, true, CycleMethod.NO_CYCLE,
@@ -157,7 +150,6 @@ public class CameraStorm {
                 new Stop(0.4, Color.color(0, 0, 0, 0.6)),
                 new Stop(1, Color.color(0, 0, 0, 0.95))));
 
-        // Rain
         rainGC.clearRect(0, 0, screenWidth, screenHeight);
         rainGC.setStroke(Color.rgb(150, 150, 255, 0.4));
         rainGC.setLineWidth(2.5);
@@ -171,7 +163,6 @@ public class CameraStorm {
             );
         }
 
-        // Lightning timing
         lightningTimer += 1.0 / 60.0;
         if (lightningPhase == LightningPhase.NONE && lightningTimer >= lightningCooldown) {
             lightningTimer = 0;
@@ -188,7 +179,6 @@ public class CameraStorm {
             case RECOVER -> handleRecover();
         }
 
-        // Bolts drawing
         for (int i = bolts.size() - 1; i >= 0; i--) {
             List<Point2D> bolt = bolts.get(i);
             double life = boltLives.get(i);
@@ -228,14 +218,12 @@ public class CameraStorm {
 
     private void handleFlash(double tx, double ty) {
         if (lightningPhaseTimer == 0) {
-            int count = 3 + random.nextInt(3); // số tia sét (3 đến 5)
+            int count = 3 + random.nextInt(3);
 
-            // Rung theo số lượng tia sét
             double intensity = 10 + count * 165;
             double duration = 0.1 + count * 0.2;
             startShake(intensity, duration);
 
-            // Chọn âm thanh phù hợp
             AudioClip clipToPlay;
             if (count <= 3) clipToPlay = thunderSoft;
             else if (count == 4) clipToPlay = thunderMedium;
@@ -245,7 +233,6 @@ public class CameraStorm {
                 clipToPlay.play(volume);
             }
 
-            // Tạo các tia sét
             for (int i = 0; i < count; i++) {
                 Point2D start = randomStartPoint();
                 double angle = random.nextDouble() * 2 * Math.PI;
@@ -287,22 +274,15 @@ public class CameraStorm {
     private void applyShake(double tx, double ty) {
         currentShakeTime += 1.0 / 60.0;
         if (currentShakeTime < shakeDuration) {
-            // Thay vì làm nhiễu tx, ty, ta thực hiện rung trực tiếp trên world
             double offsetX = (random.nextDouble() * 2 - 1) * shakeIntensity;
             double offsetY = (random.nextDouble() * 2 - 1) * shakeIntensity;
-            
-            // Đặt vị trí world dựa trên vị trí gốc + offset
+
             world.setTranslateX(originalX + offsetX);
             world.setTranslateY(originalY + offsetY);
-            
-            // Giảm dần cường độ
+
             shakeIntensity *= 0.9;
-            
-            // Không cập nhật tx, ty vì ta đã điều khiển trực tiếp
-            return;
         } else {
             isShaking = false;
-            // Quay về vị trí gốc sau khi rung xong
             world.setTranslateX(originalX);
             world.setTranslateY(originalY);
         }

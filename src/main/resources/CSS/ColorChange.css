@@ -2,7 +2,6 @@
     -fx-text-fill: white;
 }
 
-/* Hover: đổi màu */
 .color-change:hover {
     -fx-text-fill: yellow;
 }

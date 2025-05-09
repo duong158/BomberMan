@@ -22,8 +22,6 @@ public class Map1 {
     public static final int DORIA = 9;
 
     public static double MOBNUMS = 20;
-    
-    // Tỷ lệ phần trăm của từng loại quái
     private static final double BALLOON_PERCENT = 0.3;
     private static final double PASS_PERCENT = 0.3;
     private static final double ONEAL_PERCENT = 0.1;
@@ -34,7 +32,6 @@ public class Map1 {
         int[][] map = new int[height][width];
         Random rand = new Random();
 
-        //Tạo WALL
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (x == 0 || x == width-1 || y == 0 || y == height-1) {
@@ -47,7 +44,6 @@ public class Map1 {
             }
         }
 
-        //Thêm BRICK
         for (int y = 1; y < height-1; y++) {
             for (int x = 1; x < width-1; x++) {
                 if (map[y][x] == EMPTY && rand.nextFloat() < obstacleDensity) {
@@ -64,7 +60,6 @@ public class Map1 {
             }
         }
 
-        // Trộn danh sách vị trí trống để đảm bảo ngẫu nhiên
         Collections.shuffle(emptyPositions);
         if(MOBNUMS < emptyPositions.size()) MOBNUMS += Player.getLevel()*5;
         int balloonCount = (int) Math.round(MOBNUMS * BALLOON_PERCENT);
@@ -74,15 +69,13 @@ public class Map1 {
         int doriaCount = (Player.getLevel() >= 5) ? (int) Math.round(MOBNUMS * DORIA_PERCENT) : 0;
 
 
-        // Mảng chứa thông tin về các loại quái và số lượng
         int[] mobTypes = {BALLOON, PASS, ONEAL, DAHL, DORIA};
         int[] mobCounts = {balloonCount, passCount, onealCount, dahlCount, doriaCount};
         
         int mobsAdded = 0;
-        int mobTypeIndex = 0;  // Loại quái hiện tại đang được spawn
-        int currentTypeCount = 0;  // Số lượng đã spawn của loại quái hiện tại
-        
-        // Spawn quái vật trong một vòng lặp duy nhất
+        int mobTypeIndex = 0;
+        int currentTypeCount = 0;
+
         for (int[] pos : emptyPositions) {
             int y = pos[0];
             int x = pos[1];
@@ -94,7 +87,7 @@ public class Map1 {
                                 map[y][x+1] == BRICK || map[y][x+1] == WALL;
 
                 if (surroundedByWall) {
-                    continue; // bỏ qua vị trí này
+                    continue;
                 }
                 if (currentTypeCount >= mobCounts[mobTypeIndex]) {
                     if(mobCounts[mobTypeIndex] == 0) break;
@@ -105,12 +98,10 @@ public class Map1 {
                     }
                 }
 
-                // Spawn quái vật hiện tại
                 map[pos[0]][pos[1]] = mobTypes[mobTypeIndex];
                 currentTypeCount++;
                 mobsAdded++;
 
-                // Nếu đã spawn đủ tổng số quái vật, thoát khỏi vòng lặp
                 if (mobsAdded >= MOBNUMS) {
                     break;
                 }
@@ -148,22 +139,17 @@ public class Map1 {
             {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
     };
     public static int[][] getBossRoomMapData() {
-        // Đã định nghĩa sẵn trong Map1 class
         return BOSS_ROOM_MAP;
     }
 
-    // Thêm hằng số cho BOSS
     public static final int BOSS = 10;
 
     private void placeEntranceAndExit(int[][] map) {
         int height = map.length;
         int width = map[0].length;
 
-        // Đặt Entrance và Exit
         map[1][1] = ENTRANCE;
         map[height-2][width-2] = EXIT;
-
-        // Tạo ô an toàn quanh Entrance và Exit
         createSafeArea(map, 1, 1);
         createSafeArea(map, width-2, height-2);
     }

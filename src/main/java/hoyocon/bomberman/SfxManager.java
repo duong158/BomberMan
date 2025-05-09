@@ -6,7 +6,6 @@ public class SfxManager {
     private static boolean sfxEnabled = true;
     private static AudioClip walkClip;
 
-    // Đường dẫn cố định tới file SFX (đường dẫn tương đối trong resources)
     private static final String EXPLOSION_SOUND = "/assets/sounds/explosion.wav";
     private static final String PLACE_BOMB_SOUND = "/assets/sounds/place_bomb.wav";
     private static final String WALK_SOUND    = "/assets/sounds/jump.wav";

@@ -11,7 +11,6 @@ public class FlamePass implements BuffGeneric {
     @Override
     public void apply(Player player) {
         player.setFlamePassActive(true);
-        // Đăng ký thời điểm buff bắt đầu để Player tự động remove sau duration
         player.getActiveBuffs().put("flamePass", System.currentTimeMillis());
     }
 

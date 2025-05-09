@@ -4,9 +4,9 @@ import hoyocon.bomberman.Object.Player;
 import javafx.scene.image.Image;
 
 public interface BuffGeneric {
-    void apply(Player player); // Gọi khi bắt đầu buff
-    void remove(Player player); // Gọi khi buff hết thời gian
-    int getDuration(); // Đơn vị: seconds
+    void apply(Player player);
+    void remove(Player player);
+    int getDuration();
     String getName();
     Image getIcon();
     default String getType() {

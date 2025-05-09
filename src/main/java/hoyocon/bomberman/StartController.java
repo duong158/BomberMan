@@ -23,10 +23,7 @@ public class StartController {
 
     @FXML
     private void onAutoPlayClicked(ActionEvent event) {
-        // Đảo trạng thái auto‑play
         GameSceneBuilder.toggleAutoPlay();
-
-        // Cập nhật nhãn theo trạng thái mới
         boolean enabled = getAutoPlayState();
         autoPlayButton.setText(enabled ? "AUTO PLAY: On" : "AUTO PLAY: Off");
     }
@@ -56,16 +53,12 @@ public class StartController {
 
     @FXML
     private void initialize() {
-        // Khởi tạo MediaPlayer với nhạc nền từ đường dẫn mới
         try {
-            // Sử dụng đường dẫn tương đối trong thư mục resources
             Media sound = new Media(getClass().getResource("/assets/music/main_theme.mp3").toURI().toString());
             mediaPlayer = new MediaPlayer(sound);
-            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Lặp lại vô hạn
-            mediaPlayer.setVolume(0.7); // Đặt volume mặc định 70%
+            mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            mediaPlayer.setVolume(0.7);
             mediaPlayer.play();
-
-            // Thiết lập trạng thái ban đầu của các nút
             musicOffButton.setVisible(false);
         } catch (URISyntaxException e) {
             System.err.println("Error loading background music: " + e.getMessage());
@@ -148,4 +141,3 @@ public class StartController {
         Platform.exit();
     }
 }
-// Thêm phương thức để clean up MediaPlayer khi không cần thiết

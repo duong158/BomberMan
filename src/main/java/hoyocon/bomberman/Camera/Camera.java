@@ -21,7 +21,7 @@ public class Camera {
     private double currentShakeTime = 0;
     private double originalX, originalY;
 
-    private final double lerpFactor = 0.1; // độ mượt camera
+    private final double lerpFactor = 0.1;
 
     public Camera(Group world, Node target, int screenWidth, int screenHeight, int worldWidth, int worldHeight) {
         this.world = world;
@@ -67,7 +67,6 @@ public class Camera {
             currentShakeTime += 1.0/60.0;
 
             if (currentShakeTime < shakeDuration) {
-                // Tính toán độ rung
                 double shakeOffsetX = (Math.random() * 2 - 1) * shakeIntensity;
                 double shakeOffsetY = (Math.random() * 2 - 1) * shakeIntensity;
 
@@ -106,29 +105,18 @@ public class Camera {
         }
     }
     public void reset() {
-        /*update();
-
-        isShaking = false;
-        shakeIntensity = 0;
-        shakeDuration = 0;
-        currentShakeTime = 0;*/
-        // --- Trong Camera.java ---
-        // Hủy shake
         isShaking = false;
         shakeIntensity = 0;
         shakeDuration = 0;
         currentShakeTime = 0;
 
-        // Tính center của target
         Bounds b = target.getBoundsInParent();
         double centerX = b.getMinX() + b.getWidth() / 2.0;
         double centerY = b.getMinY() + b.getHeight() / 2.0;
 
-        // Tính vị trí dịch chuyển ngay lập tức
         double tx = calculateTargetX(centerX);
         double ty = calculateTargetY(centerY);
 
-        // Gán thẳng, không qua lerp
         world.setTranslateX(tx);
         world.setTranslateY(ty);
 

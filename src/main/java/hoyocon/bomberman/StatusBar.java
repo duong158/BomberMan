@@ -29,7 +29,6 @@ public class StatusBar extends VBox {
         this.setStyle("-fx-padding: 10; -fx-background-color: rgba(0, 0, 0, 0.5);");
         this.setAlignment(Pos.TOP_LEFT);  // Align everything to left
 
-        // --- Level Box ---
         levelText = new Text("Lvl: " + Player.getLevel());
         levelText.setStyle("-fx-font-size: 20; -fx-fill: white; -fx-font-family: 'Press Start 2P';");
         VBox levelBox = new VBox(levelText);
@@ -37,22 +36,18 @@ public class StatusBar extends VBox {
         levelBox.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-padding: 5; -fx-border-color: white; -fx-border-width: 1;");
         levelBox.setMaxWidth(Double.MAX_VALUE);
 
-        // --- HP Container ---
         heartContainer = new HBox(5);
         heartContainer.setAlignment(Pos.CENTER_LEFT);
         updateHearts();
 
-        // --- Buff Container ---
         buffContainer = new HBox(10);
         buffContainer.setAlignment(Pos.CENTER_LEFT);
         updateBuffIcons();
 
-        // Add all to VBox in order
         this.getChildren().addAll(levelBox, heartContainer, buffContainer);
 
         System.out.println("StatusBar initialized with " + this.player.getLives() + " hearts");
 
-        // Update status bar periodically
         AnimationTimer statusUpdater = new AnimationTimer() {
             @Override
             public void handle(long now) {
