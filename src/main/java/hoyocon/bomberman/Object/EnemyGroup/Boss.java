@@ -214,7 +214,7 @@ public class Boss extends Component {
                 Duration.seconds(0.5), 0, 2
         );
         AnimatedTexture flameTex = new AnimatedTexture(chan);
-        flameTex.loop();
+        flameTex.loopNoOverride(chan);
 
         Pane flamePane = new Pane(flameTex);
         flamePane.setPrefSize(tileSize, tileSize);

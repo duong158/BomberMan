@@ -250,7 +250,7 @@ public class Player extends Component {
     }
 
     public Player() {
-        this.lives = 1000;
+        this.lives = 3;
         this.speed = baseSpeed;
         this.bombCount = 0;
         maxBombs = 1;
