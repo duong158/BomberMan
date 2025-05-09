@@ -188,7 +188,7 @@ public class GameSceneBuilder {
 
         // 2. Reset biến tĩnh về giá trị ban đầu
 //        Player.level = 1;      // nếu level là biến public static
-        Map1.MOBNUMS = 5;      // về số quái khởi tạo
+        Map1.MOBNUMS = 20;      // về số quái khởi tạo
 
         // 3. Xây dựng scene va camera mới từ vị trí start
         Scene scene = buildGameScene(GMap.TILE_SIZE, GMap.TILE_SIZE);
@@ -308,8 +308,8 @@ public class GameSceneBuilder {
         if (Player.getLevel() == 4) {
             try {
                 // Vị trí center của boss trong map
-                int bossRow = 6;  // Hàng thứ 7 (index từ 0)
-                int bossCol = 8;  // Cột thứ 9 (index từ 0)
+                int bossRow = 23/2-6;  // Hàng thứ 7 (index từ 0)
+                int bossCol = 41-10;  // Cột thứ 9 (index từ 0)
 
                 // Tạo instance của Boss
                 boss = new Boss(bossCol, bossRow);

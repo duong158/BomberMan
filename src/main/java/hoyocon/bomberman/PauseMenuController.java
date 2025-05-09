@@ -104,8 +104,7 @@ public class PauseMenuController {
                     GameSceneBuilder.resetMusic();
                     GameSceneBuilder.hidePauseMenu(uiPane);
                     try {
-
-                        Player.level = 1;
+                        Player.setLevel(1);
                         // Load the main Start view
                         Parent startView = FXMLLoader.load(
                                 getClass().getResource("/FXML/Start-view.fxml")
