@@ -526,7 +526,7 @@ public class Player extends Component {
         bombs.add(bombPane);
         GameSceneBuilder.bombEntities.add(bombPane);
 
-        SfxManager.playExplosion();
+        SfxManager.playPlaceBomb();
         bombTexture.loop();
 
         PauseTransition delay = new PauseTransition(Duration.seconds(2));

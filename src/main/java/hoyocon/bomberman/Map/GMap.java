@@ -58,7 +58,7 @@ public class GMap {
         initializeHitboxes();
         loadImages();
         hiddenBuffs = new BuffGeneric[height][width];
-        assignHiddenBuffs(1000);
+        assignHiddenBuffs(1000); //số lượng buff
     }
 
     private void assignHiddenBuffs(int count) {
