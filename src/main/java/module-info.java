@@ -34,4 +34,5 @@ module hoyocon.bomberman {
     opens hoyocon.bomberman.Object.EnemyGroup to javafx.fxml;
     opens hoyocon.bomberman.api.controller to spring.beans, spring.context, spring.web;
     opens hoyocon.bomberman.api.entity to spring.core;
+    opens hoyocon.bomberman.network to kryo;
 }

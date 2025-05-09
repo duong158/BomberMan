@@ -6,25 +6,57 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.event.ActionEvent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.scene.Node;
 
 import java.io.IOException;
 
 public class CoopLobbyController {
     @FXML private ListView<String> friendList;
+    @FXML private TextField ipField;
+    private boolean connected = false;
 
     private Client client;
 
     @FXML
     public void initialize() {
         friendList.getItems().addAll("Alice", "Bob", "Charlie");
+        // Không tự động kết nối khi vào lobby nữa
+    }
 
+    @FXML
+    private void handleConnect(ActionEvent event) {
+        if (connected) {
+            showInfo("Đã kết nối server!");
+            return;
+        }
+        String ip = ipField.getText();
+        if (ip == null || ip.isEmpty()) ip = "localhost";
         client = new Client();
-        Network.register(client.getKryo()); // đăng ký class cần thiết cho Kryo
-
+        Network.register(client.getKryo());
         client.start();
         try {
-            client.connect(5000, "localhost", 54555, 54777); // địa chỉ & cổng server
+            client.connect(5000, ip, 54555, 54777);
+            connected = true;
+            showInfo("Kết nối server thành công!");
+
+            // Đăng ký listener khi khởi tạo client
+            client.addListener(new com.esotericsoftware.kryonet.Listener() {
+                public void received(com.esotericsoftware.kryonet.Connection connection, Object object) {
+                    if (object instanceof hoyocon.bomberman.network.Network.StartGameSignal) {
+                        Platform.runLater(() -> {
+                            Scene coopGameScene = hoyocon.bomberman.GameSceneBuilder.buildNewGameScene();
+                            Stage stage = (Stage) friendList.getScene().getWindow();
+                            stage.setScene(coopGameScene);
+                            stage.setTitle("Bomberman Co-op");
+                            coopGameScene.getRoot().requestFocus();
+                        });
+                    }
+                }
+            });
         } catch (IOException e) {
             showError("Không thể kết nối server: " + e.getMessage());
         }
@@ -48,7 +80,11 @@ public class CoopLobbyController {
 
     @FXML
     private void handleStartGame(ActionEvent event) {
-        showInfo("Bắt đầu game với bạn bè!");
+        if (client != null && connected) {
+            client.sendTCP(new hoyocon.bomberman.network.Network.StartGameRequest());
+        } else {
+            showError("Bạn chưa kết nối server!");
+        }
     }
 
     private void showInfo(String msg) {

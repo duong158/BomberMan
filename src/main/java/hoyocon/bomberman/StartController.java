@@ -151,15 +151,31 @@ public class StartController {
     @FXML
     private void onCoopClicked(ActionEvent event) {
         cleanup(); // Dừng nhạc nếu có
+        System.out.println("[DEBUG] onCoopClicked called");
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION, "Đã nhấn CO-OP!");
+        alert.showAndWait();
         try {
-            Parent lobbyView = FXMLLoader.load(getClass().getResource("/FXML/CoopLobby.fxml"));
+            java.net.URL url = getClass().getResource("/FXML/CoopLobby.fxml");
+            System.out.println("[DEBUG] getResource /FXML/CoopLobby.fxml: " + url);
+            if (url == null) {
+                throw new IOException("Không tìm thấy FXML/CoopLobby.fxml trong resource!");
+            }
+            Parent lobbyView = FXMLLoader.load(url);
             Scene coopScene = new Scene(lobbyView, 1920, 1080);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(coopScene);
             stage.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            StringBuilder sb = new StringBuilder();
+            sb.append("Lỗi khi load CoopLobby.fxml: ").append(e.getMessage());
+            Throwable cause = e.getCause();
+            while (cause != null) {
+                sb.append("\nCaused by: ").append(cause.getClass().getName()).append(": ").append(cause.getMessage());
+                cause = cause.getCause();
+            }
+            javafx.scene.control.Alert errAlert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, sb.toString());
+            errAlert.showAndWait();
         }
     }
 }
-// Thêm phương thức để clean up MediaPlayer khi không cần thiết

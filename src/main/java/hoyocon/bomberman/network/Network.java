@@ -11,6 +11,8 @@ public class Network {
         kryo.register(JoinResponse.class);
         kryo.register(InviteRequest.class);
         kryo.register(String.class); // nếu cần gửi chuỗi
+        kryo.register(StartGameRequest.class);
+        kryo.register(StartGameSignal.class);
     }
 
     // ✅ Request gửi từ Client -> Server
@@ -28,4 +30,7 @@ public class Network {
         public String fromName;
         public String targetName;
     }
+
+    public static class StartGameRequest {}
+    public static class StartGameSignal {}
 }
