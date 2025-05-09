@@ -1,8 +1,8 @@
 # Bomberman
 ## Thành viên
--
--
--
+- Nguyễn Bá An - 24022246
+- Tống Đức Hồng Anh - 24022258
+- Nguyễn Tùng Dương - 24022306
 ## Mô tả chung
 DEMO
 ![](src/main/resources/assets/textures/demo1.png)|![](src/main/resources/assets/textures/demo2.png)
