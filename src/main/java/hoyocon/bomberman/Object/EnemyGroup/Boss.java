@@ -35,11 +35,11 @@ public class Boss extends Component {
     private GMap gameMap;    // Reference to the game map for collision detection
 
     // Combat properties
-    private int health = 10;
+    private int health = 1;
     private boolean isAlive = true;
     private boolean isAttacking = false;
     private long lastAttackTime = 0;
-    private static final long ATTACK_COOLDOWN = 8000; // 8 seconds cooldown
+    private static final long ATTACK_COOLDOWN = 2000; // 8 seconds cooldown
     private static final int FLAME_DAMAGE = 1; // Damage caused by flames
     private long lastHitTime = 0;
 
@@ -122,14 +122,19 @@ public class Boss extends Component {
         // Attack logic
         long currentTime = System.currentTimeMillis();
         if (!isAttacking && currentTime - lastAttackTime > ATTACK_COOLDOWN) {
-            attackWithFlames();
+        // Ngẫu nhiên chọn giữa các đòn tấn công
+            if (random.nextBoolean()) {
+                attackWithRandomFlames(); // Tấn công ban đầu
+            } else {
+                attackWithHorizontalFlames(); // Tấn công mới với flame ngang
+            }
         }
     }
 
     /**
      * Attack with flames at random positions
      */
-    private void attackWithFlames() {
+    private void attackWithRandomFlames() {
         isAttacking = true;
         lastAttackTime = System.currentTimeMillis();
 
@@ -339,8 +344,8 @@ public class Boss extends Component {
      */
     public Bounds getBounds() {
         // Make a slightly smaller hitbox for more accurate collisions
-        double width = currentView.getFitWidth() * 0.7;  // Reduce width by 30%
-        double height = currentView.getFitHeight() * 0.7; // Reduce height by 30%
+        double width = currentView.getFitWidth() * 0.15;  // Reduce width by 30%
+        double height = currentView.getFitHeight() * 0.5; // Reduce height by 30%
 
         // Center the hitbox
         double offsetX = (currentView.getFitWidth() - width) / 2;
@@ -348,7 +353,7 @@ public class Boss extends Component {
 
         return new BoundingBox(
                 entity.getX() + offsetX,
-                entity.getY() + offsetY,
+                entity.getY() + offsetY + 2*48,
                 width,
                 height
         );
@@ -410,6 +415,85 @@ public class Boss extends Component {
     }
 
     /**
+     * Tấn công với hàng ngang flame lan về bên trái
+     */
+    private void attackWithHorizontalFlames() {
+        isAttacking = true;
+        lastAttackTime = System.currentTimeMillis();
+
+        // Chơi animation tấn công
+        playAttack();
+
+        // Phát âm thanh
+        try {
+            SfxManager.playExplosion();
+        } catch (Exception e) {
+            System.err.println("Không thể phát âm thanh tấn công của boss");
+        }
+
+        // Trở lại trạng thái idle sau khi animation tấn công hoàn thành
+        PauseTransition idleTransition = new PauseTransition(Duration.seconds(1.2));
+        idleTransition.setOnFinished(e -> {
+            // Tạo hàng dọc flame
+            createVerticalFlameColumn();
+
+            isAttacking = false;
+            if (isAlive) {
+                playIdle();
+            }
+        });
+        idleTransition.play();
+        GameSceneBuilder.registerPauseTransition(idleTransition);
+    }
+
+    /**
+     * Tạo hàng dọc các flame cách boss một khoảng cố định
+     */
+    private void createVerticalFlameColumn() {
+        if (gameMap == null || gamePane == null || gameWorld == null) {
+            System.err.println("Không thể tạo flame: thiếu tham chiếu game");
+            return;
+        }
+
+        // Tính vị trí boss theo ô
+        int bossCol = (int) (entity.getX() / GMap.TILE_SIZE);
+
+        // Khoảng cách cố định từ boss (3 ô)
+        int flameCol = bossCol - 3;
+
+        // Tạo flame theo hàng dọc với độ trễ từ trên xuống
+        for (int i = 0; i < gameMap.height; i++) {
+            int row = i; // Bắt đầu từ hàng trên cùng
+            if (!gameMap.isWallHitbox(row, flameCol)) {
+                final int finalRow = row;
+
+                // Độ trễ để tạo hiệu ứng tuần tự từ trên xuống
+                PauseTransition delay = new PauseTransition(Duration.millis(i * 100));
+                delay.setOnFinished(e -> {
+                    // Tạo flame trung tâm
+                    createCentralFlame(finalRow, flameCol);
+
+                    // Chỉ lan flame sang bên trái
+                    createFlameInLeftDirection(finalRow, flameCol);
+                });
+                delay.play();
+                GameSceneBuilder.registerPauseTransition(delay);
+            }
+        }
+    }
+
+    /**
+     * Tạo flame lan sang bên trái
+     */
+    private void createFlameInLeftDirection(int row, int col) {
+        // Hướng: trái (0, -1)
+        int rowDir = 0;
+        int colDir = -1;
+
+        createFlameSequence(row, col, rowDir, colDir, 1);
+    }
+
+    /**
      * Chạy animation chết và xóa boss khỏi game.
      */
     private void die() {
@@ -420,11 +504,37 @@ public class Boss extends Component {
         // Hẹn xóa boss sau khi animation chết hoàn thành
         PauseTransition deathDelay = new PauseTransition(Duration.seconds(2.2));
         deathDelay.setOnFinished(e -> {
-            gamePane.getChildren().remove(entity.getViewComponent().getParent());
-            gameWorld.getChildren().remove(entity.getViewComponent().getParent());
+            // Xóa phần tử hiển thị từ gamePane và gameWorld
+            if (entity.getViewComponent() != null && entity.getViewComponent().getParent() != null) {
+                gamePane.getChildren().remove(entity.getViewComponent().getParent());
+                gameWorld.getChildren().remove(entity.getViewComponent().getParent());
+            }
+
+            // Xóa tham chiếu tĩnh trong GameSceneBuilder
+            if (GameSceneBuilder.boss == this) {
+                GameSceneBuilder.boss = null;
+            }
+
+            // Xóa entity hoàn toàn
             entity.removeFromWorld();
+
+            // Vô hiệu hóa các tham chiếu nội bộ
+            currentView = null;
+            entity = null;
+
+            // Phát âm thanh (nếu cần)
+            try {
+                SfxManager.playExplosion();
+            } catch (Exception ex) {
+                // Bỏ qua nếu không thể phát âm thanh
+            }
+
+            System.out.println("Boss đã bị xóa hoàn toàn khỏi thế giới!");
         });
         deathDelay.play();
+
+        // Đăng ký với GameSceneBuilder để quản lý pause/resume
+        GameSceneBuilder.registerPauseTransition(deathDelay);
     }
 
     private void hit() {
