@@ -171,7 +171,7 @@ public class GameSceneBuilder {
         // 1. Dừng game loop và xóa sạch trạng thái cũ
         if (gameLoop != null) {
             gameLoop.stop();
-            SfxManager.stopWalk();
+//            SfxManager.stopWalk();
         }
         buffEntities.clear();
         enemyEntities.clear();
@@ -382,7 +382,7 @@ public class GameSceneBuilder {
                     worldWidth,
                     worldHeight
             );
-        } else if (Player.getLevel() % 3 == 0 || Player.getLevel() % 5 == 0 ) {
+        } else if (Player.getLevel() % 3 == 0 || Player.getLevel() % 4 == 0 ) {
             camera = null;
             cameraFrog = null;
             cameraStorm = new CameraStorm(fogPane,
@@ -440,10 +440,10 @@ public class GameSceneBuilder {
                 }
 
                 if (moved && !wasMoving) {
-                    SfxManager.playWalk();
+//                    SfxManager.playWalk();
                     wasMoving = true;
                 } else if (!moved && wasMoving) {
-                    SfxManager.stopWalk();
+//                    SfxManager.stopWalk();
                     wasMoving = false;
                 }
 
@@ -698,7 +698,7 @@ public class GameSceneBuilder {
             // Always allow ESC key regardless of player state
             if (event.getCode() == KeyCode.ESCAPE) {
                 if (gameLoop != null) gameLoop.stop();
-                SfxManager.stopWalk();
+//                SfxManager.stopWalk();
                 showPauseMenu(uiPane);
             }
         });
@@ -769,7 +769,7 @@ public class GameSceneBuilder {
 
         // 1. Dừng gameLoop và pause tất cả Transitions/Timers
         if (gameLoop != null) {
-            SfxManager.stopWalk();
+//            SfxManager.stopWalk();
             gameLoop.stop();
         }
         pauseAll();
@@ -831,6 +831,8 @@ public class GameSceneBuilder {
         try {
             String musicFile;
             if(Player.getLevel() % 4 == 0)  musicFile = "/assets/music/boss_theme.mp3";
+            else if (Player.getLevel() % 3 == 0) musicFile = "/assets/music/storm_theme.mp3";
+            else if (Player.getLevel() % 2 == 0) musicFile = "/assets/music/fog_theme.mp3";
             else  musicFile = "/assets/music/battle-theme.mp3"; // Path to music file in resources folder
             Media backgroundMusic = new Media(GameSceneBuilder.class.getResource(musicFile).toExternalForm());
             backgroundMusicPlayer = new MediaPlayer(backgroundMusic);

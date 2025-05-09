@@ -729,7 +729,7 @@ public class Player extends Component {
 
         if (GameSceneBuilder.gameLoop != null) {
             GameSceneBuilder.gameLoop.stop();
-            SfxManager.stopWalk();
+//            SfxManager.stopWalk();
         }
 
         // Làm sạch danh sách thực thể và trạng thái

@@ -39,7 +39,7 @@ public class Boss extends Component {
     private boolean isAlive = true;
     private boolean isAttacking = false;
     private long lastAttackTime = 0;
-    private static final long ATTACK_COOLDOWN = 2000; // 8 seconds cooldown
+    private static final long ATTACK_COOLDOWN = 3000; // 8 seconds cooldown
     private static final int FLAME_DAMAGE = 1; // Damage caused by flames
     private long lastHitTime = 0;
 
@@ -54,7 +54,9 @@ public class Boss extends Component {
 
     // Random for choosing attack direction
     private Random random = new Random();
-
+    private static final long TECHNIQUE_SWITCH_COOLDOWN = 10000; // 8 giây giữa các lần đổi chiêu thức
+    private long lastTechniqueSwitchTime = 0;
+    private int currentAttackType = 0; // 0: attackWithFlames, 1: attackWithHorizontalFlames
     /**
      * Sets the player reference for targeting
      */
@@ -121,12 +123,20 @@ public class Boss extends Component {
 
         // Attack logic
         long currentTime = System.currentTimeMillis();
+        if (currentTime - lastTechniqueSwitchTime > TECHNIQUE_SWITCH_COOLDOWN) {
+            // Đổi chiêu thức
+            currentAttackType = (currentAttackType + 1) % 2; // Luân phiên giữa 0 và 1
+            lastTechniqueSwitchTime = currentTime;
+            System.out.println("Boss đổi chiêu thức: " + (currentAttackType == 0 ? "Random flames" : "Horizontal flames"));
+        }
+
+        // Kiểm tra xem đã đến lúc tấn công chưa
         if (!isAttacking && currentTime - lastAttackTime > ATTACK_COOLDOWN) {
-        // Ngẫu nhiên chọn giữa các đòn tấn công
-            if (random.nextBoolean()) {
-                attackWithRandomFlames(); // Tấn công ban đầu
+            // Tấn công với chiêu thức hiện tại
+            if (currentAttackType == 0) {
+                attackWithRandomFlames(); // Chiêu thức hiện có
             } else {
-                attackWithHorizontalFlames(); // Tấn công mới với flame ngang
+                attackWithHorizontalFlames(); // Chiêu thức mới
             }
         }
     }

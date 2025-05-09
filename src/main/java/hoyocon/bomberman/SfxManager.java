@@ -17,17 +17,17 @@ public class SfxManager {
         walkClip.setCycleCount(AudioClip.INDEFINITE);
     }
 
-    public static void playWalk() {
-        if (sfxEnabled && walkClip != null && !walkClip.isPlaying()) {
-            walkClip.play();
-        }
-    }
-
-    public static void stopWalk() {
-        if (walkClip != null && walkClip.isPlaying()) {
-            walkClip.stop();
-        }
-    }
+//    public static void playWalk() {
+//        if (sfxEnabled && walkClip != null && !walkClip.isPlaying()) {
+//            walkClip.play();
+//        }
+//    }
+//
+//    public static void stopWalk() {
+//        if (walkClip != null && walkClip.isPlaying()) {
+//            walkClip.stop();
+//        }
+//    }
 
     public static void playBuff() {
         playSound(BUFF_SOUND);
