@@ -25,6 +25,7 @@ module hoyocon.bomberman {
     requires spring.tx;
 
 // Export packages for external use (if necessary)
+    exports hoyocon.bomberman.network;
     exports hoyocon.bomberman;
     exports hoyocon.bomberman.api.controller;
     exports hoyocon.bomberman.api.entity;

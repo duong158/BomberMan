@@ -18,12 +18,18 @@ public class Network {
     // ✅ Request gửi từ Client -> Server
     public static class JoinRequest {
         public String playerName;
+        
+        // Thêm constructor không tham số
+        public JoinRequest() {}
     }
 
     // ✅ Response gửi từ Server -> Client
     public static class JoinResponse {
         public String message;
         public boolean accepted;
+        
+        // Thêm constructor không tham số
+        public JoinResponse() {}
     }
 
     public static class InviteRequest {
@@ -31,6 +37,13 @@ public class Network {
         public String targetName;
     }
 
-    public static class StartGameRequest {}
-    public static class StartGameSignal {}
+    public static class StartGameRequest {
+        // Thêm constructor không tham số
+        public StartGameRequest() {}
+    }
+
+    public static class StartGameSignal {
+        // Thêm constructor không tham số
+        public StartGameSignal() {}
+    }
 }
