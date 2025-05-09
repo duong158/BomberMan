@@ -198,6 +198,9 @@ public class GameSceneBuilder {
         if (camera != null) {
             camera.reset();
         }
+        if (cameraStorm != null) {
+            cameraStorm.reset();
+        }
 
         // 4. Thiết lập thuộc tính cho player vừa được thêm vào scene
         lastPlayer.setLives(Player.getLives());
@@ -374,6 +377,7 @@ public class GameSceneBuilder {
 
         if (Player.getLevel() % 2 == 0 &&  Player.getLevel() % 4 != 0 ) {
             camera = null;
+            cameraStorm = null;
             cameraFrog = new CameraFrog(fogPane,
                     gameWorld,
                     playerEntity.getViewComponent().getParent(),

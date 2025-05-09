@@ -94,15 +94,13 @@ public class CameraFrog {
         RadialGradient fogGradient = new RadialGradient(
                 0, 0,
                 gradientCenterX, gradientCenterY,
-                0.9,
+                0.3,
                 true,
                 CycleMethod.NO_CYCLE,
                 new Stop(0, Color.TRANSPARENT),
-                new Stop(0.07, Color.TRANSPARENT),
-                new Stop(0.14, Color.color(0, 0, 0, 0.6)),
-                new Stop(0.35, Color.color(0, 0, 0, 0.9)),
-                new Stop(1, Color.color(0, 0, 0, 1.0))
-        );
+                new Stop(0.1, Color.color(0, 0, 0, 0.2)),
+                new Stop(0.4, Color.color(0, 0, 0, 0.6)),
+                new Stop(1, Color.color(0, 0, 0, 0.95)));
         fog.setFill(fogGradient);
     }
 
