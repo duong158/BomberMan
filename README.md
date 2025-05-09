@@ -45,7 +45,7 @@ DEMO
 - **Enemy** bị tiêu diệt khi thuộc phạm vi Bomb nổ.
 - **BOSS** sẽ mất HP khi trúng **Bomb**
 ## Class Diagram
-![](res/textures/Diagram.png)
+![uml diagram.png](src/main/resources/assets/uml%20diagram.png)
 ## Gói tính năng bắt buộc
 - Thiết kế cây thừa kế cho các đối tượng game.
 - Xây dựng bản đồ màn chơi từ tệp cấu hình.			
@@ -57,10 +57,11 @@ DEMO
 ## Gói tính năng tùy chọn
 - Sử dụng Git trong nhóm.
 - Sử dụng thuật toán tìm đường BFS cho **Enemy**.
+- Sử dụng thuật toán A* để tìm đường cho AI
 - Cài đặt đa dạng **Enemy** và **Item**.
 - Xử lý hiệu ứng âm thanh.
+- Thêm **BOSS** với bộ kỹ năng ấn tượng
 - Cài đặt Menu cho trò chơi.
-- Lưu điểm cao nhất của người chơi (thao tác với tệp).
 ## Các công nghệ sử dụng
 - Ngôn ngữ: Java (JDK23).
 - Framework: JavaFx.
