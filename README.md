@@ -37,11 +37,11 @@ DEMO
 
 - ![](src/main/resources/assets/textures/powerup_life.png) **LifeItem** Khi sử dụng Item này Bomber sẽ được tăng thêm 1 mạng nữa.
 ### BOSS!!!
-- ![](src/main/resources/assets/textures/bossidle.gif) **BOSS** là kẻ đứng ở màn 4 có 3 skill đặc biệt nhưng không biết di chuyển.
+- ![](src/main/resources/assets/textures/bossidle.gif) **BOSS** là kẻ đứng ở màn 4 có 2 skill đặc biệt nhưng không biết di chuyển.
 
 ### Gameplay
 - Trong một màn chơi, **Bomber** sẽ được người chơi di chuyển, đặt và kích hoạt **Bomb** với mục tiêu chính là tiêu diệt tất cả **Enemy** và đi tới vị trí **Portal** để có thể qua level mới.
-- **Bomber** sẽ bị tiêu diệt khi va chạm với **Enemy**, thuộc phạm vi **Bomb** nổ, hoặc trúng skill của **BOSS**. Lúc đấy trò chơi kết thúc.
+- **Bomber** sẽ bị mất máu khi va chạm với **Enemy**, thuộc phạm vi **Bomb** nổ, hoặc trúng skill của **BOSS**. Khi HP == 0, lúc đấy trò chơi kết thúc.
 - **Enemy** bị tiêu diệt khi thuộc phạm vi Bomb nổ.
 - **BOSS** sẽ mất HP khi trúng **Bomb**
 ## Class Diagram
