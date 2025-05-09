@@ -69,6 +69,21 @@
                         <String fx:value="color-change" />
                     </styleClass>
                 </Button>
+            <Button alignment="CENTER" mnemonicParsing="false" onAction="#onCoopClicked" prefHeight="100.0" prefWidth="450.0" text="CO-OP" textFill="WHITE">
+               <font>
+                  <Font name="Press Start 2P" size="30.0" />
+               </font>
+               <stylesheets>
+                  <URL value="@../CSS/ZoomStyle.css" />
+                  <URL value="@../CSS/InvisibleStyle.css" />
+                  <URL value="@../CSS/ColorChange.css" />
+               </stylesheets>
+               <styleClass>
+                  <String fx:value="invisible-button" />
+                  <String fx:value="zoom-effect" />
+                  <String fx:value="color-change" />
+               </styleClass>
+            </Button>
                 <Button fx:id="autoPlayButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onAutoPlayClicked" prefHeight="100.0" prefWidth="450.0" text="AUTO PLAY: Off" textFill="WHITE">
                     <font>
                         <Font name="Press Start 2P" size="30.0" />
@@ -84,7 +99,7 @@
                         <String fx:value="zoom-effect" />
                     </styleClass>
                 </Button>
-                <Button fx:id="onExitClicked" alignment="CENTER" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="100.0" prefWidth="450.0" text="QUIT" textFill="WHITE">
+                <Button alignment="CENTER" mnemonicParsing="false" onAction="#onExitClicked" prefHeight="100.0" prefWidth="450.0" text="QUIT" textFill="WHITE">
                     <font>
                         <Font name="Press Start 2P" size="30.0" />
                     </font>

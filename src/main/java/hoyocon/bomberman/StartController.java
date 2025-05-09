@@ -147,5 +147,19 @@ public class StartController {
     private void onExitClicked(ActionEvent event) {
         Platform.exit();
     }
+
+    @FXML
+    private void onCoopClicked(ActionEvent event) {
+        cleanup(); // Dừng nhạc nếu có
+        try {
+            Parent lobbyView = FXMLLoader.load(getClass().getResource("/FXML/CoopLobby.fxml"));
+            Scene coopScene = new Scene(lobbyView, 1920, 1080);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(coopScene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
 // Thêm phương thức để clean up MediaPlayer khi không cần thiết

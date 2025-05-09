@@ -128,8 +128,8 @@ public class GMap {
     private void loadImages() {
         // Tải các hình ảnh cho map
         wallImage = new Image(getClass().getResourceAsStream("/assets/textures/wall.png"));
-        brickImage = new Image(getClass().getResourceAsStream("/assets/textures/brick.png"));
-        emptyImage = new Image(getClass().getResourceAsStream("/assets/textures/empty.png"));
+        brickImage = new Image(getClass().getResourceAsStream("/assets/textures/brick3.png"));
+        emptyImage = new Image(getClass().getResourceAsStream("/assets/textures/grass5.png"));
         exitImage = new Image(getClass().getResourceAsStream("/assets/textures/portal.png"));
         entranceImage = new Image(getClass().getResourceAsStream("/assets/textures/gate1.png"));
     }
