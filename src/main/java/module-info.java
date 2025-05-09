@@ -39,4 +39,8 @@ module hoyocon.bomberman {
     opens hoyocon.bomberman.api.controller to spring.beans, spring.context, spring.web;
     opens hoyocon.bomberman.api.entity to spring.core;
     opens hoyocon.bomberman.network to kryo;
+    exports hoyocon.bomberman.controller;
+    opens hoyocon.bomberman.controller to javafx.fxml;
+    exports hoyocon.bomberman.manager;
+    opens hoyocon.bomberman.manager to javafx.fxml;
 }

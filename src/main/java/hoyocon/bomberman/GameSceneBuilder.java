@@ -3,6 +3,8 @@ package hoyocon.bomberman;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.texture.AnimatedTexture;
 import com.almasb.fxgl.texture.AnimationChannel;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
 import hoyocon.bomberman.Camera.CameraFrog;
 import hoyocon.bomberman.Camera.CameraStorm;
 import hoyocon.bomberman.EntitiesState.State;
@@ -14,6 +16,9 @@ import hoyocon.bomberman.AI.PlayerAIController;
 
 import java.io.IOException;
 import java.util.*;
+
+import hoyocon.bomberman.network.GameClient;
+import hoyocon.bomberman.network.Network;
 import javafx.animation.AnimationTimer;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -22,6 +27,8 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -39,6 +46,7 @@ import hoyocon.bomberman.Buff.BuffGeneric;
 import hoyocon.bomberman.Map.GMap;
 import hoyocon.bomberman.StatusBar; // Thêm import cho StatusBar
 import javafx.util.Duration;
+
 
 public class GameSceneBuilder {
     public static PlayerAIController playerAI;
@@ -112,6 +120,8 @@ public class GameSceneBuilder {
     /** Danh sách quản lý các Pane explosion để kiểm tra va chạm */
     public static List<Pane> explosionEntities = new ArrayList<>();
     public static List<Pane> bombEntities = new ArrayList<>();
+
+    private static Map<String, Entity> remotePlayers;
 
     // Thay thế các danh sách riêng biệt bằng một Map để quản lý tất cả các loại kẻ địch
     public static Map<Class<? extends Enemy>, List<Entity>> enemyEntities = new HashMap<>();
@@ -188,7 +198,7 @@ public class GameSceneBuilder {
 
         // 2. Reset biến tĩnh về giá trị ban đầu
 //        Player.level = 1;      // nếu level là biến public static
-        Map1.MOBNUMS = 5;      // về số quái khởi tạo
+        Map1.MOBNUMS = 20;      // về số quái khởi tạo
 
         // 3. Xây dựng scene va camera mới từ vị trí start
         Scene scene = buildGameScene(GMap.TILE_SIZE, GMap.TILE_SIZE);
@@ -207,6 +217,301 @@ public class GameSceneBuilder {
 
         ((Pane)scene.getRoot()).requestFocus();
         return scene;
+    }
+
+    public static Scene buildMultiplayerGameScene(GameClient client) {
+        // 1. Dừng game loop và xóa sạch trạng thái cũ
+        if (gameLoop != null) {
+            gameLoop.stop();
+            SfxManager.stopWalk();
+        }
+        buffEntities.clear();
+        enemyEntities.clear();
+        allEnemyEntities.clear();
+        bombEntities.clear();
+        explosionEntities.clear();
+        initializeMusic();
+
+        // Reset translate của gameWorld
+        gameWorld = new Group();
+        gameWorld.setTranslateX(0);
+        gameWorld.setTranslateY(0);
+
+        // 2. Thiết lập ban đầu
+        Map1.MOBNUMS = 30;  // Giảm số lượng quái vật cho multiplayer
+
+        // 3. Xây dựng scene và trả về
+        Scene scene = buildMultiplayerMap(GMap.TILE_SIZE, GMap.TILE_SIZE, client);
+
+        if (camera != null) {
+            camera.reset();
+        }
+
+        return scene;
+    }
+
+    private static Scene buildMultiplayerMap(double startX, double startY, GameClient client) {
+        // Container chính cho toàn bộ scene
+        Pane gamePane = new Pane();
+        gamePane.setStyle("-fx-background-color: black;");
+
+        Pane gameWorldContainer = new Pane();
+        Pane uiPane = new Pane(); // UI layer for StatusBar
+        uiPane.setStyle("-fx-background-color: transparent;");
+
+        gameWorldContainer.getChildren().add(gameWorld);
+        gamePane.getChildren().addAll(gameWorldContainer, uiPane);
+        gamePane.setFocusTraversable(true);
+
+        // Tạo map đơn giản hơn cho multiplayer
+        GMap gameGMap = new GMap(Map1.getMapData(40, 30, 0.3f));
+        gameGMap.render();
+        gameWorld.getChildren().add(gameGMap.getCanvas());
+
+        // Tạo entity và thêm Player component cho người chơi local
+        Entity playerEntity = new Entity();
+        final Player playerComponent = new Player();
+        playerComponent.setGameMap(gameGMap);
+        playerEntity.addComponent(playerComponent);
+        playerEntity.setPosition(startX, startY);
+        gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
+        lastPlayer = playerComponent;
+
+        // Thêm thanh trạng thái
+        StatusBar statusBar = new StatusBar(playerComponent);
+        statusBar.setTranslateX(screenWidth - 270);
+        statusBar.setTranslateY(10);
+        uiPane.getChildren().add(statusBar);
+
+        // Thiết lập camera
+        int worldWidth = gameGMap.width * (int)GMap.TILE_SIZE;
+        int worldHeight = gameGMap.height * (int)GMap.TILE_SIZE;
+        camera = new Camera(gameWorld, playerEntity.getViewComponent().getParent(),
+                (int)screenWidth, (int)screenHeight, worldWidth, worldHeight);
+
+        // Khởi tạo NetworkMultiplayerManager để xử lý logic multiplayer
+        initializeMultiplayerManager(client, playerEntity, gamePane, gameGMap);
+
+        Scene scene = new Scene(gamePane, screenWidth, screenHeight);
+
+        // Xử lý input đặc biệt cho multiplayer
+        setupMultiplayerInputHandlers(gamePane, playerComponent, gameGMap, uiPane, client);
+
+        // Start game loop với xử lý multiplayer
+        startMultiplayerGameLoop(gamePane, playerComponent, gameGMap);
+
+        return scene;
+    }
+
+    private static void handlePlayerMove(Network.PlayerMove move, String localPlayerName, Pane gamePane, GMap gameMap) {
+        if (!move.playerName.equals(localPlayerName)) {
+            Entity remotePlayerEntity = getOrCreateRemotePlayer(move.playerName, gamePane, gameMap);
+
+            // Di chuyển người chơi từ xa theo hướng
+            Player remotePlayer = remotePlayerEntity.getComponent(Player.class);
+            switch (move.direction) {
+                case 0: // UP
+                    remotePlayer.moveUp(1.0/60.0);
+                    break;
+                case 1: // RIGHT
+                    remotePlayer.moveRight(1.0/60.0);
+                    break;
+                case 2: // DOWN
+                    remotePlayer.moveDown(1.0/60.0);
+                    break;
+                case 3: // LEFT
+                    remotePlayer.moveLeft(1.0/60.0);
+                    break;
+            }
+        }
+    }
+
+    // Xử lý đặt bom của người chơi khác
+    private static void handlePlaceBomb(Network.PlaceBomb bomb, String localPlayerName, Pane gamePane, GMap gameMap) {
+        if (!bomb.playerName.equals(localPlayerName)) {
+            Entity remotePlayerEntity = getOrCreateRemotePlayer(bomb.playerName, gamePane, gameMap);
+            Player remotePlayer = remotePlayerEntity.getComponent(Player.class);
+            remotePlayer.placeBomb(gamePane);
+        }
+    }
+
+    // Xử lý khi có người chơi mới tham gia
+    private static void handlePlayerJoined(Network.PlayerJoined joined, Pane gamePane) {
+        System.out.println("Người chơi mới tham gia: " + joined.playerName);
+    }
+
+    // Tạo hoặc lấy entity của người chơi từ xa
+    private static Entity getOrCreateRemotePlayer(String name, Pane gamePane, GMap gameMap) {
+        if (!remotePlayers.containsKey(name)) {
+            // Tạo entity mới cho người chơi từ xa
+            Entity playerEntity = new Entity();
+            Player playerComponent = new Player();
+            playerComponent.setGameMap(gameMap);
+            playerEntity.addComponent(playerComponent);
+
+            // Vị trí bắt đầu ở góc đối diện với người chơi local
+            playerEntity.setPosition(gameMap.width * GMap.TILE_SIZE - GMap.TILE_SIZE * 2,
+                    gameMap.height * GMap.TILE_SIZE - GMap.TILE_SIZE * 2);
+
+            // Thêm vào game world
+            gameWorld.getChildren().add(playerEntity.getViewComponent().getParent());
+
+            // Lưu vào map
+            remotePlayers.put(name, playerEntity);
+
+            return playerEntity;
+        }
+        return remotePlayers.get(name);
+    }
+
+    // Thiết lập xử lý input cho multiplayer
+    private static void setupMultiplayerInputHandlers(Pane gamePane, Player playerComponent,
+                                                      GMap gameMap, Pane uiPane, GameClient client) {
+        gamePane.setOnKeyPressed(event -> {
+            if (playerComponent.getState() != State.DEAD) {
+                switch (event.getCode()) {
+                    case UP:
+                    case W:
+                        isUpPressed = true;
+                        playerComponent.moveUp(1.0/60.0);
+                        sendPlayerMove(client, 0);
+                        break;
+                    case RIGHT:
+                    case D:
+                        isRightPressed = true;
+                        playerComponent.moveRight(1.0/60.0);
+                        sendPlayerMove(client, 1);
+                        break;
+                    case DOWN:
+                    case S:
+                        isDownPressed = true;
+                        playerComponent.moveDown(1.0/60.0);
+                        sendPlayerMove(client, 2);
+                        break;
+                    case LEFT:
+                    case A:
+                        isLeftPressed = true;
+                        playerComponent.moveLeft(1.0/60.0);
+                        sendPlayerMove(client, 3);
+                        break;
+                    case SPACE:
+                        playerComponent.placeBomb(gamePane);
+                        // Gửi thông tin đặt bom qua mạng
+                        sendPlaceBomb(client,
+                                GMap.pixelToTile(playerComponent.getEntity().getY()),
+                                GMap.pixelToTile(playerComponent.getEntity().getX()));
+                        break;
+                }
+            }
+
+            // Always allow ESC key regardless of player state
+            if (event.getCode() == KeyCode.ESCAPE) {
+                if (gameLoop != null) gameLoop.stop();
+                SfxManager.stopWalk();
+                showPauseMenu(uiPane);
+            }
+        });
+
+        // Xử lý khi thả phím
+        gamePane.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.W) {
+                isUpPressed = false;
+            } else if (event.getCode() == KeyCode.S) {
+                isDownPressed = false;
+            } else if (event.getCode() == KeyCode.A) {
+                isLeftPressed = false;
+            } else if (event.getCode() == KeyCode.D) {
+                isRightPressed = false;
+            }
+
+            if (!isUpPressed && !isDownPressed && !isLeftPressed && !isRightPressed) {
+                playerComponent.stop();
+            }
+        });
+    }
+
+    // Gửi tin nhắn di chuyển qua mạng
+    private static void sendPlayerMove(GameClient client, int direction) {
+        if (client != null && client.isConnected()) {
+            Network.PlayerMove move = new Network.PlayerMove();
+            move.playerName = client.getPlayerName();
+            move.direction = direction;
+            client.getClient().sendTCP(move);
+        }
+    }
+
+    // Gửi tin nhắn đặt bom qua mạng
+    private static void sendPlaceBomb(GameClient client, int row, int col) {
+        if (client != null && client.isConnected()) {
+            Network.PlaceBomb bomb = new Network.PlaceBomb();
+            bomb.playerName = client.getPlayerName();
+            bomb.row = row;
+            bomb.col = col;
+            client.getClient().sendTCP(bomb);
+        }
+    }
+
+    // Game loop cho chế độ multiplayer
+    private static void startMultiplayerGameLoop(Pane gamePane, Player playerComponent, GMap gameMap) {
+        gameLoop = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                // Cập nhật camera
+                if (camera != null) {
+                    camera.update();
+                }
+
+                // Cập nhật người chơi local
+                playerComponent.onUpdate(1.0 / 60.0);
+
+                // Cập nhật người chơi từ xa
+                if (remotePlayers != null) {
+                    for (Entity remotePlayerEntity : remotePlayers.values()) {
+                        if (remotePlayerEntity.hasComponent(Player.class)) {
+                            remotePlayerEntity.getComponent(Player.class).onUpdate(1.0 / 60.0);
+                        }
+                    }
+                }
+
+                // Xử lý va chạm
+                processCollisions(playerComponent, gamePane);
+            }
+        };
+        gameLoop.start();
+    }
+
+    private static void processCollisions(Player playerComponent, Pane gamePane) {
+
+    }
+
+    private static void initializeMultiplayerManager(GameClient client, Entity playerEntity, Pane gamePane, GMap gameMap) {
+        // Lấy tên người chơi từ client
+        String playerName = client.getPlayerName();
+
+        // Tạo hashmap để lưu trữ người chơi từ xa
+        if (remotePlayers == null) {
+            remotePlayers = new HashMap<>();
+        } else {
+            remotePlayers.clear();
+        }
+
+        // Thiết lập listener cho tin nhắn từ server
+        client.addListener(new Listener() {
+            @Override
+            public void received(Connection connection, Object object) {
+                Platform.runLater(() -> {
+                    if (object instanceof Network.PlayerMove) {
+                        handlePlayerMove((Network.PlayerMove) object, playerName, gamePane, gameMap);
+                    }
+                    else if (object instanceof Network.PlaceBomb) {
+                        handlePlaceBomb((Network.PlaceBomb) object, playerName, gamePane, gameMap);
+                    }
+                    else if (object instanceof Network.PlayerJoined) {
+                        handlePlayerJoined((Network.PlayerJoined) object, gamePane);
+                    }
+                });
+            }
+        });
     }
 
     private static Scene buildGameScene(double startX, double startY) {
