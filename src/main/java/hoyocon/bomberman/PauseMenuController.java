@@ -85,7 +85,7 @@ public class PauseMenuController {
                 "Are you sure you want to exit the game?",
                 () -> {
                     if (gameLoop != null) gameLoop.stop();
-                    SfxManager.stopWalk();
+//                    SfxManager.stopWalk();
                     Platform.exit();
                 }
         );

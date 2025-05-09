@@ -171,7 +171,11 @@ public class GameSceneBuilder {
         // 1. Dừng game loop và xóa sạch trạng thái cũ
         if (gameLoop != null) {
             gameLoop.stop();
-            SfxManager.stopWalk();
+//            SfxManager.stopWalk();
+        }
+        if (cameraStorm != null) {
+            cameraStorm.stopStorm();
+            cameraStorm = null;
         }
         buffEntities.clear();
         enemyEntities.clear();
@@ -386,7 +390,7 @@ public class GameSceneBuilder {
                     worldWidth,
                     worldHeight
             );
-        } else if (Player.getLevel() % 3 == 0 || Player.getLevel() % 5 == 0 ) {
+        } else if (Player.getLevel() % 3 == 0 || Player.getLevel() % 4 == 0 ) {
             camera = null;
             cameraFrog = null;
             cameraStorm = new CameraStorm(fogPane,
@@ -444,10 +448,10 @@ public class GameSceneBuilder {
                 }
 
                 if (moved && !wasMoving) {
-                    SfxManager.playWalk();
+//                    SfxManager.playWalk();
                     wasMoving = true;
                 } else if (!moved && wasMoving) {
-                    SfxManager.stopWalk();
+//                    SfxManager.stopWalk();
                     wasMoving = false;
                 }
 
@@ -511,60 +515,60 @@ public class GameSceneBuilder {
 
 
                 // Player vs Flame
-                for (Pane flamePane : explosionEntities) {
-                    Bounds flameBounds = flamePane.getBoundsInParent();
-                    double shrink = 2; // số pixel muốn thu nhỏ mỗi cạnh
-                    Bounds customFlameBounds = new BoundingBox(
-                            flameBounds.getMinX() + shrink,
-                            flameBounds.getMinY() + shrink,
-                            Math.max(0, flameBounds.getWidth() - 2 * shrink),
-                            Math.max(0, flameBounds.getHeight() - 2 * shrink)
-                    );
-                    if (customFlameBounds.intersects(playerBounds)) {
-                        if (!playerComponent.isInvincible()&& !playerComponent.isFlamePassActive() && playerComponent.getState() != State.DEAD) {
-                            playerComponent.setState(State.DEAD);
-                            if (playerComponent.hit()) {
-                                pauseBackgroundMusic();
-                                playGameOverMusic();
-                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
-                                deathDelay.setOnFinished(event -> {
-                                    stop(); // Stop game loop after animation completes
-
-                                    try {
-                                        Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/FXML/GameOver.fxml"));
-                                        Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
-
-                                        // Add null check before accessing window/stage
-                                        if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
-                                            Stage stage = (Stage) gamePane.getScene().getWindow();
-                                            stage.setScene(gameOverScene);
-                                        } else {
-                                            System.err.println("Cannot show game over screen: Scene or Window is null");
-                                        }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                });
-                                deathDelay.play();
-                            } else {
-                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
-                                deathDelay.setOnFinished(event -> {
-                                    // Khôi phục vị trí ban đầu
-                                    playerEntity.setPosition(48, 48);
-
-                                    // Trigger invincibility sau khi hồi sinh
-                                    playerComponent.triggerInvincibility();
-
-                                    // Đặt lại trạng thái
-                                    playerComponent.setState(State.IDLE);
-                                    playerAI.resetAIState();
-
-                                });
-                                deathDelay.play();
-                            }
-                        }
-                    }
-                }
+//                for (Pane flamePane : explosionEntities) {
+//                    Bounds flameBounds = flamePane.getBoundsInParent();
+//                    double shrink = 2; // số pixel muốn thu nhỏ mỗi cạnh
+//                    Bounds customFlameBounds = new BoundingBox(
+//                            flameBounds.getMinX() + shrink,
+//                            flameBounds.getMinY() + shrink,
+//                            Math.max(0, flameBounds.getWidth() - 2 * shrink),
+//                            Math.max(0, flameBounds.getHeight() - 2 * shrink)
+//                    );
+//                    if (customFlameBounds.intersects(playerBounds)) {
+//                        if (!playerComponent.isInvincible()&& !playerComponent.isFlamePassActive() && playerComponent.getState() != State.DEAD) {
+//                            playerComponent.setState(State.DEAD);
+//                            if (playerComponent.hit()) {
+//                                pauseBackgroundMusic();
+//                                playGameOverMusic();
+//                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1)); // Adjust time as needed
+//                                deathDelay.setOnFinished(event -> {
+//                                    stop(); // Stop game loop after animation completes
+//
+//                                    try {
+//                                        Parent root = FXMLLoader.load(GameSceneBuilder.class.getResource("/FXML/GameOver.fxml"));
+//                                        Scene gameOverScene = new Scene(root, screenWidth, screenHeight);
+//
+//                                        // Add null check before accessing window/stage
+//                                        if (gamePane.getScene() != null && gamePane.getScene().getWindow() != null) {
+//                                            Stage stage = (Stage) gamePane.getScene().getWindow();
+//                                            stage.setScene(gameOverScene);
+//                                        } else {
+//                                            System.err.println("Cannot show game over screen: Scene or Window is null");
+//                                        }
+//                                    } catch (Exception e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                });
+//                                deathDelay.play();
+//                            } else {
+//                                PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.0));
+//                                deathDelay.setOnFinished(event -> {
+//                                    // Khôi phục vị trí ban đầu
+//                                    playerEntity.setPosition(48, 48);
+//
+//                                    // Trigger invincibility sau khi hồi sinh
+//                                    playerComponent.triggerInvincibility();
+//
+//                                    // Đặt lại trạng thái
+//                                    playerComponent.setState(State.IDLE);
+//                                    playerAI.resetAIState();
+//
+//                                });
+//                                deathDelay.play();
+//                            }
+//                        }
+//                    }
+//                }
 
                 // Flame vs Enemy (với animation chết)
                 for (Pane flamePane : explosionEntities) {
@@ -702,7 +706,7 @@ public class GameSceneBuilder {
             // Always allow ESC key regardless of player state
             if (event.getCode() == KeyCode.ESCAPE) {
                 if (gameLoop != null) gameLoop.stop();
-                SfxManager.stopWalk();
+//                SfxManager.stopWalk();
                 showPauseMenu(uiPane);
             }
         });
@@ -773,7 +777,7 @@ public class GameSceneBuilder {
 
         // 1. Dừng gameLoop và pause tất cả Transitions/Timers
         if (gameLoop != null) {
-            SfxManager.stopWalk();
+//            SfxManager.stopWalk();
             gameLoop.stop();
         }
         pauseAll();
@@ -835,6 +839,8 @@ public class GameSceneBuilder {
         try {
             String musicFile;
             if(Player.getLevel() % 4 == 0)  musicFile = "/assets/music/boss_theme.mp3";
+            else if (Player.getLevel() % 3 == 0) musicFile = "/assets/music/storm_theme.mp3";
+            else if (Player.getLevel() % 2 == 0) musicFile = "/assets/music/fog_theme.mp3";
             else  musicFile = "/assets/music/battle-theme.mp3"; // Path to music file in resources folder
             Media backgroundMusic = new Media(GameSceneBuilder.class.getResource(musicFile).toExternalForm());
             backgroundMusicPlayer = new MediaPlayer(backgroundMusic);
