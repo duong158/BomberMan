@@ -35,7 +35,7 @@ public class Boss extends Component {
     private GMap gameMap;    // Reference to the game map for collision detection
 
     // Combat properties
-    private int health = 150;
+    private int health = 10;
     private boolean isAlive = true;
     private boolean isAttacking = false;
     private long lastAttackTime = 0;
@@ -143,15 +143,14 @@ public class Boss extends Component {
             System.err.println("Could not play boss attack sound");
         }
 
-        // Create flames at random positions
-        int numberOfFlames = 5; // Number of central flames
-        for (int i = 0; i < numberOfFlames; i++) {
-            createRandomFlameWithSpread();
-        }
-
         // Return to idle state after attack animation completes
-        PauseTransition idleTransition = new PauseTransition(Duration.seconds(1.5));
+        PauseTransition idleTransition = new PauseTransition(Duration.seconds(1.2));
         idleTransition.setOnFinished(e -> {
+            // Create flames at random positions
+            int numberOfFlames = 5; // Number of central flames
+            for (int i = 0; i < numberOfFlames; i++) {
+                createRandomFlameWithSpread();
+            }
             isAttacking = false;
             if (isAlive) {
                 playIdle();
@@ -419,10 +418,11 @@ public class Boss extends Component {
         System.out.println("Boss đã chết!");
 
         // Hẹn xóa boss sau khi animation chết hoàn thành
-        PauseTransition deathDelay = new PauseTransition(Duration.seconds(1.5));
+        PauseTransition deathDelay = new PauseTransition(Duration.seconds(2.2));
         deathDelay.setOnFinished(e -> {
-            gamePane.getChildren().remove(currentView);
-            gameWorld.getChildren().remove(currentView);
+            gamePane.getChildren().remove(entity.getViewComponent().getParent());
+            gameWorld.getChildren().remove(entity.getViewComponent().getParent());
+            entity.removeFromWorld();
         });
         deathDelay.play();
     }

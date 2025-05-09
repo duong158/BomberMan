@@ -1,5 +1,9 @@
 package hoyocon.bomberman.Camera;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -15,10 +19,6 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 public class CameraStorm {
 
@@ -53,6 +53,8 @@ public class CameraStorm {
     private double shakeIntensity = 0;
     private double shakeDuration = 0;
     private double currentShakeTime = 0;
+    private double originalX = 0;
+    private double originalY = 0;
 
     private final Random random = new Random();
 
@@ -224,9 +226,14 @@ public class CameraStorm {
 
     private void handleFlash(double tx, double ty) {
         if (lightningPhaseTimer == 0) {
-            startShake(500, 0.3);
-            int count = 3 + random.nextInt(3);
-            // Select clip by bolt count
+            int count = 3 + random.nextInt(3); // số tia sét (3 đến 5)
+
+            // Rung theo số lượng tia sét
+            double intensity = 10 + count * 165;
+            double duration = 0.1 + count * 0.2;
+            startShake(intensity, duration);
+
+            // Chọn âm thanh phù hợp
             AudioClip clipToPlay;
             if (count <= 3) clipToPlay = thunderSoft;
             else if (count == 4) clipToPlay = thunderMedium;
@@ -235,24 +242,29 @@ public class CameraStorm {
                 double volume = Math.min(1.0, 0.2 + 0.3 * (count - 1));
                 clipToPlay.play(volume);
             }
+
+            // Tạo các tia sét
             for (int i = 0; i < count; i++) {
                 Point2D start = randomStartPoint();
                 double angle = random.nextDouble() * 2 * Math.PI;
                 double radius = minStrikeRadius + random.nextDouble() * (maxStrikeRadius - minStrikeRadius);
-                double endX =	tx + Math.cos(angle) * radius;
-                double endY =	ty + Math.sin(angle) * radius;
-                bolts.add(generateFractalBolt(start.getX(),	start.getY(), endX, endY, 6, screenHeight / 3.0));
+                double endX = tx + Math.cos(angle) * radius;
+                double endY = ty + Math.sin(angle) * radius;
+                bolts.add(generateFractalBolt(start.getX(), start.getY(), endX, endY, 6, screenHeight / 3.0));
                 boltLives.add(0.2);
             }
         }
+
         lightningPhaseTimer += 1.0 / 60.0;
-        if (lightningPhaseTimer < 0.12) lightningFlash.setFill(Color.color(1, 1, 1, 0.8));
+        if (lightningPhaseTimer < 0.12)
+            lightningFlash.setFill(Color.color(1, 1, 1, 0.8));
         else {
             lightningPhase = LightningPhase.RECOVER;
             lightningPhaseTimer = 0;
             lightningFlash.setFill(Color.TRANSPARENT);
         }
     }
+
 
     private void handleRecover() {
         lightningPhaseTimer += 1.0 / 60.0;
@@ -273,10 +285,25 @@ public class CameraStorm {
     private void applyShake(double tx, double ty) {
         currentShakeTime += 1.0 / 60.0;
         if (currentShakeTime < shakeDuration) {
-            tx += (random.nextDouble() * 2 - 1) * shakeIntensity;
-            ty += (random.nextDouble() * 2 - 1) * shakeIntensity;
+            // Thay vì làm nhiễu tx, ty, ta thực hiện rung trực tiếp trên world
+            double offsetX = (random.nextDouble() * 2 - 1) * shakeIntensity;
+            double offsetY = (random.nextDouble() * 2 - 1) * shakeIntensity;
+            
+            // Đặt vị trí world dựa trên vị trí gốc + offset
+            world.setTranslateX(originalX + offsetX);
+            world.setTranslateY(originalY + offsetY);
+            
+            // Giảm dần cường độ
             shakeIntensity *= 0.9;
-        } else isShaking = false;
+            
+            // Không cập nhật tx, ty vì ta đã điều khiển trực tiếp
+            return;
+        } else {
+            isShaking = false;
+            // Quay về vị trí gốc sau khi rung xong
+            world.setTranslateX(originalX);
+            world.setTranslateY(originalY);
+        }
     }
 
     private List<Point2D> generateFractalBolt(double x1, double y1, double x2, double y2, int depth, double disp) {
@@ -316,6 +343,8 @@ public class CameraStorm {
         shakeIntensity = i;
         shakeDuration = d;
         currentShakeTime = 0;
+        this.originalX = world.getTranslateX();
+        this.originalY = world.getTranslateY();
     }
 
     public void reset() {

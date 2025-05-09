@@ -1,5 +1,6 @@
 package hoyocon.bomberman;
 
+import hoyocon.bomberman.Object.Player;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -103,6 +104,7 @@ public class PauseMenuController {
                     GameSceneBuilder.resetMusic();
                     GameSceneBuilder.hidePauseMenu(uiPane);
                     try {
+                        Player.setLevel(1);
                         // Load the main Start view
                         Parent startView = FXMLLoader.load(
                                 getClass().getResource("/FXML/Start-view.fxml")
