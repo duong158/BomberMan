@@ -64,6 +64,7 @@ public class CameraStorm {
     private int flickerCount = 0;
     private int maxFlickers = 0;
     private double nextFlickerTime = 0;
+    private AnimationTimer timer;
 
     public CameraStorm(Pane fogPane, Group world, Node target,
                        int screenWidth, int screenHeight,
@@ -120,12 +121,13 @@ public class CameraStorm {
     }
 
     private void start() {
-        new AnimationTimer() {
+        timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 update();
             }
-        }.start();
+        };
+        timer.start();
     }
 
     public void update() {
@@ -338,18 +340,11 @@ public class CameraStorm {
         void update() { x += dx * s; y += dy * s; if (y > h || x < 0) reset(); }
     }
 
-    public void stopAudio() {
-        if (rainClip != null) {
-            rainClip.stop();
-        }
-        if (thunderSoft != null) {
-            thunderSoft.stop();
-        }
-        if (thunderMedium != null) {
-            thunderMedium.stop();
-        }
-        if (thunderStrong != null) {
-            thunderStrong.stop();
-        }
+    public void stopStorm() {
+        if (rainClip != null) rainClip.stop();
+        if (thunderSoft != null) thunderSoft.stop();
+        if (thunderMedium != null) thunderMedium.stop();
+        if (thunderStrong != null) thunderStrong.stop();
+        if (timer != null) timer.stop();
     }
 }

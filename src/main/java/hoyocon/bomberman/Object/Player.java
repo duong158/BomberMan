@@ -732,7 +732,7 @@ public class Player extends Component {
 //            SfxManager.stopWalk();
         }
         if (cameraStorm != null) {
-            cameraStorm.stopAudio();
+            cameraStorm.stopStorm();
         }
 
         // Làm sạch danh sách thực thể và trạng thái

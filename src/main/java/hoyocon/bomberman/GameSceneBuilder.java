@@ -173,6 +173,10 @@ public class GameSceneBuilder {
             gameLoop.stop();
 //            SfxManager.stopWalk();
         }
+        if (cameraStorm != null) {
+            cameraStorm.stopStorm();
+            cameraStorm = null;
+        }
         buffEntities.clear();
         enemyEntities.clear();
         allEnemyEntities.clear();
