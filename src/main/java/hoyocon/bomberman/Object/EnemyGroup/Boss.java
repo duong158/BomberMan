@@ -35,7 +35,7 @@ public class Boss extends Component {
     private GMap gameMap;    // Reference to the game map for collision detection
 
     // Combat properties
-    private int health = 1;
+    private int health = 20;
     private boolean isAlive = true;
     private boolean isAttacking = false;
     private long lastAttackTime = 0;
