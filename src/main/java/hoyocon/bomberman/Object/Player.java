@@ -731,6 +731,9 @@ public class Player extends Component {
             GameSceneBuilder.gameLoop.stop();
 //            SfxManager.stopWalk();
         }
+        if (cameraStorm != null) {
+            cameraStorm.stopAudio();
+        }
 
         // Làm sạch danh sách thực thể và trạng thái
         GameSceneBuilder.buffEntities.clear();
