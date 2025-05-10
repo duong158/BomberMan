@@ -65,6 +65,11 @@ public class GameServer {
                     Network.StartGameSignal signal = new Network.StartGameSignal();
                     server.sendToAllTCP(signal);
                 }
+                // Thêm vào GameServer.java trong phương thức received
+                else if (object instanceof Network.PlayerMove || object instanceof Network.PlaceBomb) {
+                    // Chuyển tiếp tin nhắn đến tất cả client khác
+                    server.sendToAllExceptTCP(connection.getID(), object);
+                }
             }
         });
 

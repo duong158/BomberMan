@@ -1,13 +1,14 @@
 package hoyocon.bomberman.manager;
 
+import com.almasb.fxgl.entity.Entity;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import hoyocon.bomberman.Map.GMap;
+import hoyocon.bomberman.Object.Player;
 import hoyocon.bomberman.network.GameClient;
 import hoyocon.bomberman.network.Network;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +18,10 @@ public class NetworkGameManager {
 
     private GameClient client;
     private String playerName;
-    private Map<String, RemotePlayerView> remotePlayers = new HashMap<>();
+    private Entity localPlayer;
+    private Map<String, Entity> remotePlayers = new HashMap<>();
     private Pane gamePane;
+    private GMap gameMap;
 
     // Singleton pattern
     public static NetworkGameManager getInstance() {
@@ -30,36 +33,32 @@ public class NetworkGameManager {
 
     private NetworkGameManager() {}
 
-    public void initialize(GameClient client, String playerName, Pane gamePane) {
+    public void initialize(GameClient client, String playerName, Entity localPlayer, Pane gamePane, GMap gameMap) {
         this.client = client;
         this.playerName = playerName;
+        this.localPlayer = localPlayer;
         this.gamePane = gamePane;
-        setupNetworkListener();
+        this.gameMap = gameMap;
+
+        setupListeners();
     }
 
-    private void setupNetworkListener() {
-        if (client != null) {
-            client.getClient().addListener(new Listener() {
-                @Override
-                public void received(Connection connection, Object object) {
-                    Platform.runLater(() -> {
-                        // Xử lý các tin nhắn từ server
-                        if (object instanceof Network.PlayerMove) {
-                            handlePlayerMove((Network.PlayerMove) object);
-                        }
-                        else if (object instanceof Network.PlaceBomb) {
-                            handlePlaceBomb((Network.PlaceBomb) object);
-                        }
-                        else if (object instanceof Network.BombExplode) {
-                            handleBombExplode((Network.BombExplode) object);
-                        }
-                    });
-                }
-            });
-        }
+    private void setupListeners() {
+        client.addListener(new Listener() {
+            @Override
+            public void received(Connection connection, Object object) {
+                Platform.runLater(() -> {
+                    if (object instanceof Network.PlayerMove) {
+                        handlePlayerMove((Network.PlayerMove) object);
+                    }
+                    else if (object instanceof Network.PlaceBomb) {
+                        handlePlaceBomb((Network.PlaceBomb) object);
+                    }
+                });
+            }
+        });
     }
 
-    // Gửi tin nhắn di chuyển
     public void sendPlayerMove(int direction) {
         if (client != null && client.isConnected()) {
             Network.PlayerMove move = new Network.PlayerMove();
@@ -69,7 +68,6 @@ public class NetworkGameManager {
         }
     }
 
-    // Gửi tin nhắn đặt bom
     public void sendPlaceBomb(int row, int col) {
         if (client != null && client.isConnected()) {
             Network.PlaceBomb bomb = new Network.PlaceBomb();
@@ -80,102 +78,58 @@ public class NetworkGameManager {
         }
     }
 
-    // Xử lý khi nhận được tin nhắn di chuyển từ người chơi khác
     private void handlePlayerMove(Network.PlayerMove move) {
-        // Chỉ xử lý tin nhắn từ người chơi khác
+        // Xử lý khi nhận được thông tin di chuyển từ người chơi khác
         if (!move.playerName.equals(playerName)) {
-            RemotePlayerView player = getOrCreateRemotePlayer(move.playerName);
+            Entity remotePlayer = getOrCreateRemotePlayer(move.playerName);
+            Player playerComponent = remotePlayer.getComponent(Player.class);
 
-            // Cập nhật vị trí
             switch (move.direction) {
                 case 0: // UP
-                    player.moveUp();
+                    playerComponent.moveUp(1.0/60.0);
                     break;
                 case 1: // RIGHT
-                    player.moveRight();
+                    playerComponent.moveRight(1.0/60.0);
                     break;
                 case 2: // DOWN
-                    player.moveDown();
+                    playerComponent.moveDown(1.0/60.0);
                     break;
                 case 3: // LEFT
-                    player.moveLeft();
+                    playerComponent.moveLeft(1.0/60.0);
                     break;
             }
         }
     }
 
-    // Xử lý khi nhận được tin nhắn đặt bom
     private void handlePlaceBomb(Network.PlaceBomb bomb) {
+        // Xử lý khi nhận được thông tin đặt bom từ người chơi khác
         if (!bomb.playerName.equals(playerName)) {
-            // Thêm code để tạo bom tại vị trí bomb.row, bomb.col
-            System.out.println("Người chơi " + bomb.playerName + " đặt bom tại " + bomb.row + "," + bomb.col);
-            // Gọi phương thức tạo bom trong game của bạn
+            Entity remotePlayer = getOrCreateRemotePlayer(bomb.playerName);
+            Player playerComponent = remotePlayer.getComponent(Player.class);
+            playerComponent.placeBomb(gamePane);
         }
     }
 
-    // Xử lý khi nhận được tin nhắn bom nổ
-    private void handleBombExplode(Network.BombExplode explosion) {
-        // Thêm code để tạo hiệu ứng nổ
-        System.out.println("Bom nổ tại " + explosion.row + "," + explosion.col + " với phạm vi " + explosion.range);
-        // Gọi phương thức tạo hiệu ứng nổ trong game của bạn
-    }
-
-    // Lấy hoặc tạo mới đối tượng hiển thị người chơi từ xa
-    private RemotePlayerView getOrCreateRemotePlayer(String name) {
+    private Entity getOrCreateRemotePlayer(String name) {
+        // Tạo người chơi từ xa nếu chưa tồn tại
         if (!remotePlayers.containsKey(name)) {
-            RemotePlayerView player = new RemotePlayerView(name, gamePane);
-            remotePlayers.put(name, player);
-            return player;
+            Entity playerEntity = new Entity();
+            Player playerComponent = new Player();
+            playerComponent.setGameMap(gameMap);
+            playerEntity.addComponent(playerComponent);
+
+            // Đặt người chơi ở góc đối diện
+            playerEntity.setPosition(
+                gameMap.width * GMap.TILE_SIZE - GMap.TILE_SIZE * 2,
+                gameMap.height * GMap.TILE_SIZE - GMap.TILE_SIZE * 2
+            );
+
+            // Thêm vào scene
+            gamePane.getChildren().add(playerEntity.getViewComponent().getParent());
+
+            remotePlayers.put(name, playerEntity);
         }
+
         return remotePlayers.get(name);
-    }
-
-    // Lớp hiển thị người chơi từ xa
-    private class RemotePlayerView {
-        private String name;
-        private Pane gamePane;
-        private Rectangle playerRect;
-        private double x = 100;
-        private double y = 100;
-        private double speed = 5.0;
-
-        public RemotePlayerView(String name, Pane gamePane) {
-            this.name = name;
-            this.gamePane = gamePane;
-
-            // Tạo hình chữ nhật đại diện cho người chơi từ xa
-            playerRect = new Rectangle(32, 32);
-            playerRect.setFill(Color.RED);
-            playerRect.setTranslateX(x);
-            playerRect.setTranslateY(y);
-
-            // Thêm vào gamePane
-            Platform.runLater(() -> gamePane.getChildren().add(playerRect));
-        }
-
-        public void moveUp() {
-            y -= speed;
-            updatePosition();
-        }
-
-        public void moveDown() {
-            y += speed;
-            updatePosition();
-        }
-
-        public void moveLeft() {
-            x -= speed;
-            updatePosition();
-        }
-
-        public void moveRight() {
-            x += speed;
-            updatePosition();
-        }
-
-        private void updatePosition() {
-            playerRect.setTranslateX(x);
-            playerRect.setTranslateY(y);
-        }
     }
 }
